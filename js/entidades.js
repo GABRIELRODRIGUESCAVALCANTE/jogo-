@@ -190,7 +190,7 @@ function atualizaMula(m,dt,hp,wb){
     if(m.state==='stun'){
       m.hp=Math.max(0,m.hp-heroi.dano); m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08; burst(m.x,m.y-8,'#ffd23a',6,50); updateHud();
       if(m.hp<=0) fase.vencerChefe();
-      else if(!m.furia && m.hp<=3){ m.furia=true; toast('A Mula se enfureceu! Agora ela cospe fogo quando se levanta.',3.4); }
+      else if(!m.furia && m.hp<=3){ m.furia=true; toast(t('toast.mulaFuria'),3.4); }
     }
     else { sfx.clink(); burst(m.x,m.y-8,'#9aa0a8',4,40); }
   }
@@ -285,14 +285,14 @@ function drawCaboclo(c){
   S('#cfe7f2',x-7,y,14,1); S('#8cc4d8',x-9,y+1,18,1);
 }
 const CHEFES={
-  mula:{nome:'Mula sem Cabeça',
+  mula:{get nome(){ return t('chefe.mula'); },
     criar:()=>({tipo:'mula', x:24*T+8, y:5*T+8, w:22, h:10, hp:6, max:6, state:'idle', t:1.5, dir:-1, vx:0, vy:0, fireT:0, flash:0, anim:0, active:false, dead:false, lastSwing:-1, furia:false}),
     caixa:m=>({x:m.x,y:m.y-5,w:24,h:14}), update:atualizaMula, draw:drawMula, visivel:m=>!m.dead},
-  caboclo:{nome:"Caboclo d'água",
+  caboclo:{get nome(){ return t('chefe.caboclo'); },
     criar:def=>{ const spots=pocos(def.zona), s=spots[0]; return {tipo:'caboclo', x:s.x, y:s.y, w:14, h:8, hp:4, max:4, estado:'fundo', t:1, alvo:null, spots, active:false, dead:false, lastSwing:-1, flash:0, anim:0, tiros:0, braco:0, face:1}; },
     caixa:c=>({x:c.x,y:c.y-8,w:16,h:18}), update:atualizaCaboclo, draw:drawCaboclo, visivel:c=>c.active&&!c.dead},
 };
-const criarChefe=def=>{ const c=CHEFES[def.tipo].criar(def); c.nome=CHEFES[def.tipo].nome; return c; };
+const criarChefe=def=>CHEFES[def.tipo].criar(def);
 
 /* ---------- ITENS, FOGO E TIROS ---------- */
 function drawItem(it){

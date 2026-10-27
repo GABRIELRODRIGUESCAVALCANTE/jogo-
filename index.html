@@ -19,38 +19,38 @@
 <body>
 <div class="wrap">
   <header class="cab">
-    <p class="eyebrow">Aventura no sertão nordestino</p>
+    <p class="eyebrow" data-t="cab.eyebrow">Aventura no sertão nordestino</p>
     <h1>Estrela do Sertão</h1>
-    <p class="lede">O Boi Estrela fugiu na lua cheia. Escolha seu vaqueiro ou sua vaqueira e atravesse a caatinga, o Velho Chico e a Serra do Fogo, com a Caipora, o Caboclo d'água e a Mula sem Cabeça no caminho.</p>
+    <p class="lede" data-t="cab.lede">O Boi Estrela fugiu na lua cheia. Escolha seu vaqueiro ou sua vaqueira e atravesse a caatinga, o Velho Chico e a Serra do Fogo, com a Caipora, o Caboclo d'água e a Mula sem Cabeça no caminho.</p>
   </header>
 
   <!-- quem vai jogar -->
   <section class="tela" id="telaPerfis" aria-labelledby="tPerfis">
-    <h2 id="tPerfis" tabindex="-1">Quem vai jogar?</h2>
-    <p class="sub">Cada jogador tem seu personagem, suas fases e seus recordes, guardados neste navegador.</p>
+    <h2 id="tPerfis" tabindex="-1" data-t="perfis.titulo">Quem vai jogar?</h2>
+    <p class="sub" data-t="perfis.sub">Cada jogador tem seu personagem, suas fases e seus recordes, guardados neste navegador.</p>
     <div class="perfis" id="listaPerfis"></div>
     <div class="rodape">
-      <button class="btn" id="btnNovoPerfil">+ Novo jogador</button>
-      <p class="sub" id="limitePerfis" hidden>Limite de 8 jogadores. Apague um para criar outro.</p>
+      <button class="btn" id="btnNovoPerfil" data-t="perfis.novo">+ Novo jogador</button>
+      <p class="sub" id="limitePerfis" data-t="perfis.limite" hidden>Limite de 8 jogadores. Apague um para criar outro.</p>
     </div>
   </section>
 
   <!-- novo jogador -->
   <section class="tela" id="telaNovo" aria-labelledby="tNovo" hidden>
-    <h2 id="tNovo" tabindex="-1">Novo jogador</h2>
+    <h2 id="tNovo" tabindex="-1" data-t="novo.titulo">Novo jogador</h2>
     <form id="formNovo" novalidate>
       <div class="campo">
-        <label for="nomeNovo">Seu nome</label>
+        <label for="nomeNovo" data-t="novo.nome">Seu nome</label>
         <input id="nomeNovo" name="nome" maxlength="16" autocomplete="off" spellcheck="false" aria-describedby="erroNovo">
         <p class="erro" id="erroNovo" role="alert" hidden></p>
       </div>
       <fieldset>
-        <legend>Escolha seu personagem</legend>
+        <legend data-t="novo.pers">Escolha seu personagem</legend>
         <div class="personagens" id="escolhaNovo"></div>
       </fieldset>
       <div class="rodape">
-        <button class="btn" type="submit">Criar jogador</button>
-        <button class="btn sec" type="button" id="btnCancelarNovo">Cancelar</button>
+        <button class="btn" type="submit" data-t="novo.criar">Criar jogador</button>
+        <button class="btn sec" type="button" id="btnCancelarNovo" data-t="novo.cancelar">Cancelar</button>
       </div>
     </form>
   </section>
@@ -67,32 +67,32 @@
     </div>
     <div class="hub-botoes">
       <button class="btn grande" id="btnJogar">Jogar</button>
-      <button class="btn sec" id="btnFases">Fases</button>
-      <button class="btn sec" id="btnPersonagem">Personagem</button>
-      <button class="btn sec" id="btnTrocar">Trocar jogador</button>
+      <button class="btn sec" id="btnFases" data-t="menu.fases">Fases</button>
+      <button class="btn sec" id="btnPersonagem" data-t="menu.personagem">Personagem</button>
+      <button class="btn sec" id="btnTrocar" data-t="menu.trocar">Trocar jogador</button>
     </div>
   </section>
 
   <!-- personagens -->
   <section class="tela" id="telaPersonagem" aria-labelledby="tPers" hidden>
-    <h2 id="tPers" tabindex="-1">Escolha seu personagem</h2>
-    <p class="sub">Cada um tem seu jeito: vida, velocidade, força e alcance do chicote mudam de verdade no jogo.</p>
+    <h2 id="tPers" tabindex="-1" data-t="pers.titulo">Escolha seu personagem</h2>
+    <p class="sub" data-t="pers.sub">Cada um tem seu jeito: vida, velocidade, força e alcance do chicote mudam de verdade no jogo.</p>
     <div class="personagens" id="listaPersonagens"></div>
-    <div class="rodape"><button class="btn sec" id="btnVoltarPers">Voltar</button></div>
+    <div class="rodape"><button class="btn sec" id="btnVoltarPers" data-t="voltar">Voltar</button></div>
   </section>
 
   <!-- fases -->
   <section class="tela" id="telaFases" aria-labelledby="tFases" hidden>
-    <h2 id="tFases" tabindex="-1">Fases</h2>
+    <h2 id="tFases" tabindex="-1" data-t="fases.titulo">Fases</h2>
     <p class="sub" id="avisoFases">Vença uma fase para liberar a seguinte.</p>
     <div class="fases" id="listaFases"></div>
-    <div class="rodape"><button class="btn sec" id="btnVoltarFases">Voltar</button></div>
+    <div class="rodape"><button class="btn sec" id="btnVoltarFases" data-t="voltar">Voltar</button></div>
   </section>
 
   <!-- jogo -->
   <div class="game" id="telaJogo" hidden>
     <div class="frame" id="frame">
-      <canvas id="tela" width="320" height="208" aria-label="Tela do jogo Estrela do Sertão"></canvas>
+      <canvas id="tela" width="320" height="208" aria-label="Tela do jogo Estrela do Sertão" data-t-aria="jogo.aria"></canvas>
       <div class="hud">
         <div class="hud-esq">
           <div class="vida" id="vida" aria-label="Vida"></div>
@@ -111,95 +111,97 @@
         <p class="eyebrow" id="tituloFase"></p>
         <h2 id="tituloNome"></h2>
         <p id="tituloResumo"></p>
-        <button class="btn" id="btnComecarFase">Começar</button>
-        <p class="miudo so-teclado">Setas ou WASD para andar · Espaço para o chicote · E para falar · Esc para pausar</p>
+        <button class="btn" id="btnComecarFase" data-t="jogo.comecar">Começar</button>
+        <p class="miudo so-teclado" data-t="jogo.dicas">Setas ou WASD para andar · Espaço para o chicote · E para falar · Esc para pausar</p>
       </div>
       <div class="overlay" id="ovPausa" hidden>
-        <h2>Pausa</h2>
+        <h2 data-t="pausa.titulo">Pausa</h2>
         <p id="textoPausa"></p>
         <div class="ov-botoes">
-          <button class="btn" id="btnVoltar">Voltar ao jogo</button>
-          <button class="btn sec" id="btnReiniciar">Reiniciar fase</button>
-          <button class="btn sec" id="btnSairMenu">Sair para o menu</button>
+          <button class="btn" id="btnVoltar" data-t="pausa.voltar">Voltar ao jogo</button>
+          <button class="btn sec" id="btnReiniciar" data-t="pausa.reiniciar">Reiniciar fase</button>
+          <button class="btn sec" id="btnSairMenu" data-t="pausa.sair">Sair para o menu</button>
         </div>
-        <p class="miudo so-teclado">Esc ou P para continuar</p>
+        <p class="miudo so-teclado" data-t="pausa.dica">Esc ou P para continuar</p>
       </div>
       <div class="overlay" id="ovDesmaio" hidden>
-        <h2>O sol do meio-dia venceu</h2>
+        <h2 data-t="desmaio.titulo">O sol do meio-dia venceu</h2>
         <p id="textoDesmaio"></p>
-        <button class="btn" id="btnLevantar">Levantar e seguir</button>
+        <button class="btn" id="btnLevantar" data-t="desmaio.levantar">Levantar e seguir</button>
       </div>
       <div class="overlay" id="ovFim" hidden>
         <p class="eyebrow" id="fimFase"></p>
         <h2 id="fimTitulo"></h2>
         <p id="fimTexto"></p>
         <div class="placar">
-          <div><b id="fimTempo">0:00</b><span>Tempo</span></div>
-          <div><b id="fimInimigos">0</b><span>Inimigos vencidos</span></div>
-          <div><b id="fimCordeis">0/3</b><span>Cordéis</span></div>
+          <div><b id="fimTempo">0:00</b><span data-t="fim.tempo">Tempo</span></div>
+          <div><b id="fimInimigos">0</b><span data-t="fim.inimigos">Inimigos vencidos</span></div>
+          <div><b id="fimCordeis">0/3</b><span data-t="fim.cordeis">Cordéis</span></div>
         </div>
         <p class="miudo" id="fimRecorde"></p>
         <div class="ov-botoes">
-          <button class="btn" id="btnProxima">Próxima fase</button>
-          <button class="btn sec" id="btnMenuFim">Voltar ao menu</button>
+          <button class="btn" id="btnProxima" data-t="fim.proxima">Próxima fase</button>
+          <button class="btn sec" id="btnMenuFim" data-t="fim.menu">Voltar ao menu</button>
         </div>
       </div>
     </div>
 
-    <div class="controles" id="controles" aria-label="Controles de toque">
+    <div class="controles" id="controles" aria-label="Controles de toque" data-t-aria="ctrl.aria">
       <div class="dpad">
-        <button class="tecla up" data-k="up" aria-label="Cima">▲</button>
-        <button class="tecla left" data-k="left" aria-label="Esquerda">◀</button>
-        <button class="tecla right" data-k="right" aria-label="Direita">▶</button>
-        <button class="tecla down" data-k="down" aria-label="Baixo">▼</button>
+        <button class="tecla up" data-k="up" aria-label="Cima" data-t-aria="ctrl.cima">▲</button>
+        <button class="tecla left" data-k="left" aria-label="Esquerda" data-t-aria="ctrl.esquerda">◀</button>
+        <button class="tecla right" data-k="right" aria-label="Direita" data-t-aria="ctrl.direita">▶</button>
+        <button class="tecla down" data-k="down" aria-label="Baixo" data-t-aria="ctrl.baixo">▼</button>
       </div>
       <div class="acoes">
-        <button class="tecla falar" data-k="talk">Falar</button>
-        <button class="tecla chicote" data-k="whip">Chicote</button>
+        <button class="tecla falar" data-k="talk" data-t="ctrl.falar">Falar</button>
+        <button class="tecla chicote" data-k="whip" data-t="ctrl.chicote">Chicote</button>
       </div>
     </div>
 
     <section class="legenda">
-      <span class="so-teclado"><kbd>↑↓←→</kbd>ou <kbd>WASD</kbd>andar</span>
-      <span class="so-teclado"><kbd>Espaço</kbd>chicote</span>
-      <span class="so-teclado"><kbd>E</kbd>falar e avançar diálogo</span>
-      <span class="so-teclado"><kbd>Esc</kbd>pausar</span>
+      <span class="so-teclado" data-t-html="leg.andar"><kbd>↑↓←→</kbd>ou <kbd>WASD</kbd>andar</span>
+      <span class="so-teclado" data-t-html="leg.chicote"><kbd>Espaço</kbd>chicote</span>
+      <span class="so-teclado" data-t-html="leg.falar"><kbd>E</kbd>falar e avançar diálogo</span>
+      <span class="so-teclado" data-t-html="leg.pausar"><kbd>Esc</kbd>pausar</span>
       <div class="botoes"><button class="som" id="btnPausa">Pausar</button></div>
     </section>
   </div>
 
   <div class="barra">
     <p class="quem-joga" id="quemJoga" hidden></p>
-    <button class="som" id="btnInstalar" hidden>Instalar o jogo</button>
+    <button class="som" id="btnInstalar" data-t="instalar" hidden>Instalar o jogo</button>
     <button class="som" id="btnMusica" aria-pressed="true">Música: ligada</button>
     <button class="som" id="btnSom" aria-pressed="true">Efeitos: ligados</button>
+    <label class="idioma"><span data-t="idioma">Idioma</span> <select id="selIdioma"></select></label>
   </div>
 
-  <section class="bestiario" aria-label="Personagens do folclore">
+  <section class="bestiario" aria-label="Personagens do folclore" data-t-aria="best.aria">
     <div>
-      <h3>Caipora</h3>
-      <p>Guardiã da mata, montada num caititu. Protege os bichos e adora fumo de rolo: quem leva um presente ganha sua ajuda.</p>
+      <h3 data-t="best.caipora.t">Caipora</h3>
+      <p data-t="best.caipora.d">Guardiã da mata, montada num caititu. Protege os bichos e adora fumo de rolo: quem leva um presente ganha sua ajuda.</p>
     </div>
     <div>
-      <h3>Cabra Cabriola</h3>
-      <p>Cabra-monstro de olhos de brasa que solta fogo pelas ventas e persegue quem anda desatento pela caatinga.</p>
+      <h3 data-t="best.cabra.t">Cabra Cabriola</h3>
+      <p data-t="best.cabra.d">Cabra-monstro de olhos de brasa que solta fogo pelas ventas e persegue quem anda desatento pela caatinga.</p>
     </div>
     <div>
-      <h3>Caboclo d'água</h3>
-      <p>Mora no fundo do Rio São Francisco, vira canoas e assusta pescadores. É por causa dele que os barcos levam carranca na proa.</p>
+      <h3 data-t="best.caboclo.t">Caboclo d'água</h3>
+      <p data-t="best.caboclo.d">Mora no fundo do Rio São Francisco, vira canoas e assusta pescadores. É por causa dele que os barcos levam carranca na proa.</p>
     </div>
     <div>
-      <h3>Mula sem Cabeça</h3>
-      <p>Encanto que corre soltando fogo pelo pescoço. Diz a lenda que, arrancando o freio de ferro, o encanto se quebra.</p>
+      <h3 data-t="best.mula.t">Mula sem Cabeça</h3>
+      <p data-t="best.mula.d">Encanto que corre soltando fogo pelo pescoço. Diz a lenda que, arrancando o freio de ferro, o encanto se quebra.</p>
     </div>
     <div>
-      <h3>Folhetos de cordel</h3>
-      <p>Nove folhetos se perderam pelo caminho, três em cada fase. Cada um traz uma sextilha sobre a jornada. Quantos você acha?</p>
+      <h3 data-t="best.cordel.t">Folhetos de cordel</h3>
+      <p data-t="best.cordel.d">Nove folhetos se perderam pelo caminho, três em cada fase. Cada um traz uma sextilha sobre a jornada. Quantos você acha?</p>
     </div>
   </section>
 </div>
 
 <script src="js/base.js"></script>
+<script src="js/idiomas.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/personagens.js"></script>
 <script src="js/terreno.js"></script>

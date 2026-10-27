@@ -9,15 +9,15 @@ const achados=f=>cordeisDaFase(f).filter(id=>perfil.cordeis.includes(id)).length
 function updateHud(){
   if(!S0) return;
   let h=''; for(let i=0;i<S0.maxHp;i++) h+=HEART.replace('__C__', i<S0.hp?'cheio':'vazio');
-  elVida.innerHTML=h; elVida.setAttribute('aria-label',`Vida: ${S0.hp} de ${S0.maxHp}`);
+  elVida.innerHTML=h; elVida.setAttribute('aria-label',t('hud.vida',{n:S0.hp,t:S0.maxHp}));
   elObj.textContent=fase.objetivo(S0)||'';
   const n=achados(fase);
-  elBolsa.innerHTML=fase.bolsa(S0).concat(n?[`Cordéis ${n}/${cordeisDaFase(fase).length}`]:[]).map(t=>`<span>${t}</span>`).join('');
+  elBolsa.innerHTML=fase.bolsa(S0).concat(n?[t('hud.cordeis',{n,t:cordeisDaFase(fase).length})]:[]).map(t=>`<span>${t}</span>`).join('');
   const on=!!chefe && chefe.active && !chefe.dead; elChefe.hidden=!on;
   if(on){
-    elChefeNome.textContent=chefe.nome;
+    elChefeNome.textContent=CHEFES[chefe.tipo].nome;
     let v=''; for(let i=0;i<chefe.max;i++) v+=`<i${i<chefe.hp?'':' class="vazio"'}></i>`;
-    elChefeVida.innerHTML=v; elChefeVida.setAttribute('aria-label',`Vida: ${chefe.hp} de ${chefe.max}`);
+    elChefeVida.innerHTML=v; elChefeVida.setAttribute('aria-label',t('hud.vida',{n:chefe.hp,t:chefe.max}));
   }
   measureHud();
 }
@@ -52,9 +52,9 @@ function advance(){
 function fecharDialogo(){ dlg.open=false; dlg.end=null; elDlg.hidden=true; }
 elDlg.addEventListener('click',()=>{ if(dlg.open) advance(); });
 function lerCordel(id){
-  const [titulo,v]=CORDEIS[id], quem=`Cordel: ${titulo}`, total=cordeisDaFase(fase).length, n=achados(fase);
+  const [titulo,v]=cordel(id), quem=t('cordel.quem',{titulo}), total=cordeisDaFase(fase).length, n=achados(fase);
   say([[quem,v[0]+'\n'+v[1]],[quem,v[2]+'\n'+v[3]],[quem,v[4]+'\n'+v[5]]],
-    ()=>toast(n<total ? `Cordéis desta fase: ${n} de ${total}` : perfil.cordeis.length>=Object.keys(CORDEIS).length ? 'Você achou todos os nove cordéis!' : 'Todos os cordéis desta fase!'));
+    ()=>toast(n<total ? t('cordel.daFase',{n,t:total}) : perfil.cordeis.length>=CORDEIS_IDS.length ? t('cordel.todos',{t:CORDEIS_IDS.length}) : t('cordel.todosFase')));
 }
 
 /* ---------- ENTRADA ---------- */
@@ -135,7 +135,7 @@ function mostrar(id){
   for(const t of TELAS) $(t).hidden = t!==id;
   telaAtual=id; held.clear(); dpadSet({});
   const qj=$('quemJoga'); qj.hidden=!perfil || id==='telaPerfis' || id==='telaNovo';
-  if(perfil){ qj.textContent='Jogando como '; qj.append(el('b','',perfil.nome),` · ${heroi.nome}`); }
+  if(perfil){ qj.textContent=t('quemJoga')+' '; qj.append(el('b','',perfil.nome),` · ${heroi.nome}`); }
   if(id==='telaJogo'){ measureHud(); $('frame').scrollIntoView({block:'nearest'}); }
   else { const h=$(id).querySelector('h2'); if(h) h.focus({preventScroll:true}); scrollTo({top:0}); }
 }
@@ -171,7 +171,7 @@ function apagarPerfil(id){
   salvarPerfis();
 }
 const feitas=pf=>FASES.filter(f=>pf.fases[f.id] && pf.fases[f.id].feita).length;
-const resumoPerfil=pf=>(pf.fim?'Jornada completa':`Fase ${Math.min(feitas(pf)+1,FASES.length)} de ${FASES.length}`)+` · ${pf.cordeis.length}/${Object.keys(CORDEIS).length} cordéis`;
+const resumoPerfil=pf=>(pf.fim?t('perfis.completa'):t('perfis.fase',{n:Math.min(feitas(pf)+1,FASES.length),t:FASES.length}))+' · '+t('perfis.cordeis',{n:pf.cordeis.length,t:CORDEIS_IDS.length});
 function abrirPerfis(){ renderPerfis(); mostrar('telaPerfis'); }
 function renderPerfis(){
   const box=$('listaPerfis'); box.textContent='';
@@ -182,7 +182,7 @@ function renderPerfis(){
     txt.append(el('span','perfil-nome',pf.nome), el('span','perfil-info',`${PERSONAGENS[pf.personagem].nome} · ${resumoPerfil(pf)}`));
     entrar.append(avatarCanvas(pf.personagem),txt);
     entrar.addEventListener('click',()=>{ sfx.clique(); entrarComo(pf); });
-    const apagar=el('button','link','Apagar'); apagar.type='button'; apagar.setAttribute('aria-label',`Apagar o jogador ${pf.nome}`);
+    const apagar=el('button','link',t('perfis.apagar')); apagar.type='button'; apagar.setAttribute('aria-label',t('perfis.apagarAria',{jogador:pf.nome}));
     apagar.addEventListener('click',()=>confirmarApagar(pf,pe));
     pe.append(apagar); card.append(entrar,pe); box.append(card);
   }
@@ -190,11 +190,11 @@ function renderPerfis(){
 }
 function confirmarApagar(pf,pe){
   pe.textContent='';
-  const sim=el('button','link perigo','Sim, apagar'), nao=el('button','link','Não');
+  const sim=el('button','link perigo',t('perfis.sim')), nao=el('button','link',t('perfis.nao'));
   sim.type=nao.type='button';
   sim.addEventListener('click',()=>{ apagarPerfil(pf.id); if(perfis.lista.length){ renderPerfis(); $('tPerfis').focus(); } else abrirNovo(); });
   nao.addEventListener('click',()=>{ renderPerfis(); });
-  pe.append(el('p','',`Apagar ${pf.nome} e todo o progresso?`),sim,nao); nao.focus();
+  pe.append(el('p','',t('perfis.pergunta',{jogador:pf.nome})),sim,nao); nao.focus();
 }
 function entrarComo(pf){ perfil=pf; heroi=PERSONAGENS[pf.personagem]; perfis.ultimo=pf.id; salvarPerfis(); abrirMenu(); }
 
@@ -208,7 +208,7 @@ function abrirNovo(){
 $('formNovo').addEventListener('submit',e=>{
   e.preventDefault();
   const nome=$('nomeNovo').value.trim().replace(/\s+/g,' '), erroEl=$('erroNovo');
-  const erro=!nome ? 'Escreva um nome para o jogador.' : perfis.lista.some(x=>x.nome.toLowerCase()===nome.toLowerCase()) ? 'Já existe um jogador com esse nome.' : '';
+  const erro=!nome ? t('novo.erroVazio') : perfis.lista.some(x=>x.nome.toLowerCase()===nome.toLowerCase()) ? t('novo.erroRepetido') : '';
   if(erro){ erroEl.textContent=erro; erroEl.hidden=false; $('nomeNovo').setAttribute('aria-invalid','true'); $('nomeNovo').focus(); return; }
   $('nomeNovo').removeAttribute('aria-invalid'); sfx.libera();
   entrarComo(novoPerfil(nome,escolhaNovo));
@@ -219,10 +219,10 @@ $('btnCancelarNovo').addEventListener('click',abrirPerfis);
 /* ---------- PERSONAGENS ---------- */
 function statsEl(ch){
   const dl=el('dl','stats');
-  for(const [nome,v] of Object.entries(pontos(ch))){
-    const n=clamp(v,1,5), dd=el('dd'); dd.setAttribute('aria-label',`${n} de 5`);
+  for(const [k,v] of Object.entries(pontos(ch))){
+    const n=clamp(v,1,5), dd=el('dd'); dd.setAttribute('aria-label',t('stat.de5',{n}));
     for(let i=0;i<5;i++) dd.append(el('i',i<n?'on':''));
-    dl.append(el('dt','',nome),dd);
+    dl.append(el('dt','',t('stat.'+k)),dd);
   }
   return dl;
 }
@@ -234,7 +234,7 @@ function renderEscolha(box,pf,sel,onPick){
     if(!livre){ b.setAttribute('aria-disabled','true'); av.dataset.trava='1'; }
     b.append(av, el('span','pers-nome',ch.nome), el('span','pers-titulo',ch.titulo), el('span','pers-desc',ch.desc), statsEl(ch));
     if(!livre) b.append(el('span','pers-trava',ch.liberar));
-    else if(id===sel) b.append(el('span','pers-selo','Escolhido'));
+    else if(id===sel) b.append(el('span','pers-selo',t('pers.escolhido')));
     b.addEventListener('click',()=>{ if(!liberado(id,pf)) return; sfx.clique(); onPick(id); renderEscolha(box,pf,id,onPick); box.querySelector(`[data-id="${id}"]`).focus(); });
     box.append(b);
   }
@@ -252,12 +252,13 @@ function abrirMenu(){
   $('persMenu').textContent=`${heroi.nome}, ${heroi.titulo}`;
   const av=$('avatarMenu'); av.dataset.pers=perfil.personagem; av.dataset.anda='1';
   const total=FASES.filter(f=>perfil.fases[f.id] && perfil.fases[f.id].tempo>0).reduce((s,f)=>s+perfil.fases[f.id].tempo,0);
-  $('resumoMenu').innerHTML=`<li>Fases <b>${feitas(perfil)}/${FASES.length}</b></li><li>Cordéis <b>${perfil.cordeis.length}/${Object.keys(CORDEIS).length}</b></li>`
-    +`<li>Corações <b>${heroi.vida+(perfil.bonusVida||0)}</b></li>`+(perfil.fim?`<li>Melhor jornada <b>${fmt(total)}</b></li>`:'');
+  $('resumoMenu').innerHTML=`<li>${t('menu.rFases')} <b>${feitas(perfil)}/${FASES.length}</b></li><li>${t('menu.rCordeis')} <b>${perfil.cordeis.length}/${CORDEIS_IDS.length}</b></li>`
+    +`<li>${t('menu.rCoracoes')} <b>${heroi.vida+(perfil.bonusVida||0)}</b></li>`+(perfil.fim?`<li>${t('menu.rMelhor')} <b>${fmt(total)}</b></li>`:'');
   const d=partidaSalva(perfil), n=proximaFase(perfil), bj=$('btnJogar');
-  if(d) bj.innerHTML=`Continuar<small>Fase ${d.fase} · ${FASES[d.fase-1].nome}</small>`;
-  else if(n) bj.innerHTML=`Jogar<small>Fase ${n} · ${FASES[n-1].nome}</small>`;
-  else bj.innerHTML='Jogar de novo<small>Escolha a fase</small>';
+  const linha=(a,b)=>{ bj.textContent=a; bj.append(el('small','',b)); };
+  if(d) linha(t('menu.continuar'),`${t('fases.n',{n:d.fase})} · ${FASES[d.fase-1].nome}`);
+  else if(n) linha(t('menu.jogar'),`${t('fases.n',{n})} · ${FASES[n-1].nome}`);
+  else linha(t('menu.jogarDeNovo'),t('menu.escolhaFase'));
   mostrar('telaMenu');
 }
 $('btnJogar').addEventListener('click',()=>{ sfx.clique(); const d=partidaSalva(perfil), n=proximaFase(perfil); if(d) continuar(d); else if(n) jogarFase(n); else abrirFases(); });
@@ -277,26 +278,26 @@ function abrirFases(){
     if(!miniCache[f.id]){ miniCache[f.id]=document.createElement('canvas'); miniatura(f,miniCache[f.id]); }
     const cnv=document.createElement('canvas'); cnv.width=miniCache[f.id].width; cnv.height=miniCache[f.id].height; cnv.setAttribute('aria-hidden','true');
     cnv.getContext('2d').drawImage(miniCache[f.id],0,0);
-    corpo.append(el('p','eyebrow',`Fase ${f.id}`), el('h3','',f.nome), el('p','',f.resumo));
-    if(reg.feita) corpo.append(el('span','selo-feita','Concluída'));
-    corpo.append(el('p','fase-info', livre ? `Recorde ${reg.tempo>0?fmt(reg.tempo):'—'} · Cordéis ${achados(f)}/${cordeisDaFase(f).length}` : `Vença a fase ${f.id-1} para liberar`));
+    corpo.append(el('p','eyebrow',t('fases.n',{n:f.id})), el('h3','',f.nome), el('p','',f.resumo));
+    if(reg.feita) corpo.append(el('span','selo-feita',t('fases.concluida')));
+    corpo.append(el('p','fase-info', livre ? t('fases.info',{tempo:reg.tempo>0?fmt(reg.tempo):'—', n:achados(f), t:cordeisDaFase(f).length}) : t('fases.liberar',{n:f.id-1})));
     const botao=(txt,cls,fn)=>{ const b=el('button',cls,txt); b.type='button'; b.addEventListener('click',()=>{ sfx.clique(); fn(); }); bt.append(b); return b; };
-    if(!livre) botao('Bloqueada','btn',()=>{}).disabled=true;
-    else if(d && d.fase===f.id){ botao('Continuar','btn',()=>continuar(d)); botao('Recomeçar','btn sec',()=>jogarFase(f.id)); }
-    else botao('Jogar','btn',()=>jogarFase(f.id));
+    if(!livre) botao(t('fases.bloqueada'),'btn',()=>{}).disabled=true;
+    else if(d && d.fase===f.id){ botao(t('fases.continuar'),'btn',()=>continuar(d)); botao(t('fases.recomecar'),'btn sec',()=>jogarFase(f.id)); }
+    else botao(t('fases.jogar'),'btn',()=>jogarFase(f.id));
     corpo.append(bt); card.append(cnv,corpo); box.append(card);
   }
-  $('avisoFases').textContent = d ? `Você tem uma partida salva na fase ${d.fase}. Começar outra fase descarta essa partida.` : 'Vença uma fase para liberar a seguinte.';
+  $('avisoFases').textContent = d ? t('fases.avisoSalva',{n:d.fase}) : t('fases.aviso');
   mostrar('telaFases');
 }
 
 /* ---------- PARTIDA ---------- */
 const btnPausa=$('btnPausa');
-function fecharOverlays(){ for(const id of ['ovTitulo','ovPausa','ovDesmaio','ovFim']) $(id).hidden=true; fecharDialogo(); elToast.hidden=true; toastT=0; btnPausa.textContent='Pausar'; }
+function fecharOverlays(){ for(const id of ['ovTitulo','ovPausa','ovDesmaio','ovFim']) $(id).hidden=true; fecharDialogo(); elToast.hidden=true; toastT=0; btnPausa.textContent=t('btn.pausar'); }
 function jogarFase(id){
   store.del(K_PARTIDA+perfil.id);
   iniciarFase(id); fecharOverlays(); running=false; paused=false;
-  $('tituloFase').textContent=`Fase ${id} de ${FASES.length}`;
+  $('tituloFase').textContent=t('fases.nDe',{n:id,t:FASES.length});
   $('tituloNome').textContent=fase.nome; $('tituloResumo').textContent=fase.resumo;
   mostrar('telaJogo'); $('ovTitulo').hidden=false; $('btnComecarFase').focus();
 }
@@ -304,15 +305,15 @@ $('btnComecarFase').addEventListener('click',()=>{ initAudio(); $('ovTitulo').hi
 function continuar(d){
   try{ carregarPartida(d); }catch(e){ jogarFase(d.fase); return; }
   fecharOverlays(); paused=false; mostrar('telaJogo'); running=true;
-  toast(`Partida retomada. Bom caminho, ${heroi.nome}!`);
+  toast(t('partida.retomada'));
 }
 function pause(){
   if(!running) return;
   running=false; paused=true; held.clear(); salvarPartida();
-  $('textoPausa').textContent=`${heroi.nome} sentou na sombra de um juazeiro pra tomar fôlego. A partida fica salva neste navegador.`;
-  $('ovPausa').hidden=false; btnPausa.textContent='Continuar'; $('btnVoltar').focus();
+  $('textoPausa').textContent=t('pausa.texto');
+  $('ovPausa').hidden=false; btnPausa.textContent=t('btn.continuar'); $('btnVoltar').focus();
 }
-function unpause(){ if(!paused) return; paused=false; $('ovPausa').hidden=true; running=true; held.clear(); btnPausa.textContent='Pausar'; }
+function unpause(){ if(!paused) return; paused=false; $('ovPausa').hidden=true; running=true; held.clear(); btnPausa.textContent=t('btn.pausar'); }
 function togglePause(){ paused?unpause():pause(); }
 btnPausa.addEventListener('click',togglePause);
 $('btnVoltar').addEventListener('click',unpause);
@@ -321,15 +322,14 @@ $('btnSairMenu').addEventListener('click',()=>{ salvarPartida(); abrirMenu(); })
 
 function desmaiar(){
   running=false; held.clear();
-  $('textoDesmaio').textContent=`${heroi.nome} desmaiou na poeira e acordou no começo do caminho. O que você conquistou nesta fase continua com você.`;
+  $('textoDesmaio').textContent=t('desmaio.texto');
   $('ovDesmaio').hidden=false; $('btnLevantar').focus();
 }
 $('btnLevantar').addEventListener('click',()=>{
   respawn(); $('ovDesmaio').hidden=true; running=true; held.clear();
-  say(fase.id===1 ? [['Vô Chico',`Acorda, ${heroi.nome}! Bebe um gole d’água e volta pra estrada.`]] : [[heroi.nome,'Ufa... Um gole d’água e bora de novo.']]);
+  say(t(fase.id===1?'desmaio.avo':'desmaio.so'));
 });
 
-const FIM_TEXTO={1:'A Caipora abriu o espinheiro. Adiante corre o Velho Chico.', 2:"A ponte está de pé e o Caboclo d'água voltou para o fundo do poço. Lá em cima, a Serra do Fogo."};
 function concluirFase(){
   running=false; S0.won=true; sfx.win(); elToast.hidden=true; toastT=0;
   const reg=perfil.fases[fase.id]||{}, novo=!(reg.tempo>0) || time<reg.tempo, ultima=fase.id===FASES.length, primeiraVez=ultima && !perfil.fim;
@@ -337,13 +337,12 @@ function concluirFase(){
   if(ultima) perfil.fim=true;
   perfis.ultimo=perfil.id; salvarPerfis(); store.del(K_PARTIDA+perfil.id);
   const total=cordeisDaFase(fase).length, n=achados(fase), falta=total-n;
-  $('fimFase').textContent=`Fase ${fase.id} · ${fase.nome}`;
-  $('fimTitulo').textContent=ultima?'Ê boi! O Estrela voltou':'Fase concluída!';
-  $('fimTexto').textContent=(ultima?`${heroi.nome} desceu a serra tocando o boi, e o sertão inteiro cantou essa história em cordel.`:FIM_TEXTO[fase.id])
-    +(primeiraVez?' Nova personagem liberada: Rosa, a rezadeira!':'');
+  $('fimFase').textContent=t('fim.fase',{n:fase.id,nomeFase:fase.nome});
+  $('fimTitulo').textContent=t(ultima?'fim.tituloFinal':'fim.titulo');
+  $('fimTexto').textContent=t(ultima?'fim.final':'fim.'+fase.id)+(primeiraVez?t('fim.rosa'):'');
   $('fimTempo').textContent=fmt(time); $('fimInimigos').textContent=S0.kills; $('fimCordeis').textContent=`${n}/${total}`;
-  $('fimRecorde').textContent=(novo?'Novo recorde nesta fase!':`Recorde: ${fmt(perfil.fases[fase.id].tempo)}`)
-    +(falta ? ` · ${falta===1?'Ficou 1 folheto':`Ficaram ${falta} folhetos`} de cordel pelo caminho.` : ' · Todos os cordéis desta fase!');
+  $('fimRecorde').textContent=(novo?t('fim.recordeNovo'):t('fim.recorde',{tempo:fmt(perfil.fases[fase.id].tempo)}))
+    +(falta ? t(falta===1?'fim.falta1':'fim.faltaN',{n:falta}) : t('fim.todos'));
   $('btnProxima').hidden=ultima;
   $('ovFim').hidden=false; (ultima?$('btnMenuFim'):$('btnProxima')).focus();
   if(primeiraVez) setTimeout(()=>sfx.libera(),900);
@@ -360,10 +359,11 @@ function musicaDesejada(){
 const btnSom=$('btnSom'), btnMusica=$('btnMusica');
 const prefs=store.get(K_PREF)||{};
 muted=prefs.efeitos===false; mus.on=prefs.musica!==false;
+function salvarPrefs(){ Object.assign(prefs,{efeitos:!muted, musica:mus.on, idioma}); store.set(K_PREF,prefs); }
 function labelSound(){
-  btnSom.textContent=`Efeitos: ${muted?'desligados':'ligados'}`; btnSom.setAttribute('aria-pressed',String(!muted));
-  btnMusica.textContent=`Música: ${mus.on?'ligada':'desligada'}`; btnMusica.setAttribute('aria-pressed',String(mus.on));
-  store.set(K_PREF,{efeitos:!muted, musica:mus.on});
+  btnSom.textContent=t(muted?'som.efeitos.off':'som.efeitos.on'); btnSom.setAttribute('aria-pressed',String(!muted));
+  btnMusica.textContent=t(mus.on?'som.musica.on':'som.musica.off'); btnMusica.setAttribute('aria-pressed',String(mus.on));
+  salvarPrefs();
 }
 btnSom.addEventListener('click',()=>{ muted=!muted; labelSound(); });
 btnMusica.addEventListener('click',()=>{ mus.on=!mus.on; labelSound(); });
@@ -386,6 +386,20 @@ addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); pedidoInstalar=e
 addEventListener('appinstalled',()=>{ pedidoInstalar=null; $('btnInstalar').hidden=true; });
 $('btnInstalar').addEventListener('click',async()=>{ if(!pedidoInstalar) return; pedidoInstalar.prompt(); await pedidoInstalar.userChoice.catch(()=>{}); pedidoInstalar=null; $('btnInstalar').hidden=true; });
 
-carregarPerfis(); labelSound();
+/* ---------- IDIOMA ---------- */
+const selIdioma=$('selIdioma');
+for(const [cod,nome] of Object.entries(IDIOMAS)) selIdioma.append(Object.assign(el('option','',nome),{value:cod}));
+selIdioma.value=idioma;
+selIdioma.addEventListener('change',()=>trocarIdioma(selIdioma.value));
+function trocarIdioma(novo){
+  if(!IDIOMAS[novo]) return;
+  idioma=novo; selIdioma.value=novo; salvarPrefs(); traduzirPagina(); labelSound();
+  const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases,
+    telaNovo:()=>renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; })}[telaAtual];
+  if(reabrir) reabrir();
+  else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
+}
+
+traduzirPagina(); carregarPerfis(); labelSound();
 if(perfis.lista.length) abrirPerfis(); else abrirNovo();
 requestAnimationFrame(frame);

@@ -27,8 +27,8 @@ function servidor(){
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
 // abre o jogo num contexto novo (armazenamento limpo); celular=true emula um iPhone com toque
-async function abrir(ctxBrowser, url, { celular=false, antes } = {}){
-  const ctx = await ctxBrowser.newContext(celular ? { ...devices['iPhone 13'] } : { viewport:{ width:1100, height:900 } });
+async function abrir(ctxBrowser, url, { celular=false, antes, locale='pt-BR' } = {}){
+  const ctx = await ctxBrowser.newContext({ ...(celular ? devices['iPhone 13'] : { viewport:{ width:1100, height:900 } }), locale });
   const page = await ctx.newPage();
   const erros = [];
   page.on('pageerror', e=>erros.push(e.message));

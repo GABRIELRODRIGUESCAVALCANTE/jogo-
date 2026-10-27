@@ -5,7 +5,7 @@ const CACHE = 'estrela-app';
 const FONTES = 'estrela-fontes';
 const ARQUIVOS = [
   './', 'index.html', 'manifest.webmanifest', 'css/jogo.css',
-  'js/base.js', 'js/audio.js', 'js/personagens.js', 'js/terreno.js', 'js/entidades.js', 'js/fases.js', 'js/jogo.js', 'js/telas.js',
+  'js/base.js', 'js/idiomas.js', 'js/audio.js', 'js/personagens.js', 'js/terreno.js', 'js/entidades.js', 'js/fases.js', 'js/jogo.js', 'js/telas.js',
   'icones/icone-192.png', 'icones/icone-512.png', 'icones/icone-maskable-512.png', 'icones/icone-180.png', 'icones/favicon-32.png',
 ];
 

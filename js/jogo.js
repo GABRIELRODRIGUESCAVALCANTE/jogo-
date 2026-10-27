@@ -133,7 +133,7 @@ function update(dt){
   for(const n of npcs){
     if(n.type==='caipora'){ n.cool=Math.max(0,n.cool-dt);
       if(wb && n.lastSwing!==p.swing && overlap(wb,{x:n.x,y:n.y-8,w:14,h:18})){ n.lastSwing=p.swing;
-        if(n.cool<=0){ n.cool=3; hurt(1,n.x,n.y); say([['Caipora',`Ei! Quem bate na Caipora apanha da mata inteira. Me respeita, ${heroi.trato}!`]]); }
+        if(n.cool<=0){ n.cool=3; hurt(1,n.x,n.y); say(t('f1.caiporaBateu')); }
       }
     }
     if(n.type!=='avo' && n.type!=='moca') n.face = p.x>n.x?1:-1;
@@ -153,7 +153,7 @@ function update(dt){
 
   for(const it of items){
     if(it.got || Math.hypot(it.x-p.x,it.y-p.y)>=12) continue;
-    if(it.type==='rapadura'){ if(S0.hp>=S0.maxHp) continue; it.got=true; S0.hp++; sfx.pick(); toast('Rapadura! Recuperou um coração.'); }
+    if(it.type==='rapadura'){ if(S0.hp>=S0.maxHp) continue; it.got=true; S0.hp++; sfx.pick(); toast(t('toast.rapadura')); }
     else if(it.type==='cordel'){ it.got=true; ganharCordel(it.id); }
     else if(fase.pegar(it)) it.got=true;
     else continue;

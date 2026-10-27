@@ -181,3 +181,6 @@ form{display:flex;flex-direction:column;gap:18px;width:100%}
 
 /* instalado como app: sem o texto de apresentação, sobra mais tela para o jogo */
 @media (display-mode: standalone){ .lede{display:none} body{padding-top:max(12px,env(safe-area-inset-top,0px))} }
+.idioma{display:flex;align-items:center;gap:6px;color:var(--poeira);font-size:15px;font-weight:700}
+.idioma select{font:inherit;font-weight:700;background:var(--couro-2);color:var(--papel);border:2px solid var(--poeira);padding:2px 6px}
+.idioma select:focus-visible{outline:3px solid var(--papel);outline-offset:2px}

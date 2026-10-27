@@ -2,26 +2,26 @@
 /* ---------- PERSONAGENS ---------- */
 // vida em corações, velocidade em px/s, alcance do chicote em px, dano por lambada, recarga em segundos
 const PERSONAGENS={
-  ze:{nome:'Zé', titulo:'o vaqueiro', g:'o', trato:'vaqueiro', vida:3, vel:74, alcance:24, dano:1, recarga:.36,
-    desc:'Equilibrado em tudo. Gibão de couro, chicote firme e coragem de sobra.',
+  ze:{nome:'Zé', g:'o', vida:3, vel:74, alcance:24, dano:1, recarga:.36,
     visual:{cabeca:'chapeu', chapeu:'#6b4423', chapeu2:'#7d5029', enfeite:'#e2b45e', roupa:'#8a5a2e', roupa2:'#a8733d', cinto:'#5e3a1c', fivela:'#e2b45e', braco:'#7a4e27', pele:'#c68a5a', calca:'#3b281b'}},
-  luzia:{nome:'Luzia', titulo:'a aboiadora', g:'a', trato:'aboiadora', vida:3, vel:90, alcance:20, dano:1, recarga:.26,
-    desc:'A mais ligeira do sertão. O chicote é curto, mas estala sem parar.',
+  luzia:{nome:'Luzia', g:'a', vida:3, vel:90, alcance:20, dano:1, recarga:.26,
     visual:{cabeca:'tranca', chapeu:'#7a3a1e', chapeu2:'#93502a', enfeite:'#c4462c', cabelo:'#2a1a12', lenco:'#c4462c', roupa:'#3a6a98', roupa2:'#5a8ac0', cinto:'#2a3a52', fivela:'#e2b45e', braco:'#2e5680', pele:'#a8693f', calca:'#3b281b'}},
-  tiao:{nome:'Tião', titulo:'o ferreiro', g:'o', trato:'ferreiro', vida:4, vel:62, alcance:24, dano:2, recarga:.42,
-    desc:'Lento como carro de boi, mas cada lambada vale por duas. Tem um coração a mais.',
+  tiao:{nome:'Tião', g:'o', vida:4, vel:62, alcance:24, dano:2, recarga:.42,
     visual:{cabeca:'bandana', chapeu:'#c4462c', cabelo:'#2a1a12', barba:'#3a2416', roupa:'#c9b48a', roupa2:'#ddc89e', avental:'#5a4030', cinto:'#3a2a1e', fivela:'#9aa0a8', braco:'#8a5a3a', pele:'#8a5a3a', calca:'#3a3028'}},
-  rosa:{nome:'Rosa', titulo:'a rezadeira', g:'a', trato:'rezadeira', vida:3, vel:78, alcance:22, dano:1, recarga:.34, imuneFogo:true, trava:true,
-    desc:'Tem o corpo fechado: brasa e rastro de fogo não a queimam.',
-    liberar:'Vença a Serra do Fogo para liberar',
+  rosa:{nome:'Rosa', g:'a', vida:3, vel:78, alcance:22, dano:1, recarga:.34, imuneFogo:true, trava:true,
     visual:{cabeca:'veu', chapeu:'#f1ece0', roupa:'#7a5aa0', roupa2:'#9a7ac0', cinto:'#4a3a6a', fivela:'#e9a83b', braco:'#6a4a90', pele:'#b07850', calca:'#4a3a6a', saia:true, terco:'#e9a83b'}},
 };
+// título, tratamento, descrição e condição de liberar vêm do idioma atual (js/idiomas.js)
+for(const [id,ch] of Object.entries(PERSONAGENS)){
+  ch.id=id;
+  for(const k of ['titulo','trato','desc','liberar']) Object.defineProperty(ch,k,{get:()=>t(`pers.${id}.${k}`)});
+}
 const PERS_ORDEM=['ze','luzia','tiao','rosa'];
 const liberado=(id,pf)=>!PERSONAGENS[id].trava || !!(pf && pf.fim);
 
 // pontos de 1 a 5 para as barrinhas da tela de escolha
 function pontos(ch){
-  return {Vida:ch.vida+1, Velocidade:Math.round((ch.vel-50)/8), Força:ch.dano*2+1, Alcance:ch.alcance-19, Ritmo:Math.round((.5-ch.recarga)*20)};
+  return {vida:ch.vida+1, velocidade:Math.round((ch.vel-50)/8), forca:ch.dano*2+1, alcance:ch.alcance-19, ritmo:Math.round((.5-ch.recarga)*20)};
 }
 
 // x,y = pés; d = direção; f = quadro da passada; whip(hx,hy) desenha o chicote
