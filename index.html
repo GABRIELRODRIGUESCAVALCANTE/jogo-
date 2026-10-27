@@ -4,116 +4,89 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Estrela do Sertão</title>
+<meta name="description" content="Aventura em pixel art no sertão nordestino: escolha seu vaqueiro, atravesse a caatinga, o Velho Chico e a Serra do Fogo atrás do Boi Estrela.">
+<meta name="theme-color" content="#22150e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2322150e'/%3E%3Cpath d='M8 1l2 5h5l-4 3 2 6-5-4-5 4 2-6-4-3h5z' fill='%23e9a83b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rye&family=Alegreya+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box}
-body{margin:0}
-[hidden]{display:none!important}
-/* Layout: uma coluna central — título em xilogravura, a tela do jogo emoldurada como capa de cordel, controles e bestiário abaixo. Visual único (couro escuro), escolhido de propósito. */
-:root{
-  --couro:#22150e;
-  --couro-2:#33211a;
-  --papel:#f1e2c2;
-  --tinta:#2a1a12;
-  --sol:#e9a83b;
-  --brasa:#c4462c;
-  --mandacaru:#8aa64c;
-  --poeira:#b39a78;
-  --display:"Rye","Georgia",serif;
-  --body:"Alegreya Sans","Trebuchet MS",system-ui,sans-serif;
-  color-scheme:dark;
-}
-html,body{background:var(--couro);color:var(--papel)}
-body{
-  font-family:var(--body);font-size:16px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));
-  padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:20px 48px;
-}
-.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
-.cab{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-.eyebrow{margin:0;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--sol);font-weight:700}
-h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(30px,6vw,54px);line-height:1.05;text-wrap:balance;color:var(--papel)}
-.lede{margin:0;max-width:62ch;color:var(--poeira)}
-
-.game{width:100%;max-width:min(100%,calc((100dvh - 150px) * 1.5385));min-width:min(100%,320px);margin-inline:auto;display:flex;flex-direction:column;gap:14px}
-.frame{position:relative;border:3px solid var(--papel);outline:2px solid var(--sol);outline-offset:4px;background:#000;overflow:hidden;user-select:none;-webkit-user-select:none}
-canvas{display:block;width:100%;height:auto;aspect-ratio:320/208;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none}
-
-.hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:6px 8px;pointer-events:none;font-size:clamp(11px,1.7vw,15px)}
-.hud-esq{display:flex;flex-direction:column;gap:4px;min-width:0}
-.vida{display:flex;gap:3px}
-.vida svg{width:clamp(13px,2.3vw,22px);height:auto;filter:drop-shadow(1px 1px 0 var(--tinta))}
-.vida .cheio{fill:var(--brasa)}
-.vida .vazio{fill:var(--couro-2);stroke:var(--papel);stroke-width:.4}
-.obj{background:rgba(34,21,14,.78);color:var(--papel);padding:2px 8px;border-left:3px solid var(--sol);font-weight:500;max-width:52ch}
-.bolsa{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
-.bolsa span{background:var(--papel);color:var(--tinta);padding:1px 8px;font-weight:700;box-shadow:2px 2px 0 var(--tinta)}
-
-.chefe{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(34,21,14,.82);border:2px solid var(--brasa);padding:1px 10px;pointer-events:none;font-size:clamp(11px,1.6vw,15px);white-space:nowrap}
-.chefe b{font-family:var(--display);font-weight:400;color:var(--sol)}
-.chefe .barra{display:flex;gap:2px}
-.chefe .barra i{width:clamp(8px,1.6vw,14px);height:clamp(6px,1.1vw,9px);background:var(--brasa);box-shadow:inset 0 -2px 0 rgba(0,0,0,.3)}
-.chefe .barra i.vazio{background:var(--couro-2)}
-
-.toast{position:absolute;left:50%;top:22%;transform:translateX(-50%);background:var(--tinta);color:var(--papel);border:2px solid var(--sol);padding:6px 12px;font-weight:500;font-size:clamp(12px,1.8vw,16px);max-width:86%;text-align:center;pointer-events:none}
-.toast.baixo{top:auto;bottom:18%}
-
-.dialogo{position:absolute;left:3%;right:3%;bottom:4%;background:var(--papel);color:var(--tinta);border:3px solid var(--tinta);box-shadow:4px 4px 0 var(--tinta);padding:clamp(6px,1.3vw,12px) clamp(10px,2vw,18px);cursor:pointer}
-.dialogo .quem{margin:0 0 2px;font-family:var(--display);color:var(--brasa);font-size:clamp(13px,2vw,19px);letter-spacing:.02em}
-.dialogo .fala{margin:0;font-size:clamp(13px,2vw,19px);line-height:1.35;min-height:2.7em;font-weight:500;white-space:pre-line}
-.dialogo .seta{position:absolute;right:12px;bottom:6px;color:var(--brasa);animation:pisca 1s steps(2) infinite}
-@keyframes pisca{50%{opacity:0}}
-
-.overlay{position:absolute;inset:0;background:rgba(34,21,14,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(6px,1.4vw,14px);text-align:center;padding:12px 16px;overflow:auto}
-.overlay h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,5vw,46px);color:var(--sol);text-wrap:balance;line-height:1.1}
-.overlay p{margin:0;max-width:52ch;font-size:clamp(13px,1.9vw,17px);color:var(--papel)}
-.overlay .miudo{color:var(--poeira);font-size:clamp(12px,1.6vw,15px)}
-.btn{font-family:var(--display);font-size:clamp(15px,2.2vw,20px);background:var(--sol);color:var(--tinta);border:3px solid var(--tinta);box-shadow:4px 4px 0 var(--papel);padding:8px 20px;cursor:pointer}
-.btn:hover{background:var(--papel)}
-.btn.sec{background:var(--couro-2);color:var(--papel);border-color:var(--papel);box-shadow:4px 4px 0 var(--tinta)}
-.btn.sec:hover{background:var(--tinta)}
-.ov-botoes{display:flex;flex-wrap:wrap;gap:12px 16px;justify-content:center}
-.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--papel)}
-.btn:focus-visible,.tecla:focus-visible,.som:focus-visible{outline:3px solid var(--papel);outline-offset:3px}
-.placar{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-variant-numeric:tabular-nums}
-.placar b{display:block;font-family:var(--display);font-weight:400;font-size:clamp(18px,3vw,28px);color:var(--papel)}
-.placar span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--poeira)}
-
-.controles{display:none;justify-content:space-between;align-items:center;gap:12px;touch-action:none;user-select:none;-webkit-user-select:none}
-.dpad{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:4px}
-.acoes{display:flex;gap:14px;align-items:center}
-.tecla{background:var(--couro-2);color:var(--papel);border:2px solid var(--poeira);font-family:var(--body);font-weight:800;font-size:20px;touch-action:none;cursor:pointer}
-.tecla:active,.tecla.on{background:var(--sol);color:var(--tinta)}
-.tecla.up{grid-column:2;grid-row:1}.tecla.left{grid-column:1;grid-row:2}.tecla.right{grid-column:3;grid-row:2}.tecla.down{grid-column:2;grid-row:3}
-.acoes .tecla{width:76px;height:76px;border-radius:50%;font-size:15px}
-.acoes .tecla.chicote{background:var(--brasa);border-color:var(--papel)}
-@media (pointer:coarse){.controles{display:flex}.so-teclado{display:none}}
-
-.legenda{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;color:var(--poeira);font-size:15px}
-.legenda kbd{font-family:var(--body);font-weight:800;background:var(--papel);color:var(--tinta);padding:0 7px;border-bottom:3px solid var(--poeira);margin-right:4px}
-.botoes{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px}
-.som{background:transparent;color:var(--papel);border:2px solid var(--poeira);padding:3px 12px;font-family:var(--body);font-weight:700;cursor:pointer}
-
-.bestiario{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;border-top:2px solid var(--couro-2);padding-top:18px}
-.bestiario h3{margin:0 0 4px;font-family:var(--display);font-weight:400;font-size:20px;color:var(--sol)}
-.bestiario p{margin:0;color:var(--poeira);font-size:15px;max-width:40ch}
-.bestiario div{min-width:0}
-@media (prefers-reduced-motion:reduce){.dialogo .seta{animation:none}}
-</style>
-
+<link rel="stylesheet" href="css/jogo.css">
 </head>
 <body>
 <div class="wrap">
   <header class="cab">
     <p class="eyebrow">Aventura no sertão nordestino</p>
     <h1>Estrela do Sertão</h1>
-    <p class="lede">Zé, jovem vaqueiro, atravessa a caatinga atrás do Boi Estrela. No caminho, a Caipora pode virar aliada, as Cabras Cabriolas não perdoam e a Mula sem Cabeça guarda a Serra do Fogo.</p>
+    <p class="lede">O Boi Estrela fugiu na lua cheia. Escolha seu vaqueiro ou sua vaqueira e atravesse a caatinga, o Velho Chico e a Serra do Fogo, com a Caipora, o Caboclo d'água e a Mula sem Cabeça no caminho.</p>
   </header>
 
-  <div class="game">
+  <!-- quem vai jogar -->
+  <section class="tela" id="telaPerfis" aria-labelledby="tPerfis">
+    <h2 id="tPerfis" tabindex="-1">Quem vai jogar?</h2>
+    <p class="sub">Cada jogador tem seu personagem, suas fases e seus recordes, guardados neste navegador.</p>
+    <div class="perfis" id="listaPerfis"></div>
+    <div class="rodape">
+      <button class="btn" id="btnNovoPerfil">+ Novo jogador</button>
+      <p class="sub" id="limitePerfis" hidden>Limite de 8 jogadores. Apague um para criar outro.</p>
+    </div>
+  </section>
+
+  <!-- novo jogador -->
+  <section class="tela" id="telaNovo" aria-labelledby="tNovo" hidden>
+    <h2 id="tNovo" tabindex="-1">Novo jogador</h2>
+    <form id="formNovo" novalidate>
+      <div class="campo">
+        <label for="nomeNovo">Seu nome</label>
+        <input id="nomeNovo" name="nome" maxlength="16" autocomplete="off" spellcheck="false" aria-describedby="erroNovo">
+        <p class="erro" id="erroNovo" role="alert" hidden></p>
+      </div>
+      <fieldset>
+        <legend>Escolha seu personagem</legend>
+        <div class="personagens" id="escolhaNovo"></div>
+      </fieldset>
+      <div class="rodape">
+        <button class="btn" type="submit">Criar jogador</button>
+        <button class="btn sec" type="button" id="btnCancelarNovo">Cancelar</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- menu do jogador -->
+  <section class="tela" id="telaMenu" aria-labelledby="nomeMenu" hidden>
+    <div class="hub">
+      <canvas class="avatar" id="avatarMenu" width="24" height="24" aria-hidden="true"></canvas>
+      <div class="hub-txt">
+        <p class="eyebrow" id="persMenu"></p>
+        <h2 id="nomeMenu" tabindex="-1"></h2>
+        <ul class="resumo" id="resumoMenu"></ul>
+      </div>
+    </div>
+    <div class="hub-botoes">
+      <button class="btn grande" id="btnJogar">Jogar</button>
+      <button class="btn sec" id="btnFases">Fases</button>
+      <button class="btn sec" id="btnPersonagem">Personagem</button>
+      <button class="btn sec" id="btnTrocar">Trocar jogador</button>
+    </div>
+  </section>
+
+  <!-- personagens -->
+  <section class="tela" id="telaPersonagem" aria-labelledby="tPers" hidden>
+    <h2 id="tPers" tabindex="-1">Escolha seu personagem</h2>
+    <p class="sub">Cada um tem seu jeito: vida, velocidade, força e alcance do chicote mudam de verdade no jogo.</p>
+    <div class="personagens" id="listaPersonagens"></div>
+    <div class="rodape"><button class="btn sec" id="btnVoltarPers">Voltar</button></div>
+  </section>
+
+  <!-- fases -->
+  <section class="tela" id="telaFases" aria-labelledby="tFases" hidden>
+    <h2 id="tFases" tabindex="-1">Fases</h2>
+    <p class="sub" id="avisoFases">Vença uma fase para liberar a seguinte.</p>
+    <div class="fases" id="listaFases"></div>
+    <div class="rodape"><button class="btn sec" id="btnVoltarFases">Voltar</button></div>
+  </section>
+
+  <!-- jogo -->
+  <div class="game" id="telaJogo" hidden>
     <div class="frame" id="frame">
       <canvas id="tela" width="320" height="208" aria-label="Tela do jogo Estrela do Sertão"></canvas>
       <div class="hud">
@@ -123,44 +96,49 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:320/208;image-rendering
         </div>
         <div class="bolsa" id="bolsa"></div>
       </div>
-      <div class="chefe" id="chefe" hidden><b>Mula sem Cabeça</b><span class="barra" id="chefeVida" role="img"></span></div>
+      <div class="chefe" id="chefe" hidden><b id="chefeNome"></b><span class="barra" id="chefeVida" role="img"></span></div>
       <div class="toast" id="toast" hidden></div>
       <div class="dialogo" id="dialogo" hidden>
         <p class="quem" id="quem"></p>
         <p class="fala" id="fala"></p>
         <span class="seta" id="seta">▼</span>
       </div>
-      <div class="overlay" id="inicio">
-        <h2>Estrela do Sertão</h2>
-        <p>O Boi Estrela fugiu na lua cheia. Ganhe a ajuda da Caipora, escape das Cabras Cabriolas e enfrente a Mula sem Cabeça para trazê-lo de volta.</p>
-        <div class="ov-botoes">
-          <button class="btn" id="btnContinuar" hidden>Continuar jornada</button>
-          <button class="btn" id="btnComecar">Começar a jornada</button>
-        </div>
-        <p class="miudo" id="recorde" hidden></p>
-        <p class="miudo so-teclado">Setas ou WASD para andar · Espaço para o chicote · E para falar · Esc para pausar · controle também funciona</p>
+      <div class="overlay" id="ovTitulo" hidden>
+        <p class="eyebrow" id="tituloFase"></p>
+        <h2 id="tituloNome"></h2>
+        <p id="tituloResumo"></p>
+        <button class="btn" id="btnComecarFase">Começar</button>
+        <p class="miudo so-teclado">Setas ou WASD para andar · Espaço para o chicote · E para falar · Esc para pausar</p>
       </div>
-      <div class="overlay" id="pausa" hidden>
+      <div class="overlay" id="ovPausa" hidden>
         <h2>Pausa</h2>
-        <p>Zé sentou na sombra de um juazeiro pra tomar fôlego. A jornada fica salva neste navegador.</p>
-        <button class="btn" id="btnVoltar">Voltar à estrada</button>
+        <p id="textoPausa"></p>
+        <div class="ov-botoes">
+          <button class="btn" id="btnVoltar">Voltar ao jogo</button>
+          <button class="btn sec" id="btnReiniciar">Reiniciar fase</button>
+          <button class="btn sec" id="btnSairMenu">Sair para o menu</button>
+        </div>
         <p class="miudo so-teclado">Esc ou P para continuar</p>
       </div>
-      <div class="overlay" id="desmaio" hidden>
+      <div class="overlay" id="ovDesmaio" hidden>
         <h2>O sol do meio-dia venceu</h2>
-        <p>Zé desmaiou na poeira e acordou em casa, com o Vô Chico abanando o chapéu. Tudo o que você conquistou continua com você.</p>
+        <p id="textoDesmaio"></p>
         <button class="btn" id="btnLevantar">Levantar e seguir</button>
       </div>
-      <div class="overlay" id="fim" hidden>
-        <h2>Ê boi! O Estrela voltou</h2>
-        <p>Zé desceu a serra tocando o boi, e o sertão inteiro cantou essa história em cordel.</p>
+      <div class="overlay" id="ovFim" hidden>
+        <p class="eyebrow" id="fimFase"></p>
+        <h2 id="fimTitulo"></h2>
+        <p id="fimTexto"></p>
         <div class="placar">
           <div><b id="fimTempo">0:00</b><span>Tempo</span></div>
-          <div><b id="fimCabras">0</b><span>Cabras vencidas</span></div>
-          <div><b id="fimCordeis">0/5</b><span>Cordéis</span></div>
+          <div><b id="fimInimigos">0</b><span>Inimigos vencidos</span></div>
+          <div><b id="fimCordeis">0/3</b><span>Cordéis</span></div>
         </div>
         <p class="miudo" id="fimRecorde"></p>
-        <button class="btn" id="btnDeNovo">Jogar de novo</button>
+        <div class="ov-botoes">
+          <button class="btn" id="btnProxima">Próxima fase</button>
+          <button class="btn sec" id="btnMenuFim">Voltar ao menu</button>
+        </div>
       </div>
     </div>
 
@@ -176,19 +154,21 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:320/208;image-rendering
         <button class="tecla chicote" data-k="whip">Chicote</button>
       </div>
     </div>
+
+    <section class="legenda">
+      <span class="so-teclado"><kbd>↑↓←→</kbd>ou <kbd>WASD</kbd>andar</span>
+      <span class="so-teclado"><kbd>Espaço</kbd>chicote</span>
+      <span class="so-teclado"><kbd>E</kbd>falar e avançar diálogo</span>
+      <span class="so-teclado"><kbd>Esc</kbd>pausar</span>
+      <div class="botoes"><button class="som" id="btnPausa">Pausar</button></div>
+    </section>
   </div>
 
-  <section class="legenda">
-    <span class="so-teclado"><kbd>↑↓←→</kbd>ou <kbd>WASD</kbd>andar</span>
-    <span class="so-teclado"><kbd>Espaço</kbd>chicote</span>
-    <span class="so-teclado"><kbd>E</kbd>falar e avançar diálogo</span>
-    <span class="so-teclado"><kbd>Esc</kbd>pausar</span>
-    <div class="botoes">
-      <button class="som" id="btnPausa">Pausar</button>
-      <button class="som" id="btnMusica" aria-pressed="true">Música: ligada</button>
-      <button class="som" id="btnSom" aria-pressed="true">Efeitos: ligados</button>
-    </div>
-  </section>
+  <div class="barra">
+    <p class="quem-joga" id="quemJoga" hidden></p>
+    <button class="som" id="btnMusica" aria-pressed="true">Música: ligada</button>
+    <button class="som" id="btnSom" aria-pressed="true">Efeitos: ligados</button>
+  </div>
 
   <section class="bestiario" aria-label="Personagens do folclore">
     <div>
@@ -200,899 +180,27 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:320/208;image-rendering
       <p>Cabra-monstro de olhos de brasa que solta fogo pelas ventas e persegue quem anda desatento pela caatinga.</p>
     </div>
     <div>
+      <h3>Caboclo d'água</h3>
+      <p>Mora no fundo do Rio São Francisco, vira canoas e assusta pescadores. É por causa dele que os barcos levam carranca na proa.</p>
+    </div>
+    <div>
       <h3>Mula sem Cabeça</h3>
       <p>Encanto que corre soltando fogo pelo pescoço. Diz a lenda que, arrancando o freio de ferro, o encanto se quebra.</p>
     </div>
     <div>
       <h3>Folhetos de cordel</h3>
-      <p>Cinco folhetos se perderam pelo sertão, da mata à Serra do Fogo. Cada um traz uma sextilha sobre a jornada. Quantos você acha?</p>
+      <p>Nove folhetos se perderam pelo caminho, três em cada fase. Cada um traz uma sextilha sobre a jornada. Quantos você acha?</p>
     </div>
   </section>
 </div>
 
-<script>
-(() => {
-'use strict';
-const cv = document.getElementById('tela');
-const ctx = cv.getContext('2d');
-ctx.imageSmoothingEnabled = false;
-const T = 16, VW = 320, VH = 208, MW = 48, MH = 36;
-const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const store = {
-  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
-  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
-  del(k){ try{ localStorage.removeItem(k); }catch(e){} },
-};
-const K_JOGO='estrela-do-sertao:jogo', K_REC='estrela-do-sertao:recorde', K_PREF='estrela-do-sertao:prefs';
-const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
-
-/* ---------- MAPA ---------- */
-const TOPO = [
-'################################################',
-'############xxxxxxxxxxxxxxxxxxxxxxxxx###########',
-'###########xxxxxxxxxxxxxxxxxxxxxxxxxxx##########',
-'##########xxxxxRxxxxxxxxxxxxxxxxRxxxxxx#########',
-'##########xxxxxxxxxxxxxxxxxxxxxxxxxxxxx#########',
-'##########xxxxxxxxxxxxxxxxxxxxxxxxxxxxx#########',
-'##########xxxxxxxxxxxxxxxxxxxxxxxxxxxxx#########',
-'##########xxxxxRxxxxxxxxxxxxxxxxRxxxxxx#########',
-'##########xxxxxxxxxxxxxxxxxxxxxxxxxxxxx#########',
-'###########xxxxxxxxxxxxxxxxxxxxxxxxxxx##########',
-'############xxxxxxxxxxxxxxxxxxxxxxxxx###########',
-'##################xxxxxxxxxxx###################',
-'######################EEEE######################',
-];
-const SUL = [
-['BBBBBBBBBBBBB','########....####','#################'],
-['BMMMMMBMMMMMB','C.......,......C','...,.....C.....,.'],
-['BMMBMMMMMMBMB','..,..........,..','.C.....,.....C...'],
-['BMMMMMMMMMMMB','....C...,.......','....R.......,....'],
-['BMBMMMMMMBMMM','................','..C.....C....R...'],
-['BMMMMMMMMMMMM','...,....WWW.....',',.....,.....C....'],
-['BMMBMMMMMBMMM','........WWWW.,..','....C.....,......'],
-['BMMMMMBMMMMMB','..,....WWWW.....','.C......R....C...'],
-['BMMMMMMMMMMMB','.........WW.....','.....,......,....'],
-['BBMMMMBMMMMBB','..C.............','..C....C.....,...'],
-['BBBMMMMMMMBBB','......,.........','.....,.....C.....'],
-['TTBBBMMMBBBTT','..,.........C...','C......,.....R...'],
-['.,..T.......T','................','....C......,.....'],
-['..T....,.....','.......HHHHH....','..,.....C.....C..'],
-['.,......T....','.......HHHHH....','.....,......C....'],
-['...C.....,...','.......HHDHH....','C........,.......'],
-['.,......C....','...,..........,.','....C.......C....'],
-['....,....T...','......,.........','..,......,.......'],
-['..C.......,..','.........,......','.....C.......,...'],
-['.....,..C....','..C...........C.','...,.......C.....'],
-['..,..........','......,.........','C.....,......C...'],
-['CC.CCC..CCC.C','CCCC.CCCCC.CCCCC','CC.CCCC.CCC.CCC.C'],
-];
-const SOLID = new Set(['C','R','T','W','H','D','B','#','E']);
-let map = [];
-function buildMap(){
-  const rows = TOPO.map(r => r.padEnd(MW,'#').slice(0,MW));
-  for (const [a,b,c] of SUL) rows.push('R' + a.padEnd(13,'.').slice(0,13) + b.padEnd(16,'.').slice(0,16) + c.padEnd(17,'.').slice(0,17) + 'R');
-  rows.push('R'.repeat(MW));
-  map = rows.map(r => r.split(''));
-}
-function tileAt(tx,ty){ return (tx<0||ty<0||tx>=MW||ty>=MH) ? '#' : map[ty][tx]; }
-function solidAt(px,py){ return SOLID.has(tileAt(Math.floor(px/T), Math.floor(py/T))); }
-function boxHits(x,y,w,h){
-  const x0=x-w/2, y0=y-h/2, x1=x+w/2-0.01, y1=y+h/2-0.01;
-  const sx=Math.max(1,Math.ceil(w/14)), sy=Math.max(1,Math.ceil(h/14));
-  for(let i=0;i<=sx;i++) for(let j=0;j<=sy;j++){
-    if (solidAt(x0+(x1-x0)*i/sx, y0+(y1-y0)*j/sy)) return true;
-  }
-  return false;
-}
-function moveEnt(e,dx,dy){
-  let hit=false;
-  if(dx){ if(!boxHits(e.x+dx,e.y,e.w,e.h)) e.x+=dx; else hit=true; }
-  if(dy){ if(!boxHits(e.x,e.y+dy,e.w,e.h)) e.y+=dy; else hit=true; }
-  return hit;
-}
-function nearestFree(tx,ty){
-  for(let r=0;r<8;r++) for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){
-    const c=tileAt(tx+dx,ty+dy);
-    if(!SOLID.has(c)) return {x:(tx+dx)*T+8, y:(ty+dy)*T+8};
-  }
-  return {x:tx*T+8,y:ty*T+8};
-}
-function hh(x,y,s){
-  let n=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(s,982451653))|0;
-  n=Math.imul(n^(n>>>13),1274126177); n^=n>>>16;
-  return (n>>>0)/4294967296;
-}
-
-/* ---------- DESENHO DO MAPA ---------- */
-const mapCv = document.createElement('canvas');
-mapCv.width = MW*T; mapCv.height = MH*T;
-const mg = mapCv.getContext('2d');
-function drawTile(g,c,tx,ty){
-  const px=tx*T, py=ty*T;
-  const r=(col,x,y,w,h)=>{ g.fillStyle=col; g.fillRect(px+x,py+y,w,h); };
-  const sand=()=>{ r('#d6a058',0,0,16,16); for(let i=0;i<6;i++){ r(i%2?'#c48d48':'#e6b874',(hh(tx,ty,i)*15)|0,(hh(tx,ty,i+9)*15)|0,1+(i===0),1);} };
-  const mata=()=>{ r('#5f6b34',0,0,16,16); for(let i=0;i<6;i++){ r(i%2?'#4e5a2a':'#76833f',(hh(tx,ty,i)*15)|0,(hh(tx,ty,i+9)*15)|0,1+(i%3===0),1);} };
-  switch(c){
-    case '.': sand(); break;
-    case ',': sand(); for(let k=0;k<2;k++){ const x=(hh(tx,ty,20+k)*11+2)|0, y=(hh(tx,ty,30+k)*8+5)|0; r('#a38a3a',x,y,1,3); r('#a38a3a',x+2,y+1,1,2); r('#c2a648',x+1,y-1,1,4);} break;
-    case 'C': sand(); r('rgba(80,40,10,.25)',4,14,9,2); r('#3f6a2e',6,2,4,13); r('#5f8f3f',7,3,1,11);
-      r('#3f6a2e',3,8,3,2); r('#3f6a2e',3,4,2,5); r('#5f8f3f',3,4,1,4);
-      r('#3f6a2e',10,6,3,2); r('#3f6a2e',11,2,2,5); r('#5f8f3f',11,2,1,4);
-      if(hh(tx,ty,3)>0.72) r('#e85a8a',7,1,2,1); break;
-    case 'R': sand(); r('rgba(80,40,10,.25)',2,13,13,2); r('#7c6c5c',2,6,12,8); r('#7c6c5c',4,4,8,2); r('#9d8e7c',4,5,5,2); r('#9d8e7c',3,7,3,2); r('#5b4f45',3,12,11,2); break;
-    case 'T': sand(); r('rgba(60,40,10,.3)',2,12,13,3); r('#6b4a2b',7,9,3,6); r('#2f5a28',2,2,12,8); r('#2f5a28',1,4,14,5); r('#2f5a28',4,1,8,1); r('#4c8038',4,3,4,2); r('#4c8038',9,5,3,2); r('#4c8038',3,6,2,1); break;
-    case 'W': r('#3a78a0',0,0,16,16);
-      if(tileAt(tx,ty-1)!=='W') r('#c9b07a',0,0,16,2);
-      if(tileAt(tx,ty+1)!=='W') r('#2d5f80',0,14,16,2);
-      if(tileAt(tx-1,ty)!=='W') r('#c9b07a',0,0,2,16);
-      if(tileAt(tx+1,ty)!=='W') r('#c9b07a',14,0,2,16);
-      r('#5c9fc4',(hh(tx,ty,1)*8+3)|0,(hh(tx,ty,2)*9+4)|0,4,1); r('#5c9fc4',(hh(tx,ty,3)*8+3)|0,(hh(tx,ty,4)*9+4)|0,3,1); break;
-    case 'H':
-      if(tileAt(tx,ty-1)!=='H'){ r('#8a3a22',0,0,16,16); for(let y=1;y<16;y+=4) r('#b0502f',0,y,16,2); for(let x=1;x<16;x+=5) r('#6e2c19',x,0,1,16); r('#5a2414',0,15,16,1); }
-      else { r('#b5784a',0,0,16,16); r('#9a5f35',0,5,16,1); r('#9a5f35',0,11,16,1); r('#9a5f35',(hh(tx,ty,1)*14)|0,0,1,5); r('#9a5f35',(hh(tx,ty,2)*14)|0,6,1,5); r('#c98d5c',(hh(tx,ty,3)*12)|0,2,3,1);
-        if(ty===27 && (tx===21||tx===25)){ r('#3a2416',4,4,8,6); r('#7a4a28',3,3,10,1); r('#7a4a28',3,10,10,1); r('#7a4a28',7,4,1,6); }
-        if(tileAt(tx,ty+1)!=='H' && tileAt(tx,ty+1)!=='D') r('rgba(60,30,10,.35)',0,14,16,2); }
-      break;
-    case 'D': r('#b5784a',0,0,16,16); r('#9a5f35',0,5,16,1); r('#4a2d18',3,2,10,14); r('#6b4423',4,3,8,13); r('#4a2d18',8,3,1,13); r('#e0b060',10,9,1,1); break;
-    case 'M': mata(); if(hh(tx,ty,7)>0.6){ r('#3f5a26',(hh(tx,ty,8)*12)|0,(hh(tx,ty,9)*12)|0,3,2); } break;
-    case 'B': mata(); r('#21401e',2,13,12,2); r('#2c5226',1,3,14,11); r('#2c5226',3,1,10,14); r('#3f7434',2,3,8,5); r('#3f7434',8,7,5,4); r('#5b8f45',4,4,3,2); r('#5b8f45',9,8,2,1); if(hh(tx,ty,5)>0.75) r('#d8443a',10,4,1,1); break;
-    case 'E': sand(); r('rgba(70,40,15,.3)',0,12,16,4);
-      for(let i=0;i<15;i++){ r('#5e4a36',i,2+((i*7+tx*3)%11),2,1); r('#4a3826',i,6+((i*5+ty)%8),1,1); r('#7d6a50',i,1+((i*3+tx)%13),1,1); }
-      for(let k=0;k<6;k++) r('#e8d9b8',(hh(tx,ty,k+40)*15)|0,(hh(tx,ty,k+50)*14)|0,1,1);
-      break;
-    case '#': r('#6e3622',0,0,16,16); r('#8a4a2e',0,(hh(tx,ty,1)*4+2)|0,16,2); r('#4f2617',0,(hh(tx,ty,2)*4+9)|0,16,1); r('#94523a',(hh(tx,ty,3)*12)|0,(hh(tx,ty,4)*12)|0,3,2);
-      if(tileAt(tx,ty+1)!=='#') { r('#3c1c10',0,13,16,3); r('#5a2a18',0,12,16,1); }
-      break;
-    case 'x': r('#4b2a1d',0,0,16,16); for(let i=0;i<6;i++){ r(i%2?'#3a2016':'#6b3a24',(hh(tx,ty,i)*15)|0,(hh(tx,ty,i+9)*15)|0,1+(i===0),1);} if(hh(tx,ty,33)>0.85) r('#c4462c',(hh(tx,ty,34)*14)|0,(hh(tx,ty,35)*14)|0,1,1); break;
-    default: sand();
-  }
-}
-function drawMap(){ for(let ty=0;ty<MH;ty++) for(let tx=0;tx<MW;tx++) drawTile(mg,map[ty][tx],tx,ty); }
-
-/* ---------- SOM ---------- */
-let ac=null, muted=false;
-function tone(f,d,type='square',vol=.05,slide=0,delay=0){
-  if(!ac||muted) return;
-  const t0=ac.currentTime+delay, o=ac.createOscillator(), g=ac.createGain();
-  o.type=type; o.frequency.setValueAtTime(f,t0);
-  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t0+d);
-  g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
-  o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0+d+0.02);
-}
-const sfx={
-  whip:()=>tone(1100,.09,'sawtooth',.035,-800),
-  hit:()=>tone(240,.12,'square',.06,-140),
-  clink:()=>tone(1400,.06,'square',.03,-200),
-  hurt:()=>tone(170,.28,'sawtooth',.07,-100),
-  pick:()=>{tone(660,.08,'square',.05);tone(990,.14,'square',.05,0,.08);},
-  crash:()=>tone(90,.4,'triangle',.14,-50),
-  talk:()=>tone(520,.03,'square',.015),
-  win:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,.22,'square',.05,0,i*.14));},
-  fogo:()=>{tone(260,.35,'sawtooth',.05,-160);tone(130,.4,'triangle',.09,-60,.02);},
-  pagina:()=>{[880,1320,1760].forEach((f,i)=>tone(f,.1,'triangle',.04,0,i*.06));},
-};
-
-/* ---------- MÚSICA ---------- */
-// baião feito na hora: zabumba, triângulo, baixo e uma sanfona de dois osciladores
-const NOTA={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
-const midi=n=>{ const m=/^([A-G])(#?)(\d)$/.exec(n); return 12*(+m[3]+1)+NOTA[m[1]]+(m[2]?1:0); };
-const hz=n=>440*Math.pow(2,(n-69)/12);
-function song(bpm,baixo,mel){
-  const at={}; let st=0;
-  for(const tok of mel.trim().split(/\s+/)){ if(tok==='|') continue; const [n,l]=tok.split(':'); if(n!=='-') at[st]=[midi(n),+l]; st+=+l; }
-  return {bpm, baixo:baixo.map(midi), at, len:baixo.length*8};
-}
-const SONGS={
-  // sol mixolídio, o modo do baião
-  sertao:song(104,['G2','F2','F2','G2','G2','C3','D3','G2'],`
-    G4:2 B4:2 D5:2 C5:1 B4:1 | C5:2 A4:2 F4:3 -:1 | F4:2 A4:2 C5:2 B4:1 A4:1 | B4:2 G4:2 D4:3 -:1 |
-    G4:1 G4:1 B4:1 D5:1 F5:2 E5:1 D5:1 | E5:2 C5:2 A4:3 -:1 | F5:1 E5:1 D5:1 C5:1 B4:2 A4:1 F4:1 | G4:6 -:2`),
-  mula:song(138,['E2','A2','B2','E2'],`
-    E5:1 -:1 E5:1 F5:1 E5:2 B4:2 | C5:1 -:1 C5:1 D5:1 C5:2 A4:2 | B4:1 -:1 B4:1 C5:1 B4:2 G#4:2 | A4:2 B4:2 E4:3 -:1`),
-};
-const MUS_VOL=.35, mus={on:true, song:null, step:0, next:0, loop:0};
-let musG=null;
-function env(t,vol,d,att=.005){ const g=ac.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(vol,t+att); g.gain.exponentialRampToValueAtTime(0.0001,t+d); g.connect(musG); return g; }
-function osc(type,f,t,d,dest){ const o=ac.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,t); o.connect(dest); o.start(t); o.stop(t+d+.02); return o; }
-function zabumba(t,forte){ const d=forte?.28:.14, o=osc('sine',forte?120:95,t,d,env(t,forte?.32:.16,d)); o.frequency.exponentialRampToValueAtTime(42,t+.16); }
-function triangulo(t,aberto){ const d=aberto?.22:.04, g=env(t,aberto?.018:.01,d,.002); osc('sine',4200,t,d,g); osc('sine',6300,t,d,g); }
-function baixo(n,t,d){ osc('triangle',hz(n),t,d,env(t,.16,d)); }
-function sanfona(n,t,d){
-  const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800; lp.connect(env(t,.05,d,.02));
-  for(const det of [-7,7]) osc('sawtooth',hz(n),t,d,lp).detune.value=det;
-}
-function musStep(s,i,t,u){
-  const b=i%8, r=s.baixo[Math.floor(i/8)];
-  if(b===0) zabumba(t,true); else if(b===3||b===4) zabumba(t,false);
-  triangulo(t,b===2||b===6);
-  if(b===0) baixo(r,t,u*2.8); else if(b===3||b===6) baixo(r,t,u*.9); else if(b===4) baixo(r+7,t,u*1.8);
-  const m=s.at[i]; if(m && mus.loop%3!==2) sanfona(m[0],t,m[1]*u*.92);
-}
-function musTick(){
-  if(!ac||!musG) return;
-  const want = mus.on && running ? (mula.active && !mula.dead ? 'mula' : 'sertao') : null, now=ac.currentTime;
-  if(want!==mus.song){
-    mus.song=want; mus.step=0; mus.loop=0; mus.next=now+.06;
-    musG.gain.cancelScheduledValues(now);
-    if(want) musG.gain.setValueAtTime(MUS_VOL,now); else musG.gain.setTargetAtTime(0,now,.06);
-  }
-  if(!want) return;
-  const s=SONGS[want], u=60/s.bpm/4;
-  if(mus.next<now) mus.next=now+.02;
-  while(mus.next<now+.15){ musStep(s,mus.step,mus.next,u); mus.next+=u; if(++mus.step>=s.len){ mus.step=0; mus.loop++; } }
-}
-
-/* ---------- ESTADO ---------- */
-const OBJ = {
-  1:'Encontre a Caipora na mata, a oeste',
-  2:'Ache o rolo de fumo na caatinga, a leste',
-  3:'Leve o fumo para a Caipora, na mata a oeste',
-  4:'Siga pelo espinheiro aberto até a Serra do Fogo, ao norte',
-  5:'Golpeie a Mula sem Cabeça quando ela ficar tonta',
-  6:'Encontre o Boi Estrela no alto da serra',
-  7:'Ê boi! O Estrela está a salvo',
-};
-const SPAWN = {x:23*T+8, y:30*T+8};
-const CORDEIS=[
-  ['O Vaqueiro',['Lá no sertão, quando chove,','o mandacaru dá flor;','quando a seca vem de novo,','o vaqueiro, com valor,','encoura o peito e segue','tangendo o gado sem temor.']],
-  ['A Caipora',['Montada num caititu','a Caipora vem ligeira,','protege bicho do mato,','apaga rastro e poeira;','quem lhe traz fumo de rolo','ganha a mata companheira.']],
-  ['A Cabra Cabriola',['A Cabra Cabriola berra','soltando fogo na venta,','de noite ronda as porteiras','atrás de gente desatenta;','quem anda sem ter cuidado','na caatinga não se aguenta.']],
-  ['O Boi Estrela',['Ê boi, ê Boi Estrela,','estrela de ouro na testa,','quando ele volta pro curral','o sertão inteiro é festa:','tem zabumba, tem sanfona','e forró até a sesta.']],
-  ['A Mula sem Cabeça',['Galopa a Mula sem Cabeça','com fogo em vez de focinho,','derruba cerca e porteira,','queima o mato do caminho;','quem arranca o freio dela','quebra o encanto daninho.']],
-];
-const ITENS=[['fumo',43,16],['rapadura',10,28],['rapadura',38,33],['rapadura',29,30],
-  ['cordel',21,18,0],['cordel',2,14,1],['cordel',46,33,2],['cordel',2,32,3],['cordel',11,5,4]];
-let S0, p, npcs, cabras, items, fires, balls, parts, mula, running=false, paused=false, shake=0, time=0, freeze=0, autoT=3;
-let toastT=0, thornMsgT=0;
-
-function newGame(){
-  buildMap(); drawMap();
-  S0 = {stage:1, hasFumo:false, hasFreio:false, thornsOpen:false, maxHp:3, hp:3, kills:0, bossIntro:false, bossDone:false, won:false, metCaipora:false, cordeis:0, got:[], dead:[]};
-  p = {x:SPAWN.x, y:SPAWN.y, w:10, h:8, dir:{x:0,y:1}, anim:0, moving:false, whipT:0, whipCd:0, swing:0, inv:0, kx:0, ky:0};
-  const at=(tx,ty)=>nearestFree(tx,ty);
-  npcs = [
-    Object.assign({type:'avo', w:10,h:8}, at(21,29)),
-    Object.assign({type:'caipora', w:14,h:8, cool:0, face:1}, at(6,19)),
-  ];
-  cabras = [[36,15],[40,19],[44,22],[34,26],[41,30],[38,23],[32,17],[45,15]].map(([tx,ty],i)=>Object.assign({i,w:10,h:6,hp:2,t:Math.random()*2,wx:0,wy:0,kx:0,ky:0,face:i%2?1:-1,flash:0,anim:Math.random()*5,lastSwing:-1,dead:false,puff:Math.random()*2},at(tx,ty)));
-  items = ITENS.map(([type,tx,ty,n],id)=>Object.assign({type,id,n}, at(tx,ty)));
-  fires=[]; balls=[]; parts=[]; time=0; shake=0; freeze=0; autoT=3;
-  mula = makeMula();
-  updateHud();
-}
-function saveGame(){
-  if(!S0||S0.won) return;
-  let x=p.x, y=p.y;
-  if(y<13*T && !S0.bossDone){ x=24*T; y=14*T+8; }  // nunca reabre o jogo no meio da luta
-  store.set(K_JOGO,{v:1,S:S0,time,x,y});
-}
-function loadGame(d){
-  newGame();
-  Object.assign(S0,d.S); time=+d.time||0;
-  S0.hp=Math.max(1,Math.min(S0.hp,S0.maxHp));
-  if(Number.isFinite(d.x) && Number.isFinite(d.y) && !boxHits(d.x,d.y,p.w,p.h)){ p.x=d.x; p.y=d.y; }
-  for(const i of S0.dead) if(cabras[i]) cabras[i].dead=true;
-  items=items.filter(it=>!S0.got.includes(it.id));
-  if(S0.thornsOpen) clearThorns(false);
-  if(S0.bossDone){ mula.dead=true; soltarEncanto(24*T+8,7*T+8); }
-  updateHud();
-}
-function makeMula(){ return {x:24*T+8, y:5*T+8, w:22, h:10, hp:6, state:'idle', t:1.5, dir:-1, vx:0, vy:0, fireT:0, flash:0, anim:0, active:false, dead:false, lastSwing:-1}; }
-
-/* ---------- HUD ---------- */
-const elVida=document.getElementById('vida'), elObj=document.getElementById('objetivo'), elBolsa=document.getElementById('bolsa');
-const elChefe=document.getElementById('chefe'), elChefeVida=document.getElementById('chefeVida');
-const HEART='<svg viewBox="0 0 7 6" aria-hidden="true"><path class="__C__" d="M1 0h2v1h1V0h2v1h1v2h-1v1h-1v1h-1v1h-1V5H2V4H1V3H0V1h1z"/></svg>';
-function updateHud(){
-  let h=''; for(let i=0;i<S0.maxHp;i++) h+=HEART.replace('__C__', i<S0.hp?'cheio':'vazio');
-  elVida.innerHTML=h; elVida.setAttribute('aria-label',`Vida: ${S0.hp} de ${S0.maxHp}`);
-  elObj.textContent=OBJ[S0.stage]||'';
-  let b=''; if(S0.hasFumo) b+='<span>Rolo de fumo</span>'; if(S0.hasFreio) b+='<span>Freio de ferro</span>';
-  if(S0.cordeis) b+=`<span>Cordéis ${S0.cordeis}/${CORDEIS.length}</span>`;
-  elBolsa.innerHTML=b;
-  const on=!!mula && mula.active && !mula.dead; elChefe.hidden=!on;
-  if(on){ let v=''; for(let i=0;i<6;i++) v+=`<i${i<mula.hp?'':' class="vazio"'}></i>`; elChefeVida.innerHTML=v; elChefeVida.setAttribute('aria-label',`Vida da Mula: ${mula.hp} de 6`); }
-  measureHud();
-}
-function setStage(s){ S0.stage=s; updateHud(); saveGame(); }
-const elToast=document.getElementById('toast');
-function toast(msg,dur=2.6){ elToast.textContent=msg; elToast.hidden=false; toastT=dur; }
-
-/* ---------- DIÁLOGO ---------- */
-const elDlg=document.getElementById('dialogo'), elQuem=document.getElementById('quem'), elFala=document.getElementById('fala'), elSeta=document.getElementById('seta');
-const dlg={open:false,lines:[],i:0,shown:0,last:-1,end:null};
-function say(lines,end){ dlg.open=true; dlg.lines=lines; dlg.i=0; dlg.shown=0; dlg.last=-1; dlg.end=end||null; elDlg.hidden=false; renderDlg(); }
-function renderDlg(){
-  const [n,t]=dlg.lines[dlg.i]; const k=Math.min(t.length,Math.floor(dlg.shown));
-  if(k===dlg.last) return; dlg.last=k;
-  elQuem.textContent=n; elFala.textContent=t.slice(0,k); elSeta.hidden = k<t.length;
-}
-function advance(){
-  const t=dlg.lines[dlg.i][1];
-  if(dlg.shown<t.length){ dlg.shown=t.length; }
-  else { dlg.i++; dlg.shown=0; dlg.last=-1;
-    if(dlg.i>=dlg.lines.length){ dlg.open=false; elDlg.hidden=true; const e=dlg.end; dlg.end=null; if(e) e(); return; }
-    sfx.talk();
-  }
-  renderDlg();
-}
-elDlg.addEventListener('click',()=>{ if(dlg.open) advance(); });
-
-const INTRO=[
-  ['Vô Chico','Zé, meu neto! O Boi Estrela arrebentou a cerca na lua cheia e sumiu rumo à Serra do Fogo, lá no norte.'],
-  ['Vô Chico','Dizem que por lá anda uma Mula sem Cabeça, soltando fogo pelo pescoço.'],
-  ['Vô Chico','O caminho do norte tá fechado de espinheiro. Só a Caipora, dona da mata, sabe abrir passagem. Ela vive a oeste.'],
-  ['Vô Chico','Leva teu chicote e cuidado com as Cabras Cabriolas da caatinga. Elas não perdoam menino desatento.'],
-  ['Vô Chico','Ah, e o vento espalhou meus folhetos de cordel pelo sertão. Se achar algum, lê pra mim depois.'],
-];
-function lerCordel(n){
-  const [titulo,v]=CORDEIS[n], quem=`Cordel: ${titulo}`;
-  say([[quem,v[0]+'\n'+v[1]],[quem,v[2]+'\n'+v[3]],[quem,v[4]+'\n'+v[5]]],
-    ()=>toast(S0.cordeis<CORDEIS.length ? `Folhetos de cordel: ${S0.cordeis} de ${CORDEIS.length}` : 'Você achou todos os folhetos de cordel!'));
-}
-
-function talkTo(n){
-  sfx.talk();
-  if(n.type==='avo'){
-    const s=S0.stage;
-    if(s===1) say([['Vô Chico','A Caipora mora na mata, a oeste. Vai lá, menino, que o Estrela não espera.']]);
-    else if(s===2) say([['Vô Chico','Fumo? A Caipora é doida por um rolo. Procura na caatinga, a leste, mas cuidado com as cabras.']]);
-    else if(s===3) say([['Vô Chico','Achou o fumo! Leva pra Caipora antes que ela mude de ideia.']]);
-    else if(s<6) say([['Vô Chico','O espinheiro abriu! Quando a Mula investir e bater numa pedra, ela fica tonta. Aí é a hora do chicote.']]);
-    else say([['Vô Chico','Traz o Estrela pra casa, Zé!']]);
-  }
-  else if(n.type==='caipora'){
-    if(S0.thornsOpen){ say([['Caipora','Vai, vaqueiro. A serra fica ao norte, depois do espinheiro.']]); return; }
-    const greet = S0.metCaipora ? [] : [
-      ['Caipora','Quem entra na minha mata sem pedir licença?'],
-      ['Caipora','Hum... um vaqueiro atrás de boi. Os bichos me contaram.'],
-    ];
-    S0.metCaipora=true;
-    if(S0.hasFumo){
-      say(greet.concat([
-        ['Caipora','Ah, esse cheiro! Fumo de rolo do bom.'],
-        ['Caipora','Trato é trato. O espinheiro do norte já se abriu pra você.'],
-        ['Caipora','E leva essa força da mata: mais um coração no peito.'],
-        ['Caipora','A Mula não é bicho, é encanto. Arranca o freio de ferro dela e o encanto quebra.'],
-      ]), openThorns);
-    } else {
-      say(greet.concat([
-        ['Caipora','Eu abro o espinheiro pra você. Mas Caipora não trabalha de graça: me traz um rolo de fumo.'],
-        ['Caipora','O vento diz que tem um caído na caatinga, a leste, no meio das Cabras Cabriolas.'],
-      ]), ()=>{ if(S0.stage<2) setStage(2); });
-    }
-  }
-  else if(n.type==='moca') say([['Moça','Teu boi tá logo ali em cima, vaqueiro. Obrigada por me libertar.']]);
-  else if(n.type==='boi') winGame();
-}
-function clearThorns(fx){
-  for(let ty=0;ty<MH;ty++) for(let tx=0;tx<MW;tx++) if(map[ty][tx]==='E'){ map[ty][tx]=','; if(fx) burst(tx*T+8,ty*T+8,'#5e4a36',8); }
-  drawMap();
-}
-function openThorns(){
-  S0.thornsOpen=true; S0.hasFumo=false; S0.maxHp++; S0.hp=S0.maxHp;
-  clearThorns(true); sfx.pick(); setStage(4); toast('O espinheiro do norte se abriu!');
-}
-
-/* ---------- ENTRADA ---------- */
-const held=new Set(), just=new Set(), toque={}, pad={};
-const segura=k=>held.has(k)||toque[k]||pad[k];
-const KEYMAP={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',Space:'whip',KeyJ:'whip',KeyZ:'whip',KeyE:'talk',Enter:'talk',KeyK:'talk',KeyX:'talk',Escape:'pause',KeyP:'pause'};
-addEventListener('keydown',e=>{
-  const k=KEYMAP[e.code]; if(!k) return;
-  if(k==='pause'){ if(running||paused){ e.preventDefault(); if(!e.repeat) togglePause(); } return; }
-  if(!running) return;
-  e.preventDefault();
-  if(!held.has(k)) just.add(k);
-  held.add(k);
-});
-addEventListener('keyup',e=>{ const k=KEYMAP[e.code]; if(k) held.delete(k); });
-addEventListener('blur',()=>{ held.clear(); pause(); });
-document.addEventListener('visibilitychange',()=>{ if(document.hidden) pause(); });
-addEventListener('pagehide',()=>{ if(running) saveGame(); });
-
-// direcional de toque: o dedo pode deslizar entre as setas e as diagonais funcionam
-const elDpad=document.querySelector('.dpad'), DIRS=['left','right','up','down'];
-let dpadId=null;
-function dpadSet(st){ for(const k of DIRS){ toque[k]=!!st[k]; elDpad.querySelector('.'+k).classList.toggle('on',!!st[k]); } }
-function dpadMove(e){
-  const r=elDpad.getBoundingClientRect(), dx=e.clientX-r.left-r.width/2, dy=e.clientY-r.top-r.height/2;
-  if(Math.hypot(dx,dy)<r.width*.1) return dpadSet({});
-  const sec=(Math.round(Math.atan2(dy,dx)/(Math.PI/4))+8)%8;  // 0 direita, 2 baixo, 4 esquerda, 6 cima
-  dpadSet({right:sec===7||sec<=1, down:sec>=1&&sec<=3, left:sec>=3&&sec<=5, up:sec>=5&&sec<=7});
-}
-elDpad.addEventListener('pointerdown',e=>{ e.preventDefault(); dpadId=e.pointerId; try{ elDpad.setPointerCapture(e.pointerId); }catch(_){} dpadMove(e); });
-elDpad.addEventListener('pointermove',e=>{ if(e.pointerId===dpadId) dpadMove(e); });
-for(const ev of ['pointerup','pointercancel','lostpointercapture']) elDpad.addEventListener(ev,e=>{ if(e.pointerId===dpadId){ dpadId=null; dpadSet({}); } });
-elDpad.addEventListener('contextmenu',e=>e.preventDefault());
-document.querySelectorAll('.acoes .tecla').forEach(b=>{
-  const k=b.dataset.k;
-  b.addEventListener('pointerdown',e=>{ e.preventDefault(); if(running) just.add(k); b.classList.add('on'); });
-  const up=()=>b.classList.remove('on');
-  b.addEventListener('pointerup',up); b.addEventListener('pointercancel',up); b.addEventListener('pointerleave',up);
-  b.addEventListener('contextmenu',e=>e.preventDefault());
-});
-cv.addEventListener('pointerdown',()=>{ if(running && dlg.open) advance(); });
-
-// controle: analógico ou direcional, A/X chicote, B/Y falar, Start pausa
-let padAntes={};
-function readPad(){
-  let gp=null; if(navigator.getGamepads) for(const g of navigator.getGamepads()) if(g&&g.connected){ gp=g; break; }
-  const b=i=>!!(gp&&gp.buttons[i]&&gp.buttons[i].pressed), ax=gp?gp.axes[0]||0:0, ay=gp?gp.axes[1]||0:0;
-  const st={left:ax<-.45||b(14), right:ax>.45||b(15), up:ay<-.45||b(12), down:ay>.45||b(13), whip:b(0)||b(2), talk:b(1)||b(3), pause:b(9)};
-  for(const k in st){
-    if(st[k] && !padAntes[k]){
-      if(k==='pause') togglePause();
-      else if(running) just.add(k);
-      else if(k==='whip'){ const o=[...document.querySelectorAll('.overlay')].find(o=>!o.hidden), bt=o&&o.querySelector('.btn:not([hidden])'); if(bt) bt.click(); }
-    }
-    pad[k]=st[k];
-  }
-  padAntes=st;
-}
-
-/* ---------- PAUSA ---------- */
-const elPausa=document.getElementById('pausa'), btnPausa=document.getElementById('btnPausa');
-function pause(){ if(!running) return; running=false; paused=true; held.clear(); saveGame(); elPausa.hidden=false; btnPausa.textContent='Continuar'; document.getElementById('btnVoltar').focus(); }
-function unpause(){ if(!paused) return; paused=false; elPausa.hidden=true; running=true; held.clear(); btnPausa.textContent='Pausar'; }
-function togglePause(){ paused?unpause():pause(); }
-
-/* ---------- UTIL ---------- */
-const overlap=(a,b)=>Math.abs(a.x-b.x)*2<a.w+b.w && Math.abs(a.y-b.y)*2<a.h+b.h;
-const hurtP=()=>({x:p.x,y:p.y-5,w:9,h:13});
-const hurtC=c=>({x:c.x,y:c.y-3,w:14,h:10});
-const hurtM=()=>({x:mula.x,y:mula.y-5,w:24,h:14});
-function burst(x,y,col,n=8,sp=50){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=sp*(0.4+Math.random()); parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-10,t:0.4+Math.random()*0.3,col}); } }
-function hurt(n,fx,fy){
-  if(p.inv>0||S0.won) return;
-  S0.hp-=n; p.inv=1.1; const dx=p.x-fx, dy=p.y-fy, d=Math.hypot(dx,dy)||1;
-  p.kx=dx/d*170; p.ky=dy/d*170; shake=Math.max(shake,.15); freeze=Math.max(freeze,.05); sfx.hurt(); updateHud();
-  if(S0.hp<=0){ S0.hp=0; updateHud(); faint(); }
-}
-function faint(){ running=false; held.clear(); document.getElementById('desmaio').hidden=false; document.getElementById('btnLevantar').focus(); }
-function respawn(){
-  S0.hp=S0.maxHp; p.x=SPAWN.x; p.y=SPAWN.y; p.inv=1; p.kx=p.ky=0; p.whipT=0;
-  fires=[]; balls=[];
-  if(!S0.bossDone){ const keep=mula.lastSwing; mula=makeMula(); mula.lastSwing=keep; }
-  updateHud(); saveGame();
-}
-function soltarEncanto(x,y){
-  npcs.push({type:'moca', x, y, w:10, h:8});
-  npcs.push({type:'boi', x:24*T+8, y:2*T+10, w:18, h:8, face:1});
-}
-function defeatMula(){
-  mula.dead=true; mula.active=false; S0.bossDone=true; S0.hasFreio=true; fires=[]; balls=[];
-  burst(mula.x,mula.y-8,'#ffd23a',24,90); burst(mula.x,mula.y-8,'#c4462c',18,70); shake=.4; sfx.crash();
-  soltarEncanto(mula.x,mula.y);
-  setStage(6);
-  say([
-    ['Zé','Peguei o freio de ferro!'],
-    ['Moça','O encanto se quebrou! Eu era a Mula, vaqueiro, e agora voltei a ser gente.'],
-    ['Moça','Teu boi tá logo ali em cima, assustado, mas inteiro.'],
-  ]);
-}
-function winGame(){
-  if(S0.won) return;
-  S0.won=true; setStage(7);
-  say([
-    ['Boi Estrela','Muuuuu!'],
-    ['Zé','Bora pra casa, Estrela. O sertão inteiro vai saber dessa história.'],
-  ], ()=>{
-    sfx.win(); running=false;
-    const r=store.get(K_REC)||{}, novo=!(r.tempo>0) || time<r.tempo, falta=CORDEIS.length-S0.cordeis;
-    const rec={tempo:novo?time:r.tempo, cordeis:Math.max(r.cordeis||0,S0.cordeis)};
-    store.set(K_REC,rec); store.del(K_JOGO);
-    document.getElementById('fimTempo').textContent=fmt(time);
-    document.getElementById('fimCabras').textContent=S0.kills;
-    document.getElementById('fimCordeis').textContent=`${S0.cordeis}/${CORDEIS.length}`;
-    document.getElementById('fimRecorde').textContent=(novo?'Novo recorde de tempo!':`Recorde: ${fmt(rec.tempo)}`)
-      + (falta ? ` · ${falta===1?'Ficou 1 folheto':`Ficaram ${falta} folhetos`} de cordel pelo caminho.` : ' · Todos os cordéis lidos!');
-    document.getElementById('fim').hidden=false;
-    document.getElementById('btnDeNovo').focus();
-  });
-}
-function nearbyNpc(){
-  let best=null, bd=26;
-  for(const n of npcs){ const d=Math.hypot(n.x-p.x,n.y-p.y); if(d<bd){bd=d;best=n;} }
-  return best;
-}
-
-/* ---------- ATUALIZAÇÃO ---------- */
-function update(dt){
-  if(toastT>0){ toastT-=dt; if(toastT<=0) elToast.hidden=true; elToast.classList.toggle('baixo',mula.active); }  // na luta, longe da Mula
-  if(!running){ return; }
-  if(dlg.open){
-    dlg.shown+=dt*55; renderDlg();
-    if(just.has('whip')||just.has('talk')) advance();
-    return;
-  }
-  if(freeze>0){ freeze-=dt; return; }
-  time+=dt; shake=Math.max(0,shake-dt);
-  thornMsgT=Math.max(0,thornMsgT-dt);
-  autoT-=dt; if(autoT<=0){ autoT=3; saveGame(); }
-
-  // jogador
-  let dx=(segura('right')?1:0)-(segura('left')?1:0), dy=(segura('down')?1:0)-(segura('up')?1:0);
-  p.moving = !!(dx||dy);
-  if(p.moving){ const l=Math.hypot(dx,dy); dx/=l; dy/=l;
-    if(p.whipT<=0){ if(Math.abs(dx)>=Math.abs(dy)) p.dir={x:Math.sign(dx),y:0}; else p.dir={x:0,y:Math.sign(dy)}; }
-    p.anim+=dt;
-  }
-  const spd = p.whipT>0 ? 30 : 74;
-  moveEnt(p, dx*spd*dt + p.kx*dt, dy*spd*dt + p.ky*dt);
-  const damp=Math.min(1,dt*9); p.kx-=p.kx*damp; p.ky-=p.ky*damp;
-  p.inv=Math.max(0,p.inv-dt); p.whipCd-=dt;
-  if(p.whipT>0) p.whipT-=dt;
-
-  if(just.has('whip') && p.whipCd<=0){ p.whipT=0.25; p.whipCd=0.36; p.swing++; sfx.whip(); }
-  if(just.has('talk')){ const n=nearbyNpc(); if(n) talkTo(n); }
-
-  // chicote
-  let wb=null;
-  if(p.whipT>0){ const pr=1-p.whipT/0.25; if(pr>0.2 && pr<0.85){ const d=p.dir; const hx=p.x+d.x*4, hy=p.y-3+d.y*2; wb={x:hx+d.x*12,y:hy+d.y*12,w:d.x?24:10,h:d.x?10:24}; } }
-
-  // espinheiro fechado
-  if(!S0.thornsOpen && p.y<14*T && p.x>21*T && p.x<27*T && thornMsgT<=0){ thornMsgT=5; toast('Espinheiro fechado. Só a Caipora abre essa passagem.'); }
-
-  // entrada na arena
-  if(S0.thornsOpen && !S0.bossDone && p.y<11*T+6){
-    if(!S0.bossIntro){ S0.bossIntro=true; say([
-      ['Zé','Um tropel de cascos... e cheiro de fogo no ar.'],
-      ['Zé','É a Mula sem Cabeça! O Estrela deve estar preso atrás dela.'],
-      ['Dica','Desvie das investidas: a linha vermelha mostra para onde ela vai correr.'],
-      ['Dica','Quando ela bater numa pedra ou parede, fica tonta. É a hora do chicote!'],
-    ], ()=>{ mula.active=true; setStage(5); }); return; }
-    else if(!mula.active){ mula.active=true; updateHud(); }
-  }
-
-  // cabras
-  const hp=hurtP();
-  for(const c of cabras){
-    if(c.dead) continue;
-    c.t-=dt; c.flash=Math.max(0,c.flash-dt); c.anim+=dt; c.puff-=dt;
-    const ddx=p.x-c.x, ddy=p.y-c.y, dist=Math.hypot(ddx,ddy)||1;
-    let vx,vy;
-    if(dist<92 && c.x>14*T){ vx=ddx/dist*44; vy=ddy/dist*44; c.chase=true; }
-    else { c.chase=false; if(c.t<=0){ c.t=1+Math.random()*2; if(Math.random()<.35){c.wx=0;c.wy=0;} else { const a=Math.random()*Math.PI*2; c.wx=Math.cos(a)*18; c.wy=Math.sin(a)*18; } } vx=c.wx; vy=c.wy; }
-    vx+=c.kx; vy+=c.ky; const dm=Math.min(1,dt*8); c.kx-=c.kx*dm; c.ky-=c.ky*dm;
-    if(Math.abs(vx)>3) c.face=Math.sign(vx);
-    c.moving=Math.hypot(vx,vy)>3;
-    moveEnt(c,vx*dt,vy*dt);
-    if(c.x<14*T+8){ c.x=14*T+8; c.wx=Math.abs(c.wx); }
-    if(c.chase && c.puff<=0){ c.puff=1.2+Math.random(); for(let i=0;i<4;i++) parts.push({x:c.x+c.face*9,y:c.y-7,vx:c.face*(30+Math.random()*30),vy:-5+Math.random()*10,t:.35,col:i%2?'#ffb43a':'#e8401a'}); }
-    if(overlap(hp,hurtC(c))) hurt(1,c.x,c.y);
-    if(wb && c.lastSwing!==p.swing && overlap(wb,hurtC(c))){
-      c.lastSwing=p.swing; c.hp--; c.flash=.15; const kd=Math.hypot(c.x-p.x,c.y-p.y)||1;
-      c.kx=(c.x-p.x)/kd*160; c.ky=(c.y-p.y)/kd*160; sfx.hit(); burst(c.x,c.y-4,'#f1e2c2',5,40); freeze=.045;
-      if(c.hp<=0){ c.dead=true; S0.kills++; S0.dead.push(c.i); burst(c.x,c.y-4,'#3d3532',12,60); burst(c.x,c.y-4,'#c4462c',6,40); if(Math.random()<.4) items.push({type:'rapadura',x:c.x,y:c.y}); }
-    }
-  }
-
-  // caipora
-  for(const n of npcs){
-    if(n.type==='caipora'){ n.cool=Math.max(0,n.cool-dt); n.face = p.x>n.x?1:-1;
-      if(wb && n.lastSwing!==p.swing && overlap(wb,{x:n.x,y:n.y-8,w:14,h:18})){ n.lastSwing=p.swing;
-        if(n.cool<=0){ n.cool=3; hurt(1,n.x,n.y); say([['Caipora','Ei! Quem bate na Caipora apanha da mata inteira. Me respeita, vaqueiro!']]); }
-      }
-    }
-    if(n.type==='boi'){ n.face = p.x>n.x?1:-1; if(Math.hypot(n.x-p.x,n.y-p.y)<20) winGame(); }
-  }
-
-  // mula
-  updateMula(dt,hp,wb);
-
-  // fogo
-  for(const f of fires){ f.t-=dt; if(f.t>0.3 && overlap(hp,{x:f.x,y:f.y,w:8,h:6})) hurt(1,f.x,f.y); }
-  fires=fires.filter(f=>f.t>0);
-  for(const b of balls){
-    b.t-=dt; b.x+=b.vx*dt; b.y+=b.vy*dt;
-    if(Math.random()<dt*25) parts.push({x:b.x,y:b.y,vx:-b.vx*.2,vy:-12,t:.25,col:'#ff8a1e'});
-    if(b.t<=0 || solidAt(b.x,b.y+6)){ b.t=0; burst(b.x,b.y,'#ff8a1e',4,30); }
-    else if(overlap(hp,{x:b.x,y:b.y,w:6,h:6})){ b.t=0; hurt(1,b.x,b.y); }
-  }
-  balls=balls.filter(b=>b.t>0);
-
-  // itens
-  for(const it of items){
-    if(it.got) continue;
-    if(Math.hypot(it.x-p.x,it.y-p.y)<12){
-      if(it.type==='rapadura'){ if(S0.hp>=S0.maxHp) continue; it.got=true; S0.hp++; sfx.pick(); toast('Rapadura! Recuperou um coração.'); }
-      else if(it.type==='fumo'){ it.got=true; S0.hasFumo=true; sfx.pick(); toast('Você pegou um rolo de fumo!'); if(S0.stage<3) setStage(3); }
-      else if(it.type==='cordel'){ it.got=true; S0.cordeis++; sfx.pagina(); lerCordel(it.n); }
-      if(it.id!=null) S0.got.push(it.id);
-      updateHud(); saveGame(); burst(it.x,it.y-4,'#ffd23a',8,40);
-    }
-  }
-  items=items.filter(i=>!i.got);
-
-  for(const q of parts){ q.t-=dt; q.x+=q.vx*dt; q.y+=q.vy*dt; q.vy+=60*dt; }
-  parts=parts.filter(q=>q.t>0);
-}
-
-// fase 2: ao se levantar da tontura, a Mula solta um anel de bolas de fogo
-function ringOfFire(m){
-  const n=m.hp<=1?12:8, a0=Math.random()*Math.PI;
-  for(let i=0;i<n;i++){ const a=a0+i*Math.PI*2/n; balls.push({x:m.x,y:m.y-6,vx:Math.cos(a)*68,vy:Math.sin(a)*68,t:4}); }
-  sfx.fogo(); shake=Math.max(shake,.12);
-}
-function updateMula(dt,hp,wb){
-  const m=mula; m.anim+=dt; m.flash=Math.max(0,m.flash-dt);
-  if(!m.active||m.dead) return;
-  const ARENA_Y=11*T+6;
-  if(m.state==='idle'){
-    m.t-=dt; m.dir=p.x>m.x?1:-1;
-    const dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy)||1;
-    moveEnt(m,dx/d*22*dt,dy/d*22*dt); if(m.y>ARENA_Y) m.y=ARENA_Y;
-    if(m.t<=0){ m.state='wind'; m.t=m.hp<=3?0.42:0.55; }
-  } else if(m.state==='wind'){
-    m.t-=dt; m.dir=p.x>m.x?1:-1;
-    if(m.t<=0){ const dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy)||1, spd=170+(6-m.hp)*14; m.vx=dx/d*spd; m.vy=dy/d*spd; m.state='charge'; m.t=1.6; m.fireT=0; }
-  } else if(m.state==='charge'){
-    m.t-=dt; m.fireT-=dt; m.dir=m.vx>=0?1:-1;
-    if(m.fireT<=0){ m.fireT=0.05; fires.push({x:m.x-m.dir*8,y:m.y+2,t:2.4,s:Math.random()*6}); }
-    let hit=moveEnt(m,m.vx*dt,m.vy*dt);
-    if(m.y>ARENA_Y){ m.y=ARENA_Y; hit=true; }
-    if(hit){ m.state='stun'; m.t=2.2; shake=.35; sfx.crash(); burst(m.x+m.dir*10,m.y-6,'#7c6c5c',10,60); }
-    else if(m.t<=0){ m.state='idle'; m.t=0.9; }
-  } else if(m.state==='stun'){
-    m.t-=dt; if(m.t<=0){ m.state='idle'; m.t=0.9; if(m.hp<=3) ringOfFire(m); }
-  }
-  if(m.state!=='stun' && overlap(hp,hurtM())) hurt(1,m.x,m.y);
-  if(wb && m.lastSwing!==p.swing && overlap(wb,hurtM())){
-    m.lastSwing=p.swing;
-    if(m.state==='stun'){ m.hp--; m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08; burst(m.x,m.y-8,'#ffd23a',6,50); updateHud();
-      if(m.hp<=0) defeatMula(); else if(m.hp===3) toast('A Mula se enfureceu! Agora ela cospe fogo quando se levanta.',3.4); }
-    else { sfx.clink(); burst(m.x,m.y-8,'#9aa0a8',4,40); }
-  }
-}
-
-/* ---------- SPRITES ---------- */
-let tint=null;
-function S(c,x,y,w,h){ ctx.fillStyle=tint||c; ctx.fillRect(Math.round(x),Math.round(y),w,h); }
-function shadow(x,y,w){ ctx.fillStyle='rgba(50,25,5,.3)'; ctx.fillRect(Math.round(x-w/2),Math.round(y-1),w,3); }
-const flip=(x,y,face)=>(c,ox,oy,w,h)=>S(c, face>0? x+ox : x-ox-w, y+oy, w,h);
-
-function drawZe(){
-  const x=Math.round(p.x), y=Math.round(p.y+p.h/2), d=p.dir;
-  shadow(x,y,10);
-  if(p.inv>0 && Math.floor(p.inv*18)%2) return;
-  const hx=x+d.x*4, hy=y-7+d.y*2;
-  if(d.y<0) drawWhip(hx,hy);
-  const f=p.moving?Math.floor(p.anim*9)%2:0;
-  S('#3b281b',x-3,y-4,2,f?3:4); S('#3b281b',x+1,y-4,2,f?4:3);
-  S('#8a5a2e',x-4,y-10,8,7); S('#a8733d',x-3,y-9,2,5); S('#5e3a1c',x-4,y-4,8,1); S('#e2b45e',x-1,y-4,2,1);
-  S('#7a4e27',x-5,y-9,1,5); S('#7a4e27',x+4,y-9,1,5); S('#c68a5a',x-5,y-4,1,1); S('#c68a5a',x+4,y-4,1,1);
-  S('#c68a5a',x-3,y-14,6,4);
-  S('#6b4423',x-6,y-14,12,2); S('#7d5029',x-4,y-17,8,3); S('#e2b45e',x-2,y-16,1,1); S('#e2b45e',x+1,y-16,1,1);
-  if(d.y>0){ S('#2a1a10',x-2,y-12,1,1); S('#2a1a10',x+1,y-12,1,1); }
-  else if(d.y<0){ S('#6b4423',x-3,y-12,6,2); }
-  else if(d.x<0){ S('#2a1a10',x-2,y-12,1,1); }
-  else { S('#2a1a10',x+1,y-12,1,1); }
-  if(d.y>=0) drawWhip(hx,hy);
-}
-function drawWhip(hx,hy){
-  if(p.whipT<=0) return;
-  const d=p.dir, pr=1-p.whipT/0.25, len=3+20*Math.sin(pr*Math.PI), px=-d.y, py=d.x;
-  for(let i=0;i<len;i++){ const w=Math.sin(i*0.45-pr*9)*1.6*(i/len); S('#c9a06a',hx+d.x*i+px*w,hy+d.y*i+py*w,1,1); }
-  S('#fff1d0',hx+d.x*len-1,hy+d.y*len-1,2,2);
-}
-function drawCabra(c){
-  const x=Math.round(c.x), y=Math.round(c.y+c.h/2), bob=c.moving?Math.abs(Math.sin(c.anim*12))*1.5:0;
-  shadow(x,y,12);
-  tint = c.flash>0 ? '#ffffff' : null;
-  const F=flip(x,y-bob,c.face), lf=c.moving?Math.floor(c.anim*10)%2:0;
-  F('#2a2422',-5,-3,1,3-lf); F('#2a2422',-2,-3,1,2+lf); F('#2a2422',2,-3,1,3-lf); F('#2a2422',4,-3,1,2+lf);
-  F('#3d3532',-6,-9,11,6); F('#57504b',-5,-9,8,2); F('#3d3532',-7,-9,1,2);
-  F('#3d3532',4,-12,5,5); F('#2a2422',8,-10,2,3); F('#57504b',7,-7,1,2);
-  F('#d8cbb0',4,-14,1,2); F('#d8cbb0',3,-15,1,1); F('#d8cbb0',2,-15,1,2); F('#d8cbb0',6,-14,1,2); F('#d8cbb0',5,-15,1,1);
-  F(c.chase?'#ffd23a':'#ff5a2a',6,-11,1,1);
-  tint=null;
-}
-function drawCaipora(n){
-  const x=Math.round(n.x), y=Math.round(n.y+n.h/2), F=flip(x,y,n.face), b=Math.round(Math.sin(time*3)*0.8);
-  shadow(x,y,14);
-  F('#33251b',-6,-2,2,2); F('#33251b',3,-2,2,2);
-  F('#4a3628',-7,-7,13,6); F('#5e4636',-6,-7,10,2); F('#2a1c14',-4,-8,7,1);
-  F('#4a3628',5,-8,4,5); F('#7a5a48',8,-6,2,2); F('#f1e2c2',8,-4,1,1); F('#1a0e08',6,-7,1,1);
-  const R=(c,ox,oy,w,h)=>F(c,ox,oy+b,w,h);
-  R('#5d8a3a',-3,-10,7,3); R('#a8693f',-2,-14,5,5); R('#6b4a2b',4,-19,1,12);
-  R('#a8693f',-2,-18,5,4); R('#1a0e08',1,-17,1,1);
-  const hc=['#e0552a','#f07a2e','#c93a1e'];
-  for(let i=0;i<7;i++){ const hgt=2+Math.floor((Math.sin(time*8+i*1.7)+1)*1.3); R(hc[i%3],-3+i,-18-hgt,1,hgt); }
-  R('#e0552a',-3,-19,7,2); R('#e0552a',-3,-17,1,3);
-}
-function drawAvo(n){
-  const x=Math.round(n.x), y=Math.round(n.y+n.h/2);
-  shadow(x,y,10);
-  S('#5a4a3a',x-3,y-4,2,4); S('#5a4a3a',x+1,y-4,2,4);
-  S('#c9b48a',x-4,y-10,8,7); S('#a8946a',x-4,y-4,8,1);
-  S('#6b4a2b',x+5,y-9,1,9); S('#c68a5a',x+4,y-8,2,1);
-  S('#b98055',x-3,y-14,6,4); S('#f1ece0',x-3,y-11,6,3); S('#f1ece0',x-2,y-8,4,1);
-  S('#2a1a10',x-2,y-13,1,1); S('#2a1a10',x+1,y-13,1,1);
-  S('#7a6a55',x-6,y-15,12,2); S('#8a7a62',x-4,y-18,8,3);
-}
-function drawMoca(n){
-  const x=Math.round(n.x), y=Math.round(n.y+n.h/2);
-  shadow(x,y,10);
-  S('#c2405a',x-5,y-4,10,3); S('#c2405a',x-4,y-10,8,7); S('#e06a80',x-3,y-9,2,4);
-  S('#2a1a12',x-4,y-16,8,3); S('#2a1a12',x-4,y-14,1,7); S('#2a1a12',x+3,y-14,1,7);
-  S('#b07850',x-3,y-14,6,4); S('#2a1a10',x-2,y-12,1,1); S('#2a1a10',x+1,y-12,1,1);
-  S('#e9a83b',x+2,y-16,2,1);
-}
-function drawBoi(n){
-  const x=Math.round(n.x), y=Math.round(n.y+n.h/2), F=flip(x,y,n.face), b=Math.floor(time*2)%2;
-  shadow(x,y,20);
-  F('#d8cfc0',-9,-4,2,4); F('#d8cfc0',-5,-4,2,4); F('#d8cfc0',2,-4,2,4); F('#d8cfc0',5,-4,2,4);
-  F('#efe6d6',-10,-13,18,9); F('#2a2220',-7,-12,4,3); F('#2a2220',0,-10,3,3); F('#2a2220',-3,-7,2,2);
-  F('#efe6d6',-12,-12,2,1); F('#2a2220',-13,-11,1,4);
-  F('#c4462c',6,-17,1,5); F('#3a78a0',5,-16,1,5); F('#e9a83b',4,-15,1,5);
-  F('#efe6d6',7,-16+b,6,7); F('#e0b0a0',11,-12+b,3,3); F('#2a1a10',10,-14+b,1,1);
-  F('#d8cbb0',7,-18+b,1,2); F('#d8cbb0',12,-18+b,1,2);
-  F('#ffd23a',9,-16+b,1,3); F('#ffd23a',8,-15+b,3,1);
-}
-function drawMula(){
-  const m=mula, x=Math.round(m.x), y=Math.round(m.y+m.h/2), F=flip(x,y,m.dir);
-  shadow(x,y,26);
-  const run=m.state==='charge', lf=run?Math.floor(m.anim*16)%2:Math.floor(m.anim*3)%2*(m.state==='wind'?1:0);
-  const aviso=m.state==='wind' || (m.state==='stun' && m.hp<=3 && m.t<.6);  // investida ou anel de fogo chegando
-  if(m.flash>0) tint='#ffffff'; else if(aviso && Math.floor(m.anim*20)%2) tint='#ff7a50';
-  F('#3a2618',-10,-5,2,5-lf); F('#3a2618',-6,-5,2,4+lf); F('#3a2618',4,-5,2,5-lf); F('#3a2618',8,-5,2,4+lf);
-  F('#5b3a24',-11,-14,21,9); F('#73492d',-10,-14,17,2); F('#4a2e1c',-9,-7,17,2);
-  F('#8a2a1e',-4,-15,7,4); F('#e9a83b',-4,-11,7,1);
-  F('#1e140e',-13,-13,2,1); F('#1e140e',-14,-12,1,5);
-  F('#5b3a24',9,-17,4,7); F('#9aa0a8',11,-12,2,2); F('#c8ccd2',11,-12,1,1);
-  tint=null;
-  if(m.state!=='stun'){
-    for(let i=0;i<6;i++){ const h=4+(m.hp<=3?3:0)+Math.floor((Math.sin(m.anim*14+i*2.1)+1)*3); F(i%2?'#ff8a1e':'#ffd23a',8+(i%5),-17-h,1+(i===2?1:0),h); }
-    F('#e8401a',8,-19,6,2);
-  } else {
-    F('#6a6058',9,-19,4,2);
-    for(let k=0;k<3;k++){ const a=m.anim*5+k*2.09; S('#ffd23a',x+Math.cos(a)*10-1,y-26+Math.sin(a)*3,2,2); }
-  }
-}
-function drawItem(it){
-  const x=Math.round(it.x), y=Math.round(it.y+3), b=Math.round(Math.sin(time*4+x)*1);
-  shadow(x,y,9);
-  if(it.type==='fumo'){ S('#5a3418',x-5,y-7+b,10,6); S('#7d4a24',x-5,y-6+b,10,1); S('#7d4a24',x-5,y-4+b,10,1); S('#3d220f',x-6,y-6+b,1,4); S('#3d220f',x+5,y-6+b,1,4);
-    if(Math.floor(time*3)%3===0) S('#fff1d0',x+3,y-10+b,1,1); }
-  else if(it.type==='cordel'){ S('#2a1a12',x-4,y-10+b,8,9); S('#f1e2c2',x-3,y-9+b,6,7); S('#c4462c',x-2,y-8+b,4,3); S('#2a1a12',x-1,y-7+b,2,1); S('#8a7a62',x-2,y-4+b,4,1); S('#8a7a62',x-2,y-3+b,3,1);
-    if(Math.floor(time*2+x)%4===0) S('#fff1d0',x+4,y-11+b,1,1); }
-  else { S('#9c5a24',x-4,y-6+b,8,5); S('#c27a3a',x-3,y-6+b,6,1); S('#6e3c14',x-4,y-2+b,8,1); }
-}
-function drawBall(b){
-  const x=Math.round(b.x), y=Math.round(b.y), f=Math.floor(time*20+x)%2;
-  shadow(x,y+7,4);
-  S('#e8401a',x-3,y-2,6,4); S('#e8401a',x-2,y-3,4,6); S(f?'#ffd23a':'#ff8a1e',x-2,y-2,4,4); S('#fff1d0',x-1,y-1,2,2);
-}
-// seta na borda da tela apontando para o próximo objetivo
-function target(){
-  const s=S0.stage;
-  if(s===1||s===3) return npcs.find(n=>n.type==='caipora');
-  if(s===2) return items.find(i=>i.type==='fumo');
-  if(s===4) return {x:24*T, y:11*T};
-  if(s===6) return npcs.find(n=>n.type==='boi');
-  return null;
-}
-let hudB=34;  // base do HUD em pixels do canvas: a seta fica sempre abaixo dele
-function measureHud(){
-  const r=cv.getBoundingClientRect(); if(!r.width) return;
-  hudB=Math.max(20,Math.min(VH/2,Math.ceil((document.querySelector('.hud').getBoundingClientRect().bottom-r.top)*VW/r.width)+8));
-}
-addEventListener('resize',measureHud);
-if(document.fonts) document.fonts.ready.then(measureHud);
-function drawArrow(cx,cy){
-  const a=target(); if(!a) return;
-  const M=10, TOP=hudB, sx=a.x-cx, sy=a.y-cy;
-  if(sx>M && sx<VW-M && sy>TOP && sy<VH-M) return;
-  const ox=VW/2, oy=(TOP+VH-M)/2, dx=sx-ox, dy=sy-oy;
-  const k=Math.min(dx>0?(VW-M-ox)/dx:dx<0?(M-ox)/dx:Infinity, dy>0?(VH-M-oy)/dy:dy<0?(TOP-oy)/dy:Infinity);
-  ctx.save(); ctx.translate(Math.round(ox+dx*k),Math.round(oy+dy*k)); ctx.rotate(Math.atan2(dy,dx)); ctx.translate(calm?0:Math.sin(time*6)*1.5,0);
-  ctx.beginPath(); ctx.moveTo(6,0); ctx.lineTo(-4,-5); ctx.lineTo(-2,0); ctx.lineTo(-4,5); ctx.closePath();
-  ctx.lineWidth=2; ctx.strokeStyle='#2a1a12'; ctx.stroke(); ctx.fillStyle='#e9a83b'; ctx.fill();
-  ctx.restore();
-}
-function drawFire(f){
-  const a=Math.min(1,f.t/0.6), h=Math.max(1,Math.round((3+Math.sin(time*20+f.s)*2)*a+1));
-  const x=Math.round(f.x), y=Math.round(f.y+3);
-  S('#e8401a',x-3,y-h,6,h); S('#ff8a1e',x-2,y-h-1,4,h); S('#ffd23a',x-1,y-h,2,Math.max(1,h-2));
-}
-function drawBubble(n){
-  const off={avo:22,caipora:28,moca:22,boi:24}[n.type]||22;
-  const x=Math.round(n.x), y=Math.round(n.y+n.h/2-off-Math.abs(Math.sin(time*4))*1.5);
-  S('#2a1a12',x-6,y-6,13,8); S('#f1e2c2',x-5,y-5,11,6); S('#f1e2c2',x-1,y+1,2,2);
-  S('#2a1a12',x-3,y-3,1,1); S('#2a1a12',x,y-3,1,1); S('#2a1a12',x+3,y-3,1,1);
-}
-
-/* ---------- RENDER ---------- */
-const vg=ctx.createRadialGradient(VW/2,VH/2,70,VW/2,VH/2,220);
-vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(50,18,0,.38)');
-const vgDor=ctx.createRadialGradient(VW/2,VH/2,60,VW/2,VH/2,210);
-vgDor.addColorStop(0,'rgba(196,40,20,0)'); vgDor.addColorStop(1,'rgba(196,40,20,.5)');
-function render(){
-  if(!p) return;
-  let cx=Math.max(0,Math.min(MW*T-VW,p.x-VW/2)), cy=Math.max(0,Math.min(MH*T-VH,p.y-VH/2));
-  if(shake>0 && !calm){ cx+=(Math.random()-.5)*6*shake/0.35; cy+=(Math.random()-.5)*6*shake/0.35; }
-  cx=Math.round(Math.max(0,Math.min(MW*T-VW,cx))); cy=Math.round(Math.max(0,Math.min(MH*T-VH,cy)));
-  ctx.fillStyle='#000'; ctx.fillRect(0,0,VW,VH);
-  ctx.drawImage(mapCv,cx,cy,VW,VH,0,0,VW,VH);
-  ctx.save(); ctx.translate(-cx,-cy);
-  // brilho do açude
-  const t0=Math.floor(cx/T), t1=Math.ceil((cx+VW)/T), u0=Math.floor(cy/T), u1=Math.ceil((cy+VH)/T), tick=Math.floor(time*2);
-  for(let ty=u0;ty<u1;ty++) for(let tx=t0;tx<t1;tx++){
-    if(tileAt(tx,ty)==='W' && hh(tx,ty,tick)>0.7){ S('#cfe7f2',tx*T+(hh(tx,ty,tick+1)*10+3|0),ty*T+(hh(tx,ty,tick+2)*10+3|0),2,1); }
-  }
-  for(const f of fires) drawFire(f);
-  if(mula.active && mula.state==='wind'){  // aviso da investida
-    const dx=p.x-mula.x, dy=p.y-mula.y, d=Math.hypot(dx,dy)||1;
-    for(let i=14;i<Math.min(d,90);i+=6) S('rgba(232,64,26,.6)',mula.x+dx/d*i-1,mula.y+dy/d*i-1,2,2);
-  }
-  const list=[];
-  for(const it of items) list.push([it.y,()=>drawItem(it)]);
-  for(const c of cabras) if(!c.dead) list.push([c.y,()=>drawCabra(c)]);
-  for(const n of npcs){ const fn={avo:drawAvo,caipora:drawCaipora,moca:drawMoca,boi:drawBoi}[n.type]; list.push([n.y,()=>fn(n)]); }
-  if(!mula.dead && (mula.active || S0.thornsOpen)) list.push([mula.y,drawMula]);
-  list.push([p.y,drawZe]);
-  list.sort((a,b)=>a[0]-b[0]); for(const [,fn] of list) fn();
-  for(const b of balls) drawBall(b);
-  for(const q of parts){ S(q.col,q.x,q.y,q.t>0.25?2:1,q.t>0.25?2:1); }
-  if(running && !dlg.open){ const n=nearbyNpc(); if(n) drawBubble(n); }
-  ctx.restore();
-  if(p.y<12*T){ ctx.fillStyle='rgba(140,40,10,.12)'; ctx.fillRect(0,0,VW,VH); }
-  ctx.fillStyle=vg; ctx.fillRect(0,0,VW,VH);
-  if(S0.hp===1 && !S0.won){ ctx.globalAlpha=calm?.6:.55+.45*Math.sin(time*5); ctx.fillStyle=vgDor; ctx.fillRect(0,0,VW,VH); ctx.globalAlpha=1; }
-  if(running && !dlg.open) drawArrow(cx,cy);
-}
-
-/* ---------- LAÇO ---------- */
-let last=performance.now();
-function frame(now){
-  const dt=Math.min(0.05,(now-last)/1000); last=now;
-  readPad(); update(dt); render(); musTick(); just.clear();
-  requestAnimationFrame(frame);
-}
-
-/* ---------- BOTÕES ---------- */
-function initAudio(){
-  try{
-    if(!ac){ ac=new (window.AudioContext||window.webkitAudioContext)(); musG=ac.createGain(); musG.gain.value=0; musG.connect(ac.destination); }
-    if(ac.state==='suspended') ac.resume();
-  }catch(e){ ac=null; musG=null; }
-}
-function begin(intro){
-  initAudio(); document.getElementById('inicio').hidden=true; running=true; held.clear();
-  if(intro) say(INTRO); else toast('Jornada retomada. Bom caminho, Zé!');
-}
-const btnContinuar=document.getElementById('btnContinuar'), btnComecar=document.getElementById('btnComecar');
-function prepStart(){
-  const d=store.get(K_JOGO), r=store.get(K_REC), elRec=document.getElementById('recorde');
-  btnContinuar.hidden=!(d && d.v===1 && d.S);
-  btnComecar.textContent=btnContinuar.hidden?'Começar a jornada':'Nova jornada';
-  btnComecar.classList.toggle('sec',!btnContinuar.hidden);
-  elRec.hidden=!(r && r.tempo>0);
-  if(!elRec.hidden) elRec.textContent=`Recorde: ${fmt(r.tempo)} · ${r.cordeis||0} de ${CORDEIS.length} cordéis`;
-}
-btnContinuar.addEventListener('click',()=>{ let ok=true; try{ loadGame(store.get(K_JOGO)); }catch(e){ ok=false; newGame(); } begin(!ok); });
-btnComecar.addEventListener('click',()=>{ store.del(K_JOGO); newGame(); begin(true); });
-document.getElementById('btnLevantar').addEventListener('click',()=>{ respawn(); document.getElementById('desmaio').hidden=true; running=true; held.clear(); say([['Vô Chico','Acorda, Zé! Bebe um gole d’água e volta pra estrada.']]); });
-document.getElementById('btnDeNovo').addEventListener('click',()=>{ document.getElementById('fim').hidden=true; newGame(); begin(true); });
-document.getElementById('btnVoltar').addEventListener('click',unpause);
-btnPausa.addEventListener('click',togglePause);
-const btnSom=document.getElementById('btnSom'), btnMusica=document.getElementById('btnMusica');
-const prefs=store.get(K_PREF)||{};
-muted=prefs.efeitos===false; mus.on=prefs.musica!==false;
-function labelSound(){
-  btnSom.textContent=`Efeitos: ${muted?'desligados':'ligados'}`; btnSom.setAttribute('aria-pressed',String(!muted));
-  btnMusica.textContent=`Música: ${mus.on?'ligada':'desligada'}`; btnMusica.setAttribute('aria-pressed',String(mus.on));
-  store.set(K_PREF,{efeitos:!muted, musica:mus.on});
-}
-btnSom.addEventListener('click',()=>{ muted=!muted; if(!muted) initAudio(); labelSound(); });
-btnMusica.addEventListener('click',()=>{ mus.on=!mus.on; if(mus.on) initAudio(); labelSound(); });
-labelSound();
-
-newGame(); prepStart();
-requestAnimationFrame(frame);
-})();
-</script>
-
+<script src="js/base.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/personagens.js"></script>
+<script src="js/terreno.js"></script>
+<script src="js/entidades.js"></script>
+<script src="js/fases.js"></script>
+<script src="js/jogo.js"></script>
+<script src="js/telas.js"></script>
 </body>
 </html>
