@@ -496,7 +496,7 @@ function updateHud(){
 }
 function setStage(s){ S0.stage=s; updateHud(); saveGame(); }
 const elToast=document.getElementById('toast');
-function toast(msg,dur=2.6){ elToast.textContent=msg; elToast.hidden=false; toastT=dur; elToast.classList.toggle('baixo',!!mula && mula.active); }
+function toast(msg,dur=2.6){ elToast.textContent=msg; elToast.hidden=false; toastT=dur; }
 
 /* ---------- DIÁLOGO ---------- */
 const elDlg=document.getElementById('dialogo'), elQuem=document.getElementById('quem'), elFala=document.getElementById('fala'), elSeta=document.getElementById('seta');
@@ -699,7 +699,7 @@ function nearbyNpc(){
 
 /* ---------- ATUALIZAÇÃO ---------- */
 function update(dt){
-  if(toastT>0){ toastT-=dt; if(toastT<=0) elToast.hidden=true; }
+  if(toastT>0){ toastT-=dt; if(toastT<=0) elToast.hidden=true; elToast.classList.toggle('baixo',mula.active); }  // na luta, longe da Mula
   if(!running){ return; }
   if(dlg.open){
     dlg.shown+=dt*55; renderDlg();
