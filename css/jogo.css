@@ -258,3 +258,22 @@ body.texto-grande{font-size:18px}
 .amostra[aria-disabled="true"]{cursor:not-allowed}
 .amostra[aria-disabled="true"] .cor{filter:grayscale(1) brightness(.5)}
 .amostra:focus-visible{outline:3px solid var(--papel);outline-offset:2px}
+
+/* ---------- ranking ---------- */
+.abas{display:flex;flex-wrap:wrap;gap:8px}
+.aba{all:unset;box-sizing:border-box;cursor:pointer;padding:6px 14px;border:2px solid #5a4636;background:var(--couro-2);color:var(--papel);font-weight:800}
+.aba:hover{border-color:var(--poeira)}
+.aba[aria-pressed="true"]{background:var(--sol);color:var(--tinta);border-color:var(--sol)}
+.aba:focus-visible{outline:3px solid var(--papel);outline-offset:2px}
+.rank-titulo{margin:4px 0 0;font-family:var(--display);font-weight:400;font-size:24px;color:var(--papel)}
+.ranking{width:100%;max-width:640px;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.ranking .linha{display:grid;grid-template-columns:40px 48px 1fr auto;align-items:center;gap:12px;background:var(--couro-2);border:2px solid #5a4636;padding:6px 12px}
+.ranking .linha.eu{border-color:var(--sol);box-shadow:4px 4px 0 var(--sol)}
+.ranking .pos{font-family:var(--display);font-size:22px;color:var(--poeira);text-align:center}
+.ranking .linha:nth-child(1) .pos{color:#ffd23a}.ranking .linha:nth-child(2) .pos{color:#d8dde3}.ranking .linha:nth-child(3) .pos{color:#d08a4a}
+.ranking .avatar{width:48px;height:48px;border-width:2px}
+.ranking .quem{display:flex;flex-direction:column;min-width:0}
+.ranking .quem b{font-family:var(--display);font-weight:400;font-size:19px;overflow-wrap:anywhere}
+.ranking .quem small{color:var(--poeira);font-size:13px}
+.ranking .quem .voce{color:var(--sol);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.ranking .tempo{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}

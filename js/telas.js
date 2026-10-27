@@ -129,9 +129,9 @@ function menuPad(k){
 }
 
 /* ---------- TELAS ---------- */
-const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaJogo'];
+const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaRanking','telaJogo'];
 let telaAtual='telaPerfis';
-const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaOpcoes:()=>voltarDeOpcoes()};
+const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaRanking:()=>abrirMenu(), telaOpcoes:()=>voltarDeOpcoes()};
 function mostrar(id){
   for(const t of TELAS) $(t).hidden = t!==id;
   telaAtual=id; held.clear(); dpadSet({});
@@ -291,6 +291,8 @@ $('btnPersonagem').addEventListener('click',()=>{ sfx.clique(); abrirPersonagens
 $('btnTrocar').addEventListener('click',()=>{ sfx.clique(); abrirPerfis(); });
 $('btnConquistas').addEventListener('click',()=>{ sfx.clique(); abrirConquistas(); });
 $('btnVoltarConquistas').addEventListener('click',abrirMenu);
+$('btnRanking').addEventListener('click',()=>{ sfx.clique(); abrirRanking(); });
+$('btnVoltarRanking').addEventListener('click',abrirMenu);
 $('btnVoltarPers').addEventListener('click',abrirMenu);
 $('btnVoltarFases').addEventListener('click',abrirMenu);
 
@@ -504,7 +506,7 @@ function trocarIdioma(novo){
   if(!IDIOMAS[novo]) return;
   idioma=novo; selIdioma.value=$('opIdioma').value=novo; salvarPrefs(); traduzirPagina(); labelSound(); atualizarLegenda();
   const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaOpcoes:renderTeclas,
-    telaConquistas:abrirConquistas, telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
+    telaConquistas:abrirConquistas, telaRanking:renderRanking, telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
   if(reabrir) reabrir();
   else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
 }

@@ -49,7 +49,7 @@ async function abrir(ctxBrowser, url, { celular=false, antes, locale='pt-BR' } =
     async andar(tecla,ms){ await page.keyboard.down(tecla); await sleep(ms); await page.keyboard.up(tecla); },
     async andarAte(tecla,cond,arg){ await page.keyboard.down(tecla); try{ await page.waitForFunction(cond,arg,{timeout:8000}); } finally{ await page.keyboard.up(tecla); } },
     async criarJogador(nome, pers='ze'){
-      if(!(await page.isVisible('#telaNovo'))) await page.click('#btnNovoPerfil');
+      if(!(await page.isVisible('#telaNovo'))){ await page.evaluate(()=>{ if(telaAtual!=='telaPerfis') abrirPerfis(); }); await page.click('#btnNovoPerfil'); }
       await page.fill('#nomeNovo', nome);
       await page.click(`#escolhaNovo [data-id="${pers}"]`);
       await page.click('#formNovo button[type=submit]');

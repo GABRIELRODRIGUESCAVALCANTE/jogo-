@@ -11,6 +11,7 @@ let idioma='pt';
 
 const TEXTOS={
 pt:{
+  'menu.ranking':'Ranking', 'rank.sub':'Os melhores tempos de cada fase. Escolha a fase e a dificuldade.', 'rank.jornada':'Jornada inteira', 'rank.vazio':'Ninguém concluiu isto nessa dificuldade ainda.', 'rank.local':'Neste aparelho', 'rank.mundial':'Mundial', 'rank.voce':'você', 'rank.carregando':'Carregando…', 'rank.erro':'Não foi possível carregar o ranking mundial agora.',
   'menu.conquistas':'Conquistas', 'conq.nova':'Conquista', 'conq.conta':'{n} de {t} conquistas', 'conq.libera':'Libera: {item}', 'conq.requer':'Conquista: {nome}',
   'conq.feita':'Conquistada', 'conq.falta':'Ainda não', 'conq.secreta':'Conquista secreta', 'conq.secreta.d':'Continue jogando para descobrir.',
   'conq.pe_na_estrada':'Pé na estrada', 'conq.pe_na_estrada.d':'Conclua A Caatinga.',
@@ -148,6 +149,7 @@ pt:{
 },
 
 en:{
+  'menu.ranking':'Leaderboard', 'rank.sub':'The best times for each level. Choose the level and the difficulty.', 'rank.jornada':'Whole journey', 'rank.vazio':'Nobody has completed this on this difficulty yet.', 'rank.local':'On this device', 'rank.mundial':'Worldwide', 'rank.voce':'you', 'rank.carregando':'Loading…', 'rank.erro':'Couldn’t load the worldwide leaderboard right now.',
   'menu.conquistas':'Achievements', 'conq.nova':'Achievement', 'conq.conta':'{n} of {t} achievements', 'conq.libera':'Unlocks: {item}', 'conq.requer':'Achievement: {nome}',
   'conq.feita':'Unlocked', 'conq.falta':'Not yet', 'conq.secreta':'Secret achievement', 'conq.secreta.d':'Keep playing to find out.',
   'conq.pe_na_estrada':'Hit the Road', 'conq.pe_na_estrada.d':'Complete The Caatinga.',
@@ -285,6 +287,7 @@ en:{
 },
 
 es:{
+  'menu.ranking':'Ranking', 'rank.sub':'Los mejores tiempos de cada nivel. Elige el nivel y la dificultad.', 'rank.jornada':'Viaje completo', 'rank.vazio':'Nadie ha completado esto en esta dificultad todavía.', 'rank.local':'En este dispositivo', 'rank.mundial':'Mundial', 'rank.voce':'tú', 'rank.carregando':'Cargando…', 'rank.erro':'No se pudo cargar el ranking mundial ahora.',
   'menu.conquistas':'Logros', 'conq.nova':'Logro', 'conq.conta':'{n} de {t} logros', 'conq.libera':'Desbloquea: {item}', 'conq.requer':'Logro: {nome}',
   'conq.feita':'Conseguido', 'conq.falta':'Todavía no', 'conq.secreta':'Logro secreto', 'conq.secreta.d':'Sigue jugando para descubrirlo.',
   'conq.pe_na_estrada':'En camino', 'conq.pe_na_estrada.d':'Completa La Caatinga.',

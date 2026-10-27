@@ -74,6 +74,7 @@
       <button class="btn sec" id="btnFases" data-t="menu.fases">Fases</button>
       <button class="btn sec" id="btnPersonagem" data-t="menu.personagem">Personagem</button>
       <button class="btn sec" id="btnConquistas" data-t="menu.conquistas">Conquistas</button>
+      <button class="btn sec" id="btnRanking" data-t="menu.ranking">Ranking</button>
       <button class="btn sec" id="btnTrocar" data-t="menu.trocar">Trocar jogador</button>
     </div>
     <div class="hub-dif">
@@ -94,6 +95,19 @@
       <div class="vis-linha"><h4 id="tChicote" data-t="vis.chicote">Chicote</h4><div class="amostras" id="amostrasChicote" role="radiogroup" aria-labelledby="tChicote"></div></div>
     </div>
     <div class="rodape"><button class="btn sec" id="btnVoltarPers" data-t="voltar">Voltar</button></div>
+  </section>
+
+  <!-- ranking -->
+  <section class="tela" id="telaRanking" aria-labelledby="tRanking" hidden>
+    <h2 id="tRanking" tabindex="-1" data-t="menu.ranking">Ranking</h2>
+    <p class="sub" data-t="rank.sub">Os melhores tempos de cada fase. Escolha a fase e a dificuldade.</p>
+    <div class="abas" id="fonteRanking" hidden></div>
+    <div class="abas" id="abasRanking"></div>
+    <div class="dificuldade" id="difRanking" role="radiogroup"></div>
+    <h3 class="rank-titulo" id="tituloRanking"></h3>
+    <ol class="ranking" id="listaRanking"></ol>
+    <p class="sub" id="vazioRanking" hidden></p>
+    <div class="rodape"><button class="btn sec" id="btnVoltarRanking" data-t="voltar">Voltar</button></div>
   </section>
 
   <!-- conquistas -->
@@ -257,6 +271,7 @@
 <script src="js/fases.js"></script>
 <script src="js/jogo.js"></script>
 <script src="js/conquistas.js"></script>
+<script src="js/ranking.js"></script>
 <script src="js/telas.js"></script>
 </body>
 </html>
