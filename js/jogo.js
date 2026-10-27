@@ -54,14 +54,14 @@ function burst(x,y,col,n=8,sp=50){ for(let i=0;i<n;i++){ const a=Math.random()*M
 function hurt(n,fx,fy){
   if(p.inv>0||S0.won) return;
   S0.hp-=n; p.inv=dif().invul; const dx=p.x-fx, dy=p.y-fy, d=Math.hypot(dx,dy)||1;
-  p.kx=dx/d*170; p.ky=dy/d*170; shake=Math.max(shake,.15); freeze=Math.max(freeze,.05); sfx.hurt(); updateHud();
+  p.kx=dx/d*170; p.ky=dy/d*170; shake=Math.max(shake,.15); freeze=Math.max(freeze,.05); sfx.hurt(); aoLevarDano(); updateHud();
   if(prefs.vibrar!==false && navigator.vibrate) navigator.vibrate(70);
   if(S0.hp<=0){ S0.hp=0; updateHud(); desmaiar(); }
 }
 function respawn(){
   const sp=nearestFree(fase.spawn[0],fase.spawn[1]);
   S0.hp=S0.maxHp; p.x=sp.x; p.y=sp.y; p.inv=1; p.kx=p.ky=0; p.whipT=0; p.lama=0;
-  fires=[]; balls=[];
+  fires=[]; balls=[]; S0.danoChefe=0;
   if(chefe && !chefe.dead){ const keep=chefe.lastSwing; chefe=criarChefe(fase.chefe); chefe.lastSwing=keep; }
   updateHud(); salvarPartida();
 }
@@ -70,7 +70,7 @@ function golpearInimigo(c){
   const kd=Math.hypot(c.x-p.x,c.y-p.y)||1; c.kx=(c.x-p.x)/kd*160; c.ky=(c.y-p.y)/kd*160;
   sfx.hit(); burst(c.x,c.y-4,'#f1e2c2',5,40); freeze=.045;
   if(c.hp<=0){
-    c.dead=true; S0.kills++; S0.dead.push(c.i);
+    c.dead=true; S0.kills++; S0.dead.push(c.i); aoVencerInimigo();
     burst(c.x,c.y-4,'#3d3532',12,60); burst(c.x,c.y-4,'#c4462c',6,40);
     if(Math.random()<dif().gotas && !c.voa) items.push({type:'rapadura',x:c.x,y:c.y});
   }
@@ -81,7 +81,7 @@ function nearbyNpc(){
   return best;
 }
 function ganharCordel(id){
-  if(!perfil.cordeis.includes(id)){ perfil.cordeis.push(id); salvarPerfis(); }
+  if(!perfil.cordeis.includes(id)){ perfil.cordeis.push(id); salvarPerfis(); aoLerCordel(); }
   sfx.pagina(); lerCordel(id);
 }
 // marcas no chão: respingo na água, lama, faíscas na brasa
@@ -143,7 +143,7 @@ function update(dt){
   for(const n of npcs){
     if(n.type==='caipora'){ n.cool=Math.max(0,n.cool-dt);
       if(wb && n.lastSwing!==p.swing && overlap(wb,{x:n.x,y:n.y-8,w:14,h:18})){ n.lastSwing=p.swing;
-        if(n.cool<=0){ n.cool=3; hurt(1,n.x,n.y); say(t('f1.caiporaBateu')); }
+        if(n.cool<=0){ n.cool=3; hurt(1,n.x,n.y); conquistar('desrespeito'); say(t('f1.caiporaBateu')); }
       }
     }
     if(n.type!=='avo' && n.type!=='moca') n.face = p.x>n.x?1:-1;
@@ -180,13 +180,15 @@ function update(dt){
 function drawWhip(hx,hy){
   if(p.whipT<=0) return;
   const d=p.dir, pr=1-p.whipT/0.25, len=3+(heroi.alcance-4)*Math.sin(pr*Math.PI), px=-d.y, py=d.x;
-  for(let i=0;i<len;i++){ const w=Math.sin(i*0.45-pr*9)*1.6*(i/len); S('#c9a06a',hx+d.x*i+px*w,hy+d.y*i+py*w,1,1); }
-  S('#fff1d0',hx+d.x*len-1,hy+d.y*len-1,2,2);
+  const tipo=visualDe(perfil).chicote, cor=CHICOTES[tipo].cor;
+  for(let i=0;i<len;i++){ const w=Math.sin(i*0.45-pr*9)*1.6*(i/len); S(cor,hx+d.x*i+px*w,hy+d.y*i+py*w,1,1); }
+  S(tipo==='fogo'?'#ffd23a':'#fff1d0',hx+d.x*len-1,hy+d.y*len-1,2,2);
+  if(tipo==='fogo' && Math.random()<.5) parts.push({x:hx+d.x*len,y:hy+d.y*len,vx:(Math.random()-.5)*20,vy:-20,t:.2,col:'#ff8a1e'});
 }
 function drawJogador(){
   const x=Math.round(p.x), y=Math.round(p.y+p.h/2);
   if(p.inv>0 && Math.floor(p.inv*18)%2){ shadow(x,y,10); return; }
-  drawHeroi(heroi,x,y,p.dir,p.moving?Math.floor(p.anim*9)%2:0,drawWhip);
+  drawHeroi(heroi,x,y,p.dir,p.moving?Math.floor(p.anim*9)%2:0,drawWhip,visualComChapeu(heroi,visualDe(perfil).chapeu));
   if(p.lama>0) S('#5a4228',x-3,y-15,6,2);
 }
 function drawBubble(n){

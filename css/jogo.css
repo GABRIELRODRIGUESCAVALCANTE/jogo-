@@ -229,3 +229,32 @@ body.texto-grande{font-size:18px}
 .dif:focus-visible{outline:3px solid var(--papel);outline-offset:3px}
 .hub-dif{width:100%;display:flex;flex-direction:column;gap:8px}
 .hub-dif h3{margin:0;font-family:var(--display);font-weight:400;font-size:20px;color:var(--sol)}
+
+/* ---------- conquistas e visual ---------- */
+.conquista{position:absolute;right:8px;top:36px;display:flex;align-items:center;gap:10px;background:var(--tinta);color:var(--papel);border:3px solid var(--sol);box-shadow:4px 4px 0 #000;padding:6px 12px;pointer-events:none;max-width:70%;z-index:2}
+.conquista.anima{animation:entra .35s ease-out}
+@keyframes entra{from{transform:translateX(30px);opacity:0}}
+.conquista .medalha{font-size:clamp(20px,3vw,30px);color:var(--sol);line-height:1}
+.conquista small{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sol);font-weight:800}
+.conquista b{font-family:var(--display);font-weight:400;font-size:clamp(14px,2vw,19px)}
+.conquistas{width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.conq{display:flex;gap:12px;align-items:flex-start;background:var(--couro-2);border:3px solid #5a4636;padding:12px 14px;color:var(--poeira)}
+.conq.tem{border-color:var(--sol);color:var(--papel);background:#3d2a20}
+.conq .medalha{font-size:30px;line-height:1;color:#6a5444}
+.conq.tem .medalha{color:var(--sol)}
+.conq-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.conq-txt b{font-family:var(--display);font-weight:400;font-size:19px;color:var(--papel)}
+.conq-txt span{font-size:15px}
+.conq-txt small{font-size:13px;color:var(--sol);font-weight:700}
+.visual{width:100%;display:flex;flex-direction:column;gap:10px;background:var(--couro-2);border:3px solid #5a4636;padding:14px 16px}
+.visual h3{margin:0;font-family:var(--display);font-weight:400;font-size:22px;color:var(--sol)}
+.visual h4{margin:0 0 6px;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--poeira)}
+.amostras{display:flex;flex-wrap:wrap;gap:10px}
+.amostra{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;width:118px;padding:8px;border:3px solid #5a4636;background:var(--couro);text-align:center}
+.amostra .cor{width:40px;height:28px;border:2px solid var(--tinta);box-shadow:2px 2px 0 #000}
+.amostra .vis-nome{font-weight:700;font-size:14px;color:var(--papel)}
+.amostra small{font-size:12px;color:var(--poeira);line-height:1.25}
+.amostra[aria-checked="true"]{border-color:var(--sol);box-shadow:3px 3px 0 var(--sol)}
+.amostra[aria-disabled="true"]{cursor:not-allowed}
+.amostra[aria-disabled="true"] .cor{filter:grayscale(1) brightness(.5)}
+.amostra:focus-visible{outline:3px solid var(--papel);outline-offset:2px}

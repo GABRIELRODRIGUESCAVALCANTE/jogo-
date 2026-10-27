@@ -129,9 +129,9 @@ function menuPad(k){
 }
 
 /* ---------- TELAS ---------- */
-const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaJogo'];
+const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaJogo'];
 let telaAtual='telaPerfis';
-const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaOpcoes:()=>voltarDeOpcoes()};
+const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaOpcoes:()=>voltarDeOpcoes()};
 function mostrar(id){
   for(const t of TELAS) $(t).hidden = t!==id;
   telaAtual=id; held.clear(); dpadSet({});
@@ -145,7 +145,7 @@ function animarAvatares(t){
   for(const c of document.querySelectorAll('canvas[data-pers]')){
     if(c.offsetParent===null) continue;
     const anda=c.dataset.anda==='1' || (c.closest('.pers') && c.closest('.pers').getAttribute('aria-pressed')==='true');
-    desenharAvatar(c,c.dataset.pers,t,anda,c.dataset.trava==='1');
+    desenharAvatar(c,c.dataset.pers,t,anda,c.dataset.trava==='1',c.dataset.chapeu);
   }
 }
 
@@ -182,7 +182,8 @@ function renderPerfis(){
     const card=el('div','perfil'), entrar=el('button','perfil-entrar'), txt=el('span','perfil-txt'), pe=el('div','perfil-pe');
     entrar.type='button';
     txt.append(el('span','perfil-nome',pf.nome), el('span','perfil-info',`${PERSONAGENS[pf.personagem].nome} · ${resumoPerfil(pf)}`));
-    entrar.append(avatarCanvas(pf.personagem),txt);
+    const av=avatarCanvas(pf.personagem); av.dataset.chapeu=visualDe(pf).chapeu;
+    entrar.append(av,txt);
     entrar.addEventListener('click',()=>{ sfx.clique(); entrarComo(pf); });
     const apagar=el('button','link',t('perfis.apagar')); apagar.type='button'; apagar.setAttribute('aria-label',t('perfis.apagarAria',{jogador:pf.nome}));
     apagar.addEventListener('click',()=>confirmarApagar(pf,pe));
@@ -259,7 +260,9 @@ function renderEscolha(box,pf,sel,onPick){
   }
 }
 function abrirPersonagens(){
-  renderEscolha($('listaPersonagens'),perfil,perfil.personagem,id=>{ perfil.personagem=id; heroi=PERSONAGENS[id]; salvarPerfis(); });
+  const escolher=id=>{ perfil.personagem=id; heroi=PERSONAGENS[id]; salvarPerfis(); abrirPersonagensAvatares(); renderVisual(); };
+  renderEscolha($('listaPersonagens'),perfil,perfil.personagem,escolher);
+  abrirPersonagensAvatares(); renderVisual();
   mostrar('telaPersonagem');
 }
 
@@ -269,10 +272,11 @@ function abrirMenu(){
   paused=false; running=false; fecharOverlays();
   $('nomeMenu').textContent=perfil.nome;
   $('persMenu').textContent=`${heroi.nome}, ${heroi.titulo}`;
-  const av=$('avatarMenu'); av.dataset.pers=perfil.personagem; av.dataset.anda='1';
+  const av=$('avatarMenu'); av.dataset.pers=perfil.personagem; av.dataset.anda='1'; av.dataset.chapeu=visualDe(perfil).chapeu;
   const total=FASES.every(f=>recorde(perfil,f.id)>0) ? FASES.reduce((s,f)=>s+recorde(perfil,f.id),0) : 0;
   $('resumoMenu').innerHTML=`<li>${t('menu.rFases')} <b>${feitas(perfil)}/${FASES.length}</b></li><li>${t('menu.rCordeis')} <b>${perfil.cordeis.length}/${CORDEIS_IDS.length}</b></li>`
-    +`<li>${t('menu.rCoracoes')} <b>${heroi.vida+(perfil.bonusVida||0)}</b></li>`+(total?`<li>${t('menu.rMelhor')} <b>${fmt(total)}</b></li>`:'');
+    +`<li>${t('menu.rCoracoes')} <b>${heroi.vida+(perfil.bonusVida||0)}</b></li>`+`<li>${t('menu.conquistas')} <b>${CONQUISTAS.filter(c=>temConquista(perfil,c.id)).length}/${CONQUISTAS.length}</b></li>`
+    +(total?`<li>${t('menu.rMelhor')} <b>${fmt(total)}</b></li>`:'');
   seletorDificuldade($('difMenu'),perfil.dificuldade||'normal',d=>{ perfil.dificuldade=d; salvarPerfis(); abrirMenu(); $('difMenu').querySelector(`[data-dif="${d}"]`).focus(); });
   const d=partidaSalva(perfil), n=proximaFase(perfil), bj=$('btnJogar');
   const linha=(a,b)=>{ bj.textContent=a; bj.append(el('small','',b)); };
@@ -285,6 +289,8 @@ $('btnJogar').addEventListener('click',()=>{ sfx.clique(); const d=partidaSalva(
 $('btnFases').addEventListener('click',()=>{ sfx.clique(); abrirFases(); });
 $('btnPersonagem').addEventListener('click',()=>{ sfx.clique(); abrirPersonagens(); });
 $('btnTrocar').addEventListener('click',()=>{ sfx.clique(); abrirPerfis(); });
+$('btnConquistas').addEventListener('click',()=>{ sfx.clique(); abrirConquistas(); });
+$('btnVoltarConquistas').addEventListener('click',abrirMenu);
 $('btnVoltarPers').addEventListener('click',abrirMenu);
 $('btnVoltarFases').addEventListener('click',abrirMenu);
 
@@ -358,6 +364,7 @@ function concluirFase(){
   perfil.fases[fase.id]={feita:true, tempos};
   if(ultima) perfil.fim=true;
   perfis.ultimo=perfil.id; salvarPerfis(); store.del(K_PARTIDA+perfil.id);
+  aoConcluirFase(ultima);
   const total=cordeisDaFase(fase).length, n=achados(fase), falta=total-n;
   $('fimFase').textContent=t('fim.fase',{n:fase.id,nomeFase:fase.nome});
   $('fimTitulo').textContent=t(ultima?'fim.tituloFinal':'fim.titulo');
@@ -474,7 +481,7 @@ let last=performance.now();
 function frame(now){
   const dt=Math.min(0.05,(now-last)/1000); last=now;
   readPad();
-  if(telaAtual==='telaJogo'){ update(dt); render(); } else animarAvatares(now/1000);
+  if(telaAtual==='telaJogo'){ update(dt); render(); avisarConquistas(dt); } else animarAvatares(now/1000);
   musTick(); just.clear();
   requestAnimationFrame(frame);
 }
@@ -497,7 +504,7 @@ function trocarIdioma(novo){
   if(!IDIOMAS[novo]) return;
   idioma=novo; selIdioma.value=$('opIdioma').value=novo; salvarPrefs(); traduzirPagina(); labelSound(); atualizarLegenda();
   const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaOpcoes:renderTeclas,
-    telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
+    telaConquistas:abrirConquistas, telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
   if(reabrir) reabrir();
   else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
 }

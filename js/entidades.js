@@ -189,7 +189,7 @@ function atualizaMula(m,dt,hp,wb){
     m.lastSwing=p.swing;
     if(m.state==='stun'){
       m.hp=Math.max(0,m.hp-heroi.dano); m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08; burst(m.x,m.y-8,'#ffd23a',6,50); updateHud();
-      if(m.hp<=0) fase.vencerChefe();
+      if(m.hp<=0){ aoVencerChefe(); fase.vencerChefe(); }
       else if(!m.furia && m.hp<=m.max/2){ m.furia=true; toast(t('toast.mulaFuria'),3.4); }
     }
     else { sfx.clink(); burst(m.x,m.y-8,'#9aa0a8',4,40); }
@@ -262,7 +262,7 @@ function atualizaCaboclo(c,dt,hp,wb){
   if(wb && c.lastSwing!==p.swing && overlap(wb,cx)){
     c.lastSwing=p.swing; c.hp=Math.max(0,c.hp-heroi.dano); c.flash=.2; sfx.hit(); freeze=.08; shake=Math.max(shake,.1);
     burst(c.x,c.y-12,'#cfe7f2',8,50); updateHud();
-    if(c.hp<=0) fase.vencerChefe(); else { c.estado='desce'; c.t=.25; }
+    if(c.hp<=0){ aoVencerChefe(); fase.vencerChefe(); } else { c.estado='desce'; c.t=.25; }
   }
 }
 function drawCaboclo(c){

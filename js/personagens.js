@@ -25,8 +25,8 @@ function pontos(ch){
 }
 
 // x,y = pés; d = direção; f = quadro da passada; whip(hx,hy) desenha o chicote
-function drawHeroi(ch,x,y,d,f,whip){
-  const v=ch.visual, hx=x+d.x*4, hy=y-7+d.y*2;
+function drawHeroi(ch,x,y,d,f,whip,v=ch.visual){
+  const hx=x+d.x*4, hy=y-7+d.y*2;
   shadow(x,y,10);
   if(d.y<0 && whip) whip(hx,hy);
   if(v.cabeca==='tranca' && d.y<0){ S(v.cabelo,x-1,y-10,2,5); S(v.lenco,x-1,y-5,2,1); }
@@ -41,6 +41,7 @@ function drawHeroi(ch,x,y,d,f,whip){
   S(v.pele,x-3,y-14,6,4);
   if(v.cabeca==='chapeu'){
     S(v.chapeu,x-6,y-14,12,2); S(v.chapeu2,x-4,y-17,8,3); S(v.enfeite,x-2,y-16,1,1); S(v.enfeite,x+1,y-16,1,1);
+    if(v.estrela && d.y>=0){ S(v.enfeite,x-1,y-17,2,3); S(v.enfeite,x-2,y-16,4,1); }
     if(d.y<0) S(v.chapeu,x-3,y-12,6,2);
   } else if(v.cabeca==='tranca'){
     S(v.cabelo,x-3,y-14,6,1);
@@ -67,9 +68,9 @@ function drawHeroi(ch,x,y,d,f,whip){
 }
 
 // avatar dos menus: um canvas 24x24 ampliado pelo CSS
-function desenharAvatar(cnv,id,t,andando,sombra){
+function desenharAvatar(cnv,id,t,andando,sombra,chapeu){
   const g=cnv.getContext('2d'); g.imageSmoothingEnabled=false;
   g.clearRect(0,0,cnv.width,cnv.height);
   const giro=[{x:0,y:1},{x:1,y:0},{x:0,y:-1},{x:-1,y:0}], d=andando?giro[Math.floor(t/1.2)%4]:{x:0,y:1};
-  noContexto(g,()=>{ tint=sombra?'#3a2a20':null; drawHeroi(PERSONAGENS[id],12,21,d,andando?Math.floor(t*7)%2:0,null); tint=null; });
+  noContexto(g,()=>{ tint=sombra?'#3a2a20':null; drawHeroi(PERSONAGENS[id],12,21,d,andando?Math.floor(t*7)%2:0,null,visualComChapeu(PERSONAGENS[id],chapeu)); tint=null; });
 }

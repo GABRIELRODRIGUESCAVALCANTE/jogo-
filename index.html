@@ -73,6 +73,7 @@
       <button class="btn grande" id="btnJogar">Jogar</button>
       <button class="btn sec" id="btnFases" data-t="menu.fases">Fases</button>
       <button class="btn sec" id="btnPersonagem" data-t="menu.personagem">Personagem</button>
+      <button class="btn sec" id="btnConquistas" data-t="menu.conquistas">Conquistas</button>
       <button class="btn sec" id="btnTrocar" data-t="menu.trocar">Trocar jogador</button>
     </div>
     <div class="hub-dif">
@@ -86,7 +87,21 @@
     <h2 id="tPers" tabindex="-1" data-t="pers.titulo">Escolha seu personagem</h2>
     <p class="sub" data-t="pers.sub">Cada um tem seu jeito: vida, velocidade, força e alcance do chicote mudam de verdade no jogo.</p>
     <div class="personagens" id="listaPersonagens"></div>
+    <div class="visual">
+      <h3 data-t="vis.titulo">Visual</h3>
+      <p class="sub" data-t="vis.sub">Chapéus e chicotes novos são liberados pelas conquistas.</p>
+      <div class="vis-linha"><h4 id="tChapeu" data-t="vis.chapeu">Chapéu</h4><div class="amostras" id="amostrasChapeu" role="radiogroup" aria-labelledby="tChapeu"></div></div>
+      <div class="vis-linha"><h4 id="tChicote" data-t="vis.chicote">Chicote</h4><div class="amostras" id="amostrasChicote" role="radiogroup" aria-labelledby="tChicote"></div></div>
+    </div>
     <div class="rodape"><button class="btn sec" id="btnVoltarPers" data-t="voltar">Voltar</button></div>
+  </section>
+
+  <!-- conquistas -->
+  <section class="tela" id="telaConquistas" aria-labelledby="tConq" hidden>
+    <h2 id="tConq" tabindex="-1" data-t="menu.conquistas">Conquistas</h2>
+    <p class="sub" id="contaConquistas"></p>
+    <div class="conquistas" id="listaConquistas"></div>
+    <div class="rodape"><button class="btn sec" id="btnVoltarConquistas" data-t="voltar">Voltar</button></div>
   </section>
 
   <!-- fases -->
@@ -140,6 +155,7 @@
         <p class="fala" id="fala"></p>
         <span class="seta" id="seta">▼</span>
       </div>
+      <div class="conquista" id="avisoConquista" role="status" hidden><span class="medalha" aria-hidden="true">★</span><span><small data-t="conq.nova">Conquista</small><b id="avisoConquistaNome"></b></span></div>
       <div class="overlay" id="ovTitulo" hidden>
         <p class="eyebrow" id="tituloFase"></p>
         <h2 id="tituloNome"></h2>
@@ -240,6 +256,7 @@
 <script src="js/entidades.js"></script>
 <script src="js/fases.js"></script>
 <script src="js/jogo.js"></script>
+<script src="js/conquistas.js"></script>
 <script src="js/telas.js"></script>
 </body>
 </html>
