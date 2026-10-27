@@ -19,7 +19,12 @@ test('mapas das fases são consistentes e alcançáveis', async()=>{
       if(!rows.every(r=>r.length===W)) out.push(`F${f.id}: linhas de larguras diferentes`);
       const antes=alcance(rows,...f.spawn), depois=alcance(f.aberto?f.aberto(rows):rows,...f.spawn);
       if(!livre(...f.spawn)) out.push(`F${f.id}: início em chão sólido`);
-      for(const [t,x,y] of f.npcs){ if(!livre(x,y)) out.push(`F${f.id}: ${t} em sólido`); if(!antes.has(x+','+y)) out.push(`F${f.id}: ${t} inalcançável`); }
+      for(const [t,x,y] of f.npcs){
+        if(t==='fogueira'){ if(![[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>depois.has((x+a)+','+(y+b)))) out.push(`F${f.id}: fogueira (${x},${y}) sem chão em volta`); continue; }
+        if(!livre(x,y)) out.push(`F${f.id}: ${t} em sólido`);
+        if(!depois.has(x+','+y)) out.push(`F${f.id}: ${t} inalcançável`);
+      }
+      for(const [x,y] of f.pontosAntes||[]) if(!antes.has(x+','+y)) out.push(`F${f.id}: (${x},${y}) precisa ser alcançável desde o começo`);
       for(const [t,x,y,id] of f.itens){
         if(!livre(x,y)) out.push(`F${f.id}: ${t} ${id||''} em sólido`);
         const precisaAntes=['fumo','tabua'].includes(t);   // itens de missão ficam do lado de cá da passagem

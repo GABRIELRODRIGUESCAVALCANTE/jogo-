@@ -26,6 +26,8 @@ const sfx={
   bote:()=>tone(150,.16,'sawtooth',.05,140),
   ponte:()=>{[330,290,350,310].forEach((f,i)=>tone(f,.06,'square',.04,-60,i*.11));},
   clique:()=>tone(700,.04,'square',.018),
+  uivo:medo=>medo ? tone(780,.35,'triangle',.05,-380) : (tone(320,.5,'sawtooth',.035,320), tone(640,.7,'sine',.04,-240,.45)),
+  acender:()=>{tone(180,.25,'sawtooth',.04,400);tone(880,.2,'triangle',.03,300,.12);},
   libera:()=>{[523,659,784,988,1318].forEach((f,i)=>tone(f,.18,'triangle',.05,0,i*.09));},
 };
 
@@ -52,6 +54,14 @@ const SONGS={
   serra:song(112,['A2','G2','G2','A2','A2','D3','E2','A2'],`
     A4:2 C5:2 E5:2 D5:1 C5:1 | D5:2 B4:2 G4:3 -:1 | G4:2 B4:2 D5:2 C5:1 B4:1 | C5:2 A4:2 E4:3 -:1 |
     A4:1 A4:1 C5:1 E5:1 G5:2 F#5:1 E5:1 | F#5:2 D5:2 B4:3 -:1 | G5:1 F#5:1 E5:1 D5:1 C5:2 B4:1 G4:1 | A4:6 -:2`),
+  // xote em lá menor, devagar, para a noite nas dunas
+  noite:song(80,['A2','A2','G2','E2','F2','G2','E2','A2'],`
+    A4:3 C5:1 E5:2 D5:2 | C5:3 B4:1 A4:4 | G4:3 A4:1 B4:2 C5:2 | B4:6 -:2 |
+    F5:2 E5:1 D5:1 C5:2 A4:2 | B4:2 C5:2 D5:2 E5:2 | C5:2 B4:2 A4:1 G#4:1 E4:2 | A4:6 -:2`,'xote'),
+  // baião festeiro em dó maior, para a festa de São João
+  festa:song(132,['C3','A2','F2','C3','C3','F2','G2','C3'],`
+    C5:1 E5:1 G5:2 E5:1 C5:1 D5:2 | E5:2 D5:1 C5:1 A4:4 | F4:1 A4:1 C5:2 A4:1 F4:1 G4:2 | A4:2 G4:1 E4:1 C4:4 |
+    C5:1 C5:1 E5:1 G5:1 A5:2 G5:2 | F5:1 E5:1 D5:1 C5:1 D5:4 | G4:1 B4:1 D5:2 F5:1 E5:1 D5:2 | C5:6 -:2`),
   chefe:song(138,['E2','A2','B2','E2'],`
     E5:1 -:1 E5:1 F5:1 E5:2 B4:2 | C5:1 -:1 C5:1 D5:1 C5:2 A4:2 | B4:1 -:1 B4:1 C5:1 B4:2 G#4:2 | A4:2 B4:2 E4:3 -:1`),
 };

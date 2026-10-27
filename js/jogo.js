@@ -20,11 +20,13 @@ function iniciarFase(id){
   S0=Object.assign({fase:id, stage:1, maxHp, hp:maxHp, kills:0, got:[], dead:[], chefeIntro:false, chefeVencido:false, won:false, saindo:false}, fase.estado());
   const sp=nearestFree(fase.spawn[0],fase.spawn[1]);
   p={x:sp.x, y:sp.y, w:10, h:8, dir:{x:0,y:-1}, anim:0, moving:false, whipT:0, whipCd:0, swing:0, inv:0, kx:0, ky:0, lama:0};
-  npcs=fase.npcs.map(([type,tx,ty])=>{ const q=nearestFree(tx,ty); return npcNovo(type,q.x,q.y); });
+  // fogueiras ficam no próprio tile (sólido); os outros NPCs vão para o chão livre mais perto
+  npcs=fase.npcs.map(([type,tx,ty,extra])=>{ const q=type==='fogueira'?{x:tx*T+8,y:ty*T+8}:nearestFree(tx,ty); return Object.assign(npcNovo(type,q.x,q.y),extra); });
   inimigos=fase.inimigos.map(([tipo,tx,ty,z],i)=>criarInimigo(tipo,tx,ty,fase.zonas[z],i));
   items=fase.itens.map(([type,tx,ty,id],k)=>Object.assign({type, id:id||'i'+k}, nearestFree(tx,ty)))
     .filter(it=>!(it.type==='cordel' && perfil.cordeis.includes(it.id)));
   chefe=fase.chefe?criarChefe(fase.chefe):null;
+  if(fase.inicio) fase.inicio();
   fires=[]; balls=[]; parts=[]; time=0; shake=0; freeze=0; autoT=3; avisoT=0;
   updateHud();
 }
@@ -59,7 +61,7 @@ function hurt(n,fx,fy){
   if(S0.hp<=0){ S0.hp=0; updateHud(); desmaiar(); }
 }
 function respawn(){
-  const sp=nearestFree(fase.spawn[0],fase.spawn[1]);
+  const sp=fase.retornar ? fase.retornar() : nearestFree(fase.spawn[0],fase.spawn[1]);
   S0.hp=S0.maxHp; p.x=sp.x; p.y=sp.y; p.inv=1; p.kx=p.ky=0; p.whipT=0; p.lama=0;
   fires=[]; balls=[]; S0.danoChefe=0;
   if(chefe && !chefe.dead){ const keep=chefe.lastSwing; chefe=criarChefe(fase.chefe); chefe.lastSwing=keep; }
@@ -77,7 +79,10 @@ function golpearInimigo(c){
 }
 function nearbyNpc(){
   let best=null, bd=26;
-  for(const n of npcs){ const d=Math.hypot(n.x-p.x,n.y-p.y); if(d<bd){bd=d;best=n;} }
+  for(const n of npcs){
+    if(n.segue || (n.type==='fogueira' && (n.acesa || !S0.ticao))) continue;   // boi que acompanha e fogueira que não dá pra acender
+    const d=Math.hypot(n.x-p.x,n.y-p.y); if(d<bd){bd=d;best=n;}
+  }
   return best;
 }
 function ganharCordel(id){
@@ -146,8 +151,8 @@ function update(dt){
         if(n.cool<=0){ n.cool=3; hurt(1,n.x,n.y); conquistar('desrespeito'); say(t('f1.caiporaBateu')); }
       }
     }
-    if(n.type!=='avo' && n.type!=='moca') n.face = p.x>n.x?1:-1;
-    if(n.type==='boi' && Math.hypot(n.x-p.x,n.y-p.y)<20) fase.falar(n);
+    if(n.type!=='avo' && n.type!=='moca' && !n.segue) n.face = p.x>n.x?1:-1;
+    if(n.type==='boi' && !n.segue && Math.hypot(n.x-p.x,n.y-p.y)<20) fase.falar(n);
   }
   if(chefe) CHEFES[chefe.tipo].update(chefe,dt,hp,wb);
 
@@ -208,6 +213,29 @@ function drawArrow(cx,cy){
   ctx.lineWidth=2; ctx.strokeStyle='#2a1a12'; ctx.stroke(); ctx.fillStyle='#e9a83b'; ctx.fill();
   ctx.restore();
 }
+// noite: escuro azulado com buracos de luz na lamparina, nas fogueiras e em tudo que pega fogo
+const escuroCv=document.createElement('canvas'); escuroCv.width=VW; escuroCv.height=VH;
+const eg=escuroCv.getContext('2d');
+function desenharNoite(cx,cy){
+  eg.globalCompositeOperation='source-over'; eg.fillStyle='rgba(6,10,36,.84)'; eg.fillRect(0,0,VW,VH);
+  eg.globalCompositeOperation='destination-out';
+  const luzes=[[p.x,p.y-6,64+Math.sin(time*7)*2,1]];
+  for(const n of npcs) if(n.type==='fogueira' && n.acesa) luzes.push([n.x,n.y-6,(n.grande?150:96)+Math.sin(time*9+n.x)*4,1]);
+  for(const c of inimigos) if(!c.dead && c.tipo==='batatao') luzes.push([c.x,c.y-10,38,.85]);
+  for(const b of balls) luzes.push([b.x,b.y,22,.7]);
+  if(fase.luzes) luzes.push(...fase.luzes());
+  for(const [x,y,r,forca] of luzes){
+    const gx=x-cx, gy=y-cy; if(gx<-r||gy<-r||gx>VW+r||gy>VH+r) continue;
+    const g=eg.createRadialGradient(gx,gy,0,gx,gy,r);
+    g.addColorStop(0,`rgba(0,0,0,${forca})`); g.addColorStop(.55,`rgba(0,0,0,${forca*.75})`); g.addColorStop(1,'rgba(0,0,0,0)');
+    eg.fillStyle=g; eg.fillRect(gx-r,gy-r,r*2,r*2);
+  }
+  eg.globalCompositeOperation='source-over';
+  ctx.drawImage(escuroCv,0,0);
+  ctx.save(); ctx.globalCompositeOperation='lighter';         // brilho quente em volta do fogo
+  for(const [x,y,r] of luzes.slice(1)){ const gx=x-cx, gy=y-cy, g=ctx.createRadialGradient(gx,gy,0,gx,gy,r*.6); g.addColorStop(0,'rgba(255,140,40,.22)'); g.addColorStop(1,'rgba(255,140,40,0)'); ctx.fillStyle=g; ctx.fillRect(gx-r,gy-r,r*2,r*2); }
+  ctx.restore();
+}
 const vg=ctx.createRadialGradient(VW/2,VH/2,70,VW/2,VH/2,220);
 vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(50,18,0,.38)');
 const vgDor=ctx.createRadialGradient(VW/2,VH/2,60,VW/2,VH/2,210);
@@ -226,6 +254,7 @@ function render(){
     const dx=p.x-chefe.x, dy=p.y-chefe.y, d=Math.hypot(dx,dy)||1;
     for(let i=14;i<Math.min(d,90);i+=6) S('rgba(232,64,26,.6)',chefe.x+dx/d*i-1,chefe.y+dy/d*i-1,2,2);
   }
+  if(fase.decorarChao) fase.decorarChao();
   const list=[];
   for(const it of items) list.push([it.y,()=>drawItem(it)]);
   const desenha=fn=>contraste?()=>comContorno(fn):fn;
@@ -236,8 +265,10 @@ function render(){
   list.sort((a,b)=>a[0]-b[0]); for(const [,fn] of list) fn();
   for(const b of balls) drawBall(b);
   for(const q of parts){ S(q.col,q.x,q.y,q.t>0.25?2:1,q.t>0.25?2:1); }
-  if(running && !dlg.open){ const n=nearbyNpc(); if(n) drawBubble(n); }
+  if(fase.decorarAlto) fase.decorarAlto();
   ctx.restore();
+  if(fase.noite) desenharNoite(cx,cy);
+  if(running && !dlg.open){ const n=nearbyNpc(); if(n){ ctx.save(); ctx.translate(-cx,-cy); drawBubble(n); ctx.restore(); } }
   if(fase.tom){ ctx.fillStyle=fase.tom(); ctx.fillRect(0,0,VW,VH); }
   ctx.fillStyle=vg; ctx.fillRect(0,0,VW,VH);
   if(S0.hp===1 && !S0.won){ ctx.globalAlpha=calm?.6:.55+.45*Math.sin(time*5); ctx.fillStyle=vgDor; ctx.fillRect(0,0,VW,VH); ctx.globalAlpha=1; }

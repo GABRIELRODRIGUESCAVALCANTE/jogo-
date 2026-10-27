@@ -11,7 +11,7 @@ test('ranking mostra os melhores tempos em ordem e destaca o jogador atual', asy
   await J.criarJogador('Ana','tiao'); await J.criarJogador('Bia','luzia'); await J.criarJogador('Caio','ze');
   await J.ev(()=>{
     const [a,b,c]=perfis.lista;
-    a.fases={1:{feita:true,tempos:{normal:150}},2:{feita:true,tempos:{normal:200}},3:{feita:true,tempos:{normal:300}}};
+    a.fases={1:{feita:true,tempos:{normal:150}},2:{feita:true,tempos:{normal:200}},3:{feita:true,tempos:{normal:300}},4:{feita:true,tempos:{normal:250}}};
     b.fases={1:{feita:true,tempos:{normal:95, facil:80}}};
     c.fases={1:{feita:true,tempos:{normal:120}}};
     salvarPerfis();
@@ -24,7 +24,7 @@ test('ranking mostra os melhores tempos em ordem e destaca o jogador atual', asy
   assert.deepEqual(await J.page.locator('#listaRanking .quem b').allTextContents(), ['Bia']);
   await J.page.click('#difRanking [data-dif="normal"]');
   await J.page.click('#abasRanking .aba >> nth=-1');            // jornada inteira
-  assert.deepEqual(await J.page.locator('#listaRanking .tempo').allTextContents(), ['10:50']);
+  assert.deepEqual(await J.page.locator('#listaRanking .tempo').allTextContents(), ['15:00']);
   await J.page.click('#abasRanking .aba >> nth=1');
   assert.deepEqual(await J.page.locator('#listaRanking .quem b').allTextContents(), ['Ana']);
   await J.page.click('#difRanking [data-dif="dificil"]');

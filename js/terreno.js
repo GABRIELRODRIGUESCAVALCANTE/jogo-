@@ -5,11 +5,13 @@
   W  água funda*      w  água rasa (lenta)   l  lama (lenta)    j  junco          P  carnaúba*
   =  ponte            Q  ponte quebrada*     g  grama da vereda
   r  rocha            k  cascalho            b  brasa (queima)  F  fenda de fogo*
-  #  paredão*         x  chão da arena                                  (* não dá para atravessar) */
+  #  paredão*         x  chão da arena
+  d  duna (lenta)     v  restinga          Y  coqueiro*       G  fogueira*      Z  cerca*      O  porteira*
+                                                                        (* não dá para atravessar) */
 let map=[], MW=48, MH=36;
-const SOLID=new Set(['C','R','T','W','H','D','B','#','E','P','F','Q']);
+const SOLID=new Set(['C','R','T','W','H','D','B','#','E','P','F','Q','Y','G','Z','O']);
 const AGUA=new Set(['W','w','Q','=']);
-const VEL_TERRENO={w:.55,l:.6,j:.85};
+const VEL_TERRENO={w:.55,l:.6,j:.85,d:.85};
 
 function tileAt(tx,ty){ return (tx<0||ty<0||tx>=MW||ty>=MH) ? '#' : map[ty][tx]; }
 function solidAt(px,py){ return SOLID.has(tileAt(Math.floor(px/T), Math.floor(py/T))); }
@@ -105,6 +107,17 @@ function drawTile(g,at,c,tx,ty){
     case '#': r('#6e3622',0,0,16,16); r('#8a4a2e',0,(hh(tx,ty,1)*4+2)|0,16,2); r('#4f2617',0,(hh(tx,ty,2)*4+9)|0,16,1); r('#94523a',(hh(tx,ty,3)*12)|0,(hh(tx,ty,4)*12)|0,3,2);
       if(at(tx,ty+1)!=='#') { r('#3c1c10',0,13,16,3); r('#5a2a18',0,12,16,1); }
       break;
+    case 'd': r('#e2c286',0,0,16,16); for(let k=0;k<3;k++){ const y=((hh(tx,ty,k)*4)|0)+k*5+1; for(let x=0;x<16;x+=2) r('#cfa868',x,y+((x+tx*16)>>2&1),2,1); } pts('#f0d8a0','#c89a5c',3,60); break;
+    case 'v': { const b=at(tx,ty+1); if(b==='.'||b===',') sand(); else r('#e2c286',0,0,16,16); }
+      for(let k=0;k<3;k++){ const x=(hh(tx,ty,k+80)*11)|0, y=(hh(tx,ty,k+90)*10+3)|0; r('#4e6a2a',x,y+2,6,3); r('#6f8f3a',x+1,y+1,4,2); r('#93b04e',x+2,y,2,1); } break;
+    case 'Y': r('#e2c286',0,0,16,16); r('rgba(60,40,10,.3)',3,13,10,2); r('#8a6a42',8,5,2,10); r('#6e5232',8,7,2,1); r('#6e5232',8,10,2,1);
+      r('#2f6a2e',1,3,7,2); r('#2f6a2e',9,3,7,2); r('#3f8a3a',3,1,10,3); r('#2f6a2e',0,5,3,2); r('#2f6a2e',13,5,3,2); r('#5aa848',5,1,3,1); r('#5aa848',10,2,3,1);
+      r('#6b4a2b',7,5,2,2); r('#6b4a2b',9,5,2,2); break;
+    case 'G': { const b=at(tx,ty+1); if(b==='.'||b===',') sand(); else r('#e2c286',0,0,16,16); }
+      r('rgba(60,30,10,.35)',2,12,12,3); for(const [x,y] of [[2,11],[5,13],[9,13],[12,11],[3,8],[12,8]]) r('#7c6c5c',x,y,3,2); r('#3a2416',5,9,6,4); break;
+    case 'Z': sand(); r('rgba(60,30,10,.3)',0,13,16,2); r('#6b4423',1,3,2,11); r('#6b4423',13,3,2,11); r('#8a5a32',0,5,16,2); r('#8a5a32',0,10,16,2); r('#5a3a1e',0,7,16,1); break;
+    case 'O': sand(); r('rgba(60,30,10,.3)',0,13,16,2); r('#5a3a1e',0,3,2,11); r('#5a3a1e',14,3,2,11);
+      for(let x=2;x<14;x+=3) r('#9a6a3a',x,4,2,9); r('#b8834a',2,6,12,2); r('#b8834a',2,10,12,1); r('#3a2416',7,7,2,2); break;
     case 'x': r('#4b2a1d',0,0,16,16); pts('#3a2016','#6b3a24',6); if(hh(tx,ty,33)>0.85) r('#c4462c',(hh(tx,ty,34)*14)|0,(hh(tx,ty,35)*14)|0,1,1); break;
     default: sand();
   }
@@ -128,6 +141,7 @@ function miniatura(f,cnv){
   for(let ty=0;ty<h;ty++) for(let tx=0;tx<w;tx++) drawTile(g,at,rows[ty][tx],tx,ty);
   cnv.width=w*4; cnv.height=h*4;
   const m=cnv.getContext('2d'); m.imageSmoothingEnabled=true; m.imageSmoothingQuality='high'; m.drawImage(big,0,0,cnv.width,cnv.height);
+  if(f.noite){ m.fillStyle='rgba(10,14,50,.5)'; m.fillRect(0,0,cnv.width,cnv.height); }
 }
 // brilho da água, brasas e fendas: desenhado a cada quadro sobre o mapa já pronto
 function animarTerreno(cx,cy,tempo){

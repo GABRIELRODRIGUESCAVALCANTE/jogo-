@@ -34,7 +34,7 @@ test('vencer as 8 cabras e concluir sem dano em menos de 2 minutos', async()=>{
 test('tela de conquistas e escolha de visual', async()=>{
   await J.page.click('#btnMenuFim'); await J.page.click('#btnConquistas');
   assert.equal(await J.ev(()=>telaAtual), 'telaConquistas');
-  assert.match(await J.page.textContent('#contaConquistas'), /^6 de 14/);
+  assert.match(await J.page.textContent('#contaConquistas'), /^6 de 15/);
   await J.page.click('#btnVoltarConquistas'); await J.page.click('#btnPersonagem');
   await J.page.click('#amostrasChapeu [data-vis="palha"]'); await J.page.click('#amostrasChicote [data-vis="trancado"]');
   await J.page.dispatchEvent('#amostrasChicote [data-vis="dourado"]','click');   // bloqueado: não muda

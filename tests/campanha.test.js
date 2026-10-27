@@ -55,6 +55,30 @@ test('fase 3: brasas, Mula sem Cabeça e Boi Estrela', async()=>{
   assert.ok(await J.ev(()=>liberado('rosa',perfil)), 'Rosa liberada');
 });
 
+test('fase 4: Fulozinha, fogueiras, Lobisomem e a festa de São João', async()=>{
+  await J.comecarFase(4);
+  assert.ok(await J.ev(()=>fase.noite));
+  await J.falar(9,5); assert.equal(await J.ev(()=>S0.ticao && S0.stage), 2, 'Fulozinha dá o tição');
+  await J.invencivel();
+  for(const [x,y] of [[12,8],[36,14]]){ await J.falar(x,y); }
+  assert.equal(await J.ev(()=>S0.acesas.length), 2);
+  await J.ev(()=>{ p.x=24*16+8; p.y=24*16+8; }); await J.page.keyboard.press('KeyE'); await J.ate(()=>dlg.open); await J.pular();
+  assert.ok(await J.ev(()=>chefe.active && S0.stage===3), 'Lobisomem aparece depois da terceira fogueira');
+  assert.equal(await J.ev(()=>map[28][23]), 'O', 'porteira fechada durante a luta');
+  for(let k=0;k<8 && !(await J.ev(()=>chefe.dead));k++){
+    await J.ev(()=>{ const f=npcs.find(n=>n.type==='fogueira'&&n.idx===2); Object.assign(chefe,{x:f.x+24,y:f.y,cdMedo:0,estado:'ronda'}); Object.assign(p,{x:f.x+46,y:f.y,dir:{x:-1,y:0},inv:999}); });
+    await J.ate(()=>chefe.estado==='medo');
+    await J.page.keyboard.press('Space'); await new Promise(r=>setTimeout(r,560));
+  }
+  assert.ok(await J.ev(()=>chefe.dead), 'Lobisomem vencido perto do fogo');
+  await J.pular();
+  assert.equal(await J.ev(()=>map[28][23]), '.', 'porteira aberta');
+  assert.ok(await J.ev(()=>temConquista(perfil,'lua_cheia')));
+  await J.ev(()=>{ p.x=24*16+8; p.y=30*16+8; }); await J.ate(()=>dlg.open); await J.pular(); await J.ate(()=>!$('ovFim').hidden);
+  assert.equal(await J.page.textContent('#fimTitulo'), 'Ê boi! O Estrela voltou');
+  assert.ok(await J.ev(()=>perfil.fim && temConquista(perfil,'jornada')));
+});
+
 test('Rosa não se queima nas brasas', async()=>{
   await J.ev(()=>{ perfil.personagem='rosa'; heroi=PERSONAGENS.rosa; });
   await J.comecarFase(3);

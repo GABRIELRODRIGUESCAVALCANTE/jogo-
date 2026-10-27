@@ -360,7 +360,7 @@ $('btnLevantar').addEventListener('click',()=>{
 
 function concluirFase(){
   running=false; S0.won=true; sfx.win(); elToast.hidden=true; toastT=0;
-  const d=perfil.dificuldade||'normal', antigo=recorde(perfil,fase.id,d), novo=!(antigo>0) || time<antigo, ultima=fase.id===FASES.length, primeiraVez=ultima && !perfil.fim;
+  const d=perfil.dificuldade||'normal', antigo=recorde(perfil,fase.id,d), novo=!(antigo>0) || time<antigo, ultima=fase.id===FASES.length, primeiraVez=fase.id===3 && !liberado('rosa',perfil);   // a Rosa é liberada ao vencer a Serra do Fogo
   const reg=perfil.fases[fase.id]||{}, tempos=Object.assign({}, reg.tempos, reg.tempo>0 && !(reg.tempos||{}).normal ? {normal:reg.tempo} : {});
   if(novo) tempos[d]=time;
   perfil.fases[fase.id]={feita:true, tempos};
@@ -386,6 +386,7 @@ $('btnMenuFim').addEventListener('click',abrirMenu);
 function musicaDesejada(){
   if(telaAtual!=='telaJogo') return 'sertao';
   if(!running) return null;
+  if(S0 && S0.festa) return 'festa';
   return chefe && chefe.active && !chefe.dead ? 'chefe' : fase.musica;
 }
 const btnSom=$('btnSom'), btnMusica=$('btnMusica');

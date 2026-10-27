@@ -5,7 +5,7 @@
 const CONQUISTAS=[
   {id:'pe_na_estrada'}, {id:'travessia'}, {id:'quebra_encanto'}, {id:'jornada'},
   {id:'primeiro_cordel'}, {id:'cordelista'}, {id:'ligeiro'}, {id:'pastor'},
-  {id:'couro_grosso'}, {id:'firme'}, {id:'lambada'}, {id:'familia'}, {id:'coragem'},
+  {id:'couro_grosso'}, {id:'firme'}, {id:'lambada'}, {id:'familia'}, {id:'coragem'}, {id:'lua_cheia'},
   {id:'desrespeito', secreta:true},
 ];
 // visuais: o chapéu muda as cores da cabeça (chapéu, bandana ou véu); o chicote muda a cor da tira
@@ -52,10 +52,10 @@ function aoVencerInimigo(){
   if(fase.id===1 && S0.kills>=8) conquistar('pastor');
 }
 function aoLevarDano(){ S0.danos=(S0.danos||0)+1; if(chefe && chefe.active && !chefe.dead) S0.danoChefe=(S0.danoChefe||0)+1; }
-function aoVencerChefe(){ if(!S0.danoChefe) conquistar('couro_grosso'); }
+function aoVencerChefe(){ if(!S0.danoChefe) conquistar('couro_grosso'); if(chefe && chefe.tipo==='lobisomem') conquistar('lua_cheia'); }
 function aoLerCordel(){ conquistar('primeiro_cordel'); if(perfil.cordeis.length>=CORDEIS_IDS.length) conquistar('cordelista'); }
 function aoConcluirFase(ultima){
-  conquistar(['','pe_na_estrada','travessia','quebra_encanto'][fase.id]||'');
+  const porFase={1:'pe_na_estrada',2:'travessia',3:'quebra_encanto'}[fase.id]; if(porFase) conquistar(porFase);
   if(ultima) conquistar('jornada');
   if(fase.id===1 && time<120) conquistar('ligeiro');
   if(!S0.danos) conquistar('firme');

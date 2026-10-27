@@ -317,3 +317,139 @@ function drawBall(b){
   if(b.tipo==='lama'){ S('#3e2c1a',x-3,y-2,6,4); S('#3e2c1a',x-2,y-3,4,6); S('#5a4228',x-2,y-2,4,4); S('#86663f',x-1,y-2,2,1); return; }
   S('#e8401a',x-3,y-2,6,4); S('#e8401a',x-2,y-3,4,6); S(f?'#ffd23a':'#ff8a1e',x-2,y-2,4,4); S('#fff1d0',x-1,y-1,2,2);
 }
+
+/* ---------- NOITE DE SÃO JOÃO (fase 4) ---------- */
+Object.assign(NPC_TAM,{fulozinha:[10,8], sanfoneiro:[10,8], bastiao:[10,8], fogueira:[14,10]});
+Object.assign(NPC_BALAO,{fulozinha:24, sanfoneiro:24, bastiao:22, fogueira:20});
+function drawFulozinha(n){
+  const x=Math.round(n.x), y=Math.round(n.y+n.h/2), F=flip(x,y,n.face), b=Math.round(Math.sin(time*4)*.8);
+  shadow(x,y,9);
+  F('#1a0e08',-4,-15+b,8,15); F('#1a0e08',-5,-12+b,1,10); F('#1a0e08',4,-12+b,1,10);   // cabelo até os pés
+  F('#4c8038',-3,-9+b,6,7); F('#c4462c',-3,-5+b,6,3); F('#6a3e1e',-2,-2,1,2); F('#6a3e1e',1,-2,1,2);
+  F('#8a5a3a',-2,-13+b,4,4); F('#f1e2c2',1,-12+b,1,1); F('#e9a83b',2,-10+b,2,1);
+  if(Math.floor(time*1.5)%3===0){ const k=(time*1.5%1)*8; S('#f1e2c2',x+5+k/2,y-16-k,1,3); S('#f1e2c2',x+6+k/2,y-16-k,2,1); }   // assobio
+}
+function drawSanfoneiro(n){
+  const x=Math.round(n.x), y=Math.round(n.y+n.h/2), a=Math.round((Math.sin(time*6)+1)*1.5);
+  shadow(x,y,10);
+  S('#3a3028',x-3,y-4,2,4); S('#3a3028',x+1,y-4,2,4);
+  S('#c9a06a',x-4,y-10,8,7); S('#8a5a3a',x-3,y-14,6,4); S('#2a1a10',x-2,y-13,1,1); S('#2a1a10',x+1,y-13,1,1);
+  S('#6b4423',x-6,y-15,12,2); S('#7d5029',x-4,y-18,8,3); S('#e2b45e',x-4,y-15,8,1);
+  S('#8a2a1e',x-5-a,y-9,3,6); S('#f1e2c2',x-2-a,y-9,1+a,6); S('#8a2a1e',x+1,y-9,3,6); S('#e9a83b',x+2,y-8,1,4);   // sanfona abrindo e fechando
+}
+function drawBastiao(n){
+  const x=Math.round(n.x), y=Math.round(n.y+n.h/2);
+  shadow(x,y,10);
+  S('#3a3a48',x-3,y-4,2,4); S('#3a3a48',x+1,y-4,2,4); S('#9a8e7a',x-4,y-10,8,7); S('#7a6e5a',x-4,y-5,8,1);
+  S('#a8693f',x-3,y-14,6,4); S('#5a5056',x-3,y-15,6,2); S('#5a5056',x-3,y-11,6,1); S('#2a1a10',x-2,y-13,1,1); S('#2a1a10',x+1,y-13,1,1);
+}
+function drawFogueira(n){
+  const x=Math.round(n.x), y=Math.round(n.y+4), g=n.grande?1.6:1;
+  S('#5a3a1e',x-6,y-3,12,2); S('#6b4423',x-4,y-5,8,2); S('#3a2416',x-2,y-7,4,2);
+  if(!n.acesa){ S('#7d5029',x-5,y-6,2,4); S('#7d5029',x+3,y-6,2,4); return; }
+  for(let i=0;i<5;i++){ const h=Math.round((6+Math.floor((Math.sin(time*13+i*1.9)+1)*3))*g); const c=i%2?'#ff8a1e':'#e8401a'; S(c,x-5+i*2,y-4-h,2,h); }
+  for(let i=0;i<3;i++){ const h=Math.round((4+Math.floor((Math.sin(time*17+i*2.3)+1)*2))*g); S('#ffd23a',x-3+i*2,y-4-h,2,h); }
+  if(Math.random()<.3) parts.push({x:x+(Math.random()-.5)*8,y:y-10*g,vx:(Math.random()-.5)*10,vy:-30-Math.random()*20,t:.5,col:'#ffd23a'});
+}
+Object.assign(NPC_DRAW,{fulozinha:drawFulozinha, sanfoneiro:drawSanfoneiro, bastiao:drawBastiao, fogueira:drawFogueira});
+const fogueirasAcesas=()=>npcs.filter(n=>n.type==='fogueira' && n.acesa);
+
+// coruja rasga-mortalha: paira e dá rasantes; batatão: bola de fogo encantada que persegue de longe
+INIM.coruja={w:8, h:6, hp:1, voa:true, caixa:c=>({x:c.x,y:c.y-10,w:12,h:8}),
+  novo(c){ c.hx=c.x; c.hy=c.y; c.vx=c.vy=0; c.estado='paira'; c.t=1; },
+  update(c,dt){
+    const dx=p.x-c.x, dy=p.y-c.y, d=Math.hypot(dx,dy)||1;
+    c.t-=dt;
+    if(c.estado==='rasante'){ if(c.t<=0){ c.estado='paira'; c.t=1.2; } return [c.vx,c.vy]; }
+    if(c.estado==='mira'){ c.face=dx>=0?1:-1; if(c.t<=0){ c.estado='rasante'; c.t=.6; c.vx=dx/d*125; c.vy=dy/d*125; } return [0,0]; }
+    if(d<95 && c.t<=0){ c.estado='mira'; c.t=.5; return [0,0]; }
+    const tx=c.hx+Math.cos(c.anim*1.1)*26, ty=c.hy+Math.sin(c.anim*1.7)*12;
+    return [(tx-c.x)*1.8, (ty-c.y)*1.8];
+  },
+  draw(c){
+    const x=Math.round(c.x), y=Math.round(c.y+c.h/2), by=y-12+Math.round(Math.sin(c.anim*2.5)*2), up=c.estado==='rasante'?0:Math.floor(c.anim*8)%2;
+    shadow(x,y,6);
+    tint = c.flash>0 ? '#ffffff' : (c.estado==='mira' && Math.floor(c.anim*20)%2 ? '#ffd23a' : null);
+    S('#c9b48a',x-3,by-3,6,6); S('#f1ece0',x-2,by-2,4,4); S('#1a0e08',x-1,by-1,1,1); S('#1a0e08',x+1,by-1,1,1); S('#c98a5a',x,by+1,1,1);
+    if(up){ S('#a8946a',x-8,by-5,5,2); S('#a8946a',x+3,by-5,5,2); } else { S('#a8946a',x-8,by,5,2); S('#a8946a',x+3,by,5,2); }
+    tint=null;
+  }};
+INIM.batatao={w:8, h:6, hp:1, voa:true, caixa:c=>({x:c.x,y:c.y-10,w:10,h:10}),
+  novo(c){ c.hx=c.x; c.hy=c.y; },
+  update(c,dt){
+    const dx=p.x-c.x, dy=p.y-c.y, d=Math.hypot(dx,dy)||1;
+    if(Math.random()<dt*20) parts.push({x:c.x,y:c.y-10,vx:(Math.random()-.5)*10,vy:-15,t:.3,col:Math.random()<.5?'#ff8a1e':'#ffd23a'});
+    if(d<110) return [dx/d*34+Math.cos(c.anim*4)*20, dy/d*34+Math.sin(c.anim*5)*20];
+    return [(c.hx+Math.cos(c.anim)*20-c.x), (c.hy+Math.sin(c.anim*1.3)*20-c.y)];
+  },
+  draw(c){
+    const x=Math.round(c.x), y=Math.round(c.y+c.h/2), by=y-11+Math.round(Math.sin(c.anim*3)*2), f=Math.floor(c.anim*14)%2;
+    shadow(x,y,5);
+    tint = c.flash>0 ? '#ffffff' : null;
+    S('#e8401a',x-4,by-3,8,6); S('#e8401a',x-3,by-4,6,8); S(f?'#ffd23a':'#ff8a1e',x-3,by-2,6,4); S('#fff1d0',x-1,by-1,2,2);
+    S('#ff8a1e',x-2,by-7-f,2,3); S('#ffd23a',x+1,by-6+f,1,2);
+    tint=null;
+  }};
+
+// Lobisomem: ronda, mira e dá o bote; perto de fogueira acesa fica com medo e aí pode apanhar
+function atualizaLobisomem(m,dt,hp,wb){
+  m.anim+=dt; m.flash=Math.max(0,m.flash-dt); m.cdMedo=Math.max(0,(m.cdMedo||0)-dt);
+  if(!m.active||m.dead) return;
+  const dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy)||1, v=dif().vel, z=m.zona;
+  const mover=(vx,vy)=>{ const hit=moveEnt(m,vx*dt,vy*dt); m.x=clamp(m.x,z[0],z[2]); m.y=clamp(m.y,z[1],z[3]); return hit; };
+  const fogo=fogueirasAcesas().find(f=>Math.hypot(f.x-m.x,f.y-m.y)<46);
+  if(fogo && m.estado!=='medo' && m.cdMedo<=0){
+    m.estado='medo'; m.t=2.3; m.fx=fogo.x; m.fy=fogo.y; sfx.uivo(true); burst(m.x,m.y-12,'#ffd23a',8,40);
+  }
+  m.t-=dt;
+  if(m.estado==='medo'){
+    const ax=m.x-m.fx, ay=m.y-m.fy, ad=Math.hypot(ax,ay)||1; mover(ax/ad*14,ay/ad*14);
+    if(m.t<=0){ m.estado='ronda'; m.t=1; m.cdMedo=1.6; }
+  } else if(m.estado==='uiva'){
+    if(m.t<=0){ m.estado='ronda'; m.t=1.2; }
+  } else if(m.estado==='mira'){
+    m.face=dx>=0?1:-1;
+    if(m.t<=0){ m.estado='bote'; m.t=.42; const s=(m.furia?235:205)*v; m.vx=dx/d*s; m.vy=dy/d*s; sfx.bote(); }
+  } else if(m.estado==='bote'){
+    m.face=m.vx>=0?1:-1;
+    if(mover(m.vx,m.vy) || m.t<=0){ m.estado='ronda'; m.t=.8; }
+  } else {
+    m.face=dx>=0?1:-1; mover(dx/d*48*v, dy/d*48*v);
+    m.uivoT=(m.uivoT==null?5:m.uivoT)-dt;
+    if(m.uivoT<=0){ m.uivoT=6.5; m.estado='uiva'; m.t=1; sfx.uivo(); shake=Math.max(shake,.25);
+      if(m.furia) for(let i=0;i<2;i++){ const a=Math.random()*Math.PI*2; inimigos.push(Object.assign(criarInimigo('batatao',Math.round((m.x+Math.cos(a)*60)/T),Math.round((m.y+Math.sin(a)*60)/T),m.zonaTiles,inimigos.length),{ganho:true})); } }
+    else if(d<70 && m.t<=0){ m.estado='mira'; m.t=.5/v; }
+  }
+  const cx=CHEFES.lobisomem.caixa(m);
+  if(m.estado!=='medo' && overlap(hp,cx)) hurt(1,m.x,m.y);
+  if(wb && m.lastSwing!==p.swing && overlap(wb,cx)){
+    m.lastSwing=p.swing;
+    if(m.estado==='medo'){
+      m.hp=Math.max(0,m.hp-heroi.dano); m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08; burst(m.x,m.y-12,'#9a8e9a',8,50); updateHud();
+      if(m.hp<=0){ aoVencerChefe(); fase.vencerChefe(); }
+      else if(!m.furia && m.hp<=m.max/2){ m.furia=true; toast(t('toast.lobisomemFuria'),3.4); }
+    } else { sfx.clink(); burst(m.x,m.y-12,'#5a5056',4,40); }
+  }
+}
+function drawLobisomem(m){
+  const x=Math.round(m.x), y=Math.round(m.y+m.h/2), F=flip(x,y,m.face), medo=m.estado==='medo', lf=m.estado==='bote'||m.estado==='ronda'?Math.floor(m.anim*10)%2:0;
+  shadow(x,y,18);
+  if(m.flash>0) tint='#ffffff'; else if(m.estado==='mira' && Math.floor(m.anim*20)%2) tint='#c4462c';
+  if(medo){                                    // encolhido, com as mãos na cabeça
+    F('#3a3236',-6,-10,12,10); F('#5a5056',-5,-9,4,6); F('#3a3236',-4,-15,8,6); F('#3a3236',-4,-17,2,2); F('#3a3236',2,-17,2,2);
+    F('#e8e0d0',-6,-15,2,2); F('#e8e0d0',4,-15,2,2); F('#ffd23a',-2,-12,1,1); F('#ffd23a',1,-12,1,1);
+  } else {
+    F('#2a2226',-5,-4,3,4-lf); F('#2a2226',2,-4,3,3+lf);
+    F('#3a3236',-6,-16,12,13); F('#5a5056',-4,-15,4,9); F('#2a2226',-6,-6,12,2);
+    F('#3a3236',-8,-15,2,8); F('#3a3236',6,-15,2,8); F('#e8e0d0',-8,-7,2,1); F('#e8e0d0',6,-7,2,1);
+    F('#3a3236',-4,-23,9,7); F('#3a3236',-4,-26,2,3); F('#3a3236',3,-26,2,3); F('#5a5056',4,-20,3,3);
+    F('#ffd23a',0,-21,1,1); F('#ffd23a',3,-21,1,1);
+    if(m.estado==='mira'||m.estado==='bote'||m.estado==='uiva'){ F('#c4462c',3,-18,4,2); F('#f1e2c2',4,-18,1,1); F('#f1e2c2',6,-18,1,1); }
+    F('#2a2226',-8,-13,2,2);                   // rabo
+  }
+  tint=null;
+}
+CHEFES.lobisomem={get nome(){ return t('chefe.lobisomem'); },
+  criar:def=>{ const q=nearestFree(def.x,def.y); return {tipo:'lobisomem', x:q.x, y:q.y, w:14, h:8, hp:5, max:5, estado:'ronda', t:1, vx:0, vy:0, face:1, anim:0, flash:0,
+    active:false, dead:false, lastSwing:-1, furia:false, zona:[def.zona[0]*T+8,def.zona[1]*T+8,def.zona[2]*T+8,def.zona[3]*T+8], zonaTiles:def.zona}; },
+  caixa:m=>({x:m.x,y:m.y-10,w:16,h:20}), update:atualizaLobisomem, draw:drawLobisomem, visivel:m=>!m.dead && m.active};

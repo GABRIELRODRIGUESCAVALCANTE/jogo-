@@ -1,7 +1,7 @@
 'use strict';
 /* ---------- FOLHETOS DE CORDEL ---------- */
 // os versos ficam em js/idiomas.js ('cordel.c1.t' é o título, 'cordel.c1' são os seis versos)
-const CORDEIS_IDS=['c1','c2','c3','c4','c5','c6','c7','c8','c9'];
+const CORDEIS_IDS=['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12'];
 const cordel=id=>[t(`cordel.${id}.t`), t(`cordel.${id}`)];
 
 /* ---------- MAPAS (legenda em terreno.js) ---------- */
@@ -102,6 +102,45 @@ const MAPA_3=[
   '################################################',
 ];
 
+const MAPA_4=[
+  'YYYYYYYYYYYYYYYYYYYYYYddddYYYYYYYYYYYYYYYYYYYYYY',
+  'YvvTvvvvTvvvvvvvvvvdddddddvdddddddddddddddddddvY',
+  'Y.vvvvvvvvvvvvvvvvddYdddddddvdvvddddddddvdvddddY',
+  'YvvvvvvvvvTvvvvddvdvddddvdddWWWWWWdddddddvddYddY',
+  'YvTvvvvvvvv.vvv.vdddddvvvddYWWWWWWddvdddddddYddY',
+  'Yvv.vvvvvvvvvvv.v.vddvddddddWWWWWWddddddddvdYvdY',
+  'Yvvvvvvvvvvvvvv.vvYddddddddvWWWWWWddddddddvddddY',
+  'YvTv.vvvvvvvGvvvvvvddvdddddddWWWWddddddddddddYdY',
+  'YvvvTvvvvv.vvvvdvvdvddddvdddddddvddddddddddddddY',
+  'YTvTvvTvvvvvvv.dvvdddddddddddddddddddddddddddddY',
+  'YddvdddvddddddvdvYWWWWWddddddddddYdddvvddddddddY',
+  'YdddvvvddvddvdddddWWWWWddddddddvdddddddvvddddYdY',
+  'YddvdddddddddvddddWWWWWdvdddddddddddddvddddddddY',
+  'YdYddWWWWWWWddddddvdddddddddddddYdddGddddddddddY',
+  'YdddWWWWWWWWdddddddddddvdddddddddvdddddddddYdddY',
+  'YdddWWWWWWWWdddddddvvdvddddddvdddddvdddddddddddY',
+  'YdddWWWWWWWWdvddvvdddYvdddddddddddddddddvddddddY',
+  'YdvddWWWWWWWdddddddddddddddvddYddddddddvdddYdddY',
+  'YdddddWWWWWddYdddddvddddddddddYvddddddWWWWWWdddY',
+  'YvddddddddYdddddddddYddddvdddddvYdvdddWWWWWWdYdY',
+  'YdddvvddddvddvddddddddddddddddddddddddWWWWWWdvvY',
+  'YdYddddYvddvddvv...,....,........vvdddWWWWWWdddY',
+  'Ydddvddddddvdd......,.,...,........ddddWWWWvdddY',
+  'YdddYddddddYdd..,.......G.......,..dvvdddvvdddYY',
+  'Yvdddddddddvdv....,........,,....,.ddddddddddddY',
+  'YddddddYYdvvdd....................,ddddvYdYddddY',
+  'Yddddddddddddd.,....,...,....,.....dvdddddddddvY',
+  'Yddddddvddddddv..........,.,......vddvvYYddddddY',
+  'YZZZZZZZZZZZZZZZZZZZZZZOOZZZZZZZZZZZZZZZZZZZZZZY',
+  'Y............................................,.Y',
+  'Y.,HHHH...HHHH.................,..HHHH...HHHH..Y',
+  'Y..HHHH...HHHH...,................HHHH...HHHH..Y',
+  'Y..HDHH...HDHH.,..,.....G.........HDHH...HDHH,.Y',
+  'Y..........,....................,,,............Y',
+  'Y..................,..............,.,..........Y',
+  'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
+];
+
 /* ---------- FASES ----------
   Cada fase traz o mapa, quem vive nele e ganchos chamados pelo jogo:
   estado() campos extras de S0 · objetivo(S0) texto do HUD · bolsa(S0) itens na bolsa · intro() falas de abertura
@@ -124,11 +163,32 @@ function consertarPonte(){
 function soltarTabua(){ items.push(Object.assign({type:'tabua', id:'tc'}, nearestFree(34,23))); }
 function soltarEncanto(x,y){ npcs.push(npcNovo('moca',x,y)); npcs.push(npcNovo('boi',24*T+8,2*T+10)); }
 
+// fase 4: o boi segue os passos do jogador; fogueiras acesas iluminam e viram ponto de retorno
+let trilhaBoi=[];
+function seguirBoi(dt){
+  const boi=npcs.find(n=>n.segue); if(!boi) return;
+  trilhaBoi.push([p.x,p.y]); if(trilhaBoi.length>40) trilhaBoi.shift();
+  const longe=Math.hypot(p.x-boi.x,p.y-boi.y), [ax,ay]=trilhaBoi[0], d=Math.hypot(ax-boi.x,ay-boi.y);
+  if(longe>150){ boi.x=p.x; boi.y=p.y+12; return; }
+  if(longe>26 && d>1){ const v=Math.min(d,82*dt); boi.x+=(ax-boi.x)/d*v; boi.y+=(ay-boi.y)/d*v; if(Math.abs(ax-boi.x)>1) boi.face=ax>boi.x?1:-1; }
+}
+function acenderFogueira(n){
+  n.acesa=true; S0.acesas.push(n.idx); S0.ultima=n.idx;
+  sfx.acender(); burst(n.x,n.y-8,'#ffd23a',16,60);
+  if(S0.acesas.length<3){ toast(t('f4.acesa',{n:S0.acesas.length})); setStage(2); return; }
+  S0.chefeIntro=true; salvarPartida();
+  say(t('f4.lobisomemIntro'), ()=>{ chefe.active=true; setStage(3); });
+}
+function abrirPorteira(fx){
+  if(fx) for(let ty=0;ty<MH;ty++) for(let tx=0;tx<MW;tx++) if(map[ty][tx]==='O') burst(tx*T+8,ty*T+8,'#9a6a3a',8);
+  trocarTiles('O','.'); S0.porteira=true;
+}
+
 const FASES=[
 {
   id:1, get nome(){ return t('f1.nome'); }, get resumo(){ return t('f1.resumo'); },
   musica:'sertao', mapa:MAPA_1, spawn:[23,20],
-  aberto:m=>m.map(r=>r.replace(/E/g,',')), pontosChave:[[23,0]], fechadoAntes:[[23,0]],
+  aberto:m=>m.map(r=>r.replace(/E/g,',')), pontosChave:[[23,0]], fechadoAntes:[[23,0]], pontosAntes:[[6,9],[21,19],[43,6]],
   npcs:[['avo',21,19],['caipora',6,9]],
   zonas:{caatinga:[14,4,46,23]},
   inimigos:[['cabra',36,5,'caatinga'],['cabra',40,9,'caatinga'],['cabra',44,12,'caatinga'],['cabra',34,16,'caatinga'],['cabra',41,20,'caatinga'],['cabra',38,13,'caatinga'],['cabra',33,7,'caatinga'],['cabra',45,5,'caatinga']],
@@ -168,7 +228,7 @@ const FASES=[
 {
   id:2, get nome(){ return t('f2.nome'); }, get resumo(){ return t('f2.resumo'); },
   musica:'rio', mapa:MAPA_2, spawn:[23,26],
-  aberto:m=>m.map(r=>r.replace(/Q/g,'=')), pontosChave:[[23,0],[34,23]], fechadoAntes:[[23,0]],
+  aberto:m=>m.map(r=>r.replace(/Q/g,'=')), pontosChave:[[23,0],[34,23]], fechadoAntes:[[23,0]], pontosAntes:[[21,19],[34,23]],
   npcs:[['barqueiro',21,19]],
   zonas:{oeste:[1,18,20,27], poco:[28,18,46,27], norte:[1,2,46,8]},
   inimigos:[['jacare',6,20,'oeste'],['jacare',12,24,'oeste'],['jacare',4,26,'oeste'],['jacare',30,23,'poco'],['jacare',46,26,'poco'],['jacare',10,5,'norte'],['jacare',38,4,'norte']],
@@ -264,6 +324,79 @@ const FASES=[
     if(s===1) return p.y>25*T ? {x:5*T, y:25*T} : p.y>16*T ? {x:41*T, y:16*T} : {x:24*T, y:11*T};  // segue o zigue-zague da subida
     if(s===3) return npcs.find(n=>n.type==='boi');
     return null;
+  },
+},
+{
+  id:4, get nome(){ return t('f4.nome'); }, get resumo(){ return t('f4.resumo'); },
+  musica:'noite', noite:true, mapa:MAPA_4, spawn:[23,1],
+  aberto:m=>m.map(r=>r.replace(/O/g,'.')), pontosChave:[[24,30],[24,31]], fechadoAntes:[[24,30]], pontosAntes:[[8,5],[12,8],[36,14],[24,24],[30,25]],
+  npcs:[['fulozinha',8,5],['boi',23,2,{segue:true}],
+    ['fogueira',12,7,{idx:0}],['fogueira',36,13,{idx:1}],['fogueira',24,23,{idx:2}],['fogueira',24,32,{grande:true,acesa:true,festa:true}],
+    ['avo',21,31],['sanfoneiro',27,31],['moca',21,33],['barqueiro',28,33],['caipora',17,32]],
+  zonas:{norte:[1,1,46,9], dunas:[1,10,46,19], sul:[1,20,13,27], leste:[35,20,46,27]},
+  inimigos:[['coruja',30,2,'norte'],['coruja',20,14,'dunas'],['coruja',44,16,'dunas'],
+    ['batatao',14,15,'dunas'],['batatao',31,17,'dunas'],['batatao',6,24,'sul'],['batatao',43,25,'leste']],
+  itens:[['rapadura',20,6],['rapadura',44,12],['rapadura',8,22],['cordel',1,2,'c10'],['cordel',45,26,'c11'],['cordel',2,33,'c12']],
+  chefe:{tipo:'lobisomem', x:30, y:25, zona:[14,20,34,27]},
+  estado:()=>({ticao:false, acesas:[], porteira:false, festa:false}),
+  inicio(){ trilhaBoi=[]; },
+  objetivo:s=>t('f4.obj',{n:s.acesas.length})[s.stage],
+  bolsa:s=>s.ticao && s.acesas.length<3 ? [t('f4.ticao')] : [],
+  intro:()=>t('f4.intro'),
+  restaurar(){
+    for(const n of npcs) if(n.type==='fogueira' && S0.acesas.includes(n.idx)) n.acesa=true;
+    if(S0.chefeVencido){ chefe.dead=true; abrirPorteira(false); npcs.push(npcNovo('bastiao',30*T+8,25*T+8)); }
+    const boi=npcs.find(n=>n.segue); boi.x=p.x; boi.y=p.y+12;
+  },
+  retornar(){ const n=npcs.find(n=>n.type==='fogueira' && n.idx===S0.ultima); return n ? nearestFree(Math.floor(n.x/T),Math.floor(n.y/T)+1) : nearestFree(...this.spawn); },
+  falar(n){
+    if(n.type==='fulozinha'){
+      if(S0.ticao) say(t('f4.fuloDica'));
+      else say(t('f4.fulo'), ()=>{ S0.ticao=true; sfx.pick(); toast(t('f4.pegouTicao')); setStage(2); });
+    }
+    else if(n.type==='fogueira' && S0.ticao && !n.acesa) acenderFogueira(n);
+    else if(n.type==='bastiao') say(t('f4.bastiao'));
+    else if(['avo','sanfoneiro','moca','barqueiro','caipora'].includes(n.type)) say(t('f4.festa.'+n.type));
+  },
+  pegar:()=>false,
+  tick(dt){
+    seguirBoi(dt);
+    const clareira=[14,20,34,27];
+    if(S0.acesas.length>=3 && !S0.chefeVencido && !chefe.active && dentro(p,clareira)){ chefe.active=true; updateHud(); }
+    if(!S0.porteira && p.y>26*T && p.x>20*T && p.x<28*T && avisoT<=0){ avisoT=5; toast(t('f4.porteira')); }
+    const grande=npcs.find(n=>n.festa);
+    if(S0.porteira && !S0.festa && Math.hypot(grande.x-p.x,grande.y-p.y)<48){ S0.festa=true; setStage(5); sairDaFase(t('f4.chegada')); }
+  },
+  vencerChefe(){
+    chefe.dead=true; chefe.active=false; S0.chefeVencido=true; balls=[];
+    for(const c of inimigos) if(c.tipo==='batatao' && !c.dead && Math.hypot(c.x-chefe.x,c.y-chefe.y)<200){ c.dead=true; burst(c.x,c.y-10,'#ff8a1e',6,40); }
+    burst(chefe.x,chefe.y-12,'#9a8e9a',24,90); shake=.35; sfx.crash();
+    npcs.push(npcNovo('bastiao',chefe.x,chefe.y));
+    abrirPorteira(true); setStage(4);
+    say(t('f4.lobisomemVencido'));
+  },
+  alvo(){
+    const s=S0.stage;
+    if(s===1) return npcs.find(n=>n.type==='fulozinha');
+    if(s===2){ let best=null, bd=1e9; for(const n of npcs) if(n.type==='fogueira' && !n.acesa && !n.festa){ const d=Math.hypot(n.x-p.x,n.y-p.y); if(d<bd){ bd=d; best=n; } } return best; }
+    if(s===3) return chefe && chefe.active ? npcs.find(n=>n.type==='fogueira' && n.idx===2) : {x:24*T, y:23*T};
+    if(s===4) return npcs.find(n=>n.festa);
+    return null;
+  },
+  luzes(){
+    const out=[];
+    if(S0.porteira||p.y>24*T) for(let x=3;x<46;x+=6) out.push([x*T,29*T+6,40,.8]);   // lanternas da festa
+    const f=npcs.find(n=>n.type==='fulozinha'); if(f) out.push([f.x,f.y-8,30,.6]);
+    return out;
+  },
+  decorarAlto(){                                      // bandeirinhas de São João sobre a vila
+    const cores=['#c4462c','#e9a83b','#3a78a0','#4c8038','#f1e2c2'];
+    for(const y0 of [29*T+2, 33*T+10]){
+      for(let x=T; x<47*T; x+=6){
+        const y=y0+Math.round(Math.sin(x/40)*3);
+        S('#2a1a12',x,y,6,1); S(cores[(x/6|0)%5],x+1,y+1,4,2); S(cores[(x/6|0)%5],x+2,y+3,2,1);
+      }
+    }
   },
 },
 ];

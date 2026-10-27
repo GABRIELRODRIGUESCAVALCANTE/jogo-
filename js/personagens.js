@@ -17,7 +17,7 @@ for(const [id,ch] of Object.entries(PERSONAGENS)){
   for(const k of ['titulo','trato','desc','liberar']) Object.defineProperty(ch,k,{get:()=>t(`pers.${id}.${k}`)});
 }
 const PERS_ORDEM=['ze','luzia','tiao','rosa'];
-const liberado=(id,pf)=>!PERSONAGENS[id].trava || !!(pf && pf.fim);
+const liberado=(id,pf)=>!PERSONAGENS[id].trava || !!(pf && (pf.fim || (pf.fases && pf.fases[3] && pf.fases[3].feita)));
 
 // pontos de 1 a 5 para as barrinhas da tela de escolha
 function pontos(ch){
