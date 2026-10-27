@@ -378,6 +378,14 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 
+/* ---------- APP (PWA) ---------- */
+// funciona sem internet e pode ser instalado na tela inicial
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+let pedidoInstalar=null;
+addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); pedidoInstalar=e; $('btnInstalar').hidden=false; });
+addEventListener('appinstalled',()=>{ pedidoInstalar=null; $('btnInstalar').hidden=true; });
+$('btnInstalar').addEventListener('click',async()=>{ if(!pedidoInstalar) return; pedidoInstalar.prompt(); await pedidoInstalar.userChoice.catch(()=>{}); pedidoInstalar=null; $('btnInstalar').hidden=true; });
+
 carregarPerfis(); labelSound();
 if(perfis.lista.length) abrirPerfis(); else abrirNovo();
 requestAnimationFrame(frame);

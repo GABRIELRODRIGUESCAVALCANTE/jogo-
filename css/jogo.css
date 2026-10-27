@@ -178,3 +178,6 @@ form{display:flex;flex-direction:column;gap:18px;width:100%}
 .quem-joga{margin-right:auto;color:var(--poeira);font-size:15px}
 .quem-joga b{color:var(--papel)}
 .overlay .eyebrow{margin:0}
+
+/* instalado como app: sem o texto de apresentação, sobra mais tela para o jogo */
+@media (display-mode: standalone){ .lede{display:none} body{padding-top:max(12px,env(safe-area-inset-top,0px))} }
