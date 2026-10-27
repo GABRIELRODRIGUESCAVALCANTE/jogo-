@@ -277,3 +277,9 @@ body.texto-grande{font-size:18px}
 .ranking .quem small{color:var(--poeira);font-size:13px}
 .ranking .quem .voce{color:var(--sol);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
 .ranking .tempo{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+
+/* ---------- cena de cordel ---------- */
+.tela.cena{align-items:center;text-align:center}
+.cena canvas{display:block;width:100%;max-width:760px;height:auto;box-shadow:6px 6px 0 var(--sol)}
+.cena h2{margin-top:6px}
+.verso{margin:0;display:flex;flex-direction:column;gap:2px;font-size:clamp(17px,2.4vw,21px);font-style:italic;color:var(--papel)}

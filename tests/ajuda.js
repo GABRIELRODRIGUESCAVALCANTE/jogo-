@@ -27,7 +27,7 @@ function servidor(){
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
 // abre o jogo num contexto novo (armazenamento limpo); celular=true emula um iPhone com toque
-async function abrir(ctxBrowser, url, { celular=false, antes, locale='pt-BR' } = {}){
+async function abrir(ctxBrowser, url, { celular=false, antes, locale='pt-BR', cenas=false } = {}){
   const ctx = await ctxBrowser.newContext({ ...(celular ? devices['iPhone 13'] : { viewport:{ width:1100, height:900 } }), locale });
   const page = await ctx.newPage();
   const erros = [];
@@ -35,6 +35,9 @@ async function abrir(ctxBrowser, url, { celular=false, antes, locale='pt-BR' } =
   const deFonte=m=>/fonts\.(googleapis|gstatic)/.test(`${(m.location()||{}).url||''} ${m.text()}`);
   page.on('console', m=>{ if(m.type()==='error' && !deFonte(m)) erros.push(m.text()); });
   await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r=>r.abort());   // testes não dependem da internet
+  if(!cenas) await page.addInitScript(()=>{   // a maioria dos testes pula as cenas de cordel (vale também depois de recarregar)
+    const k='estrela-do-sertao:prefs'; try{ const p=JSON.parse(localStorage.getItem(k)||'{}'); p.cenas=false; localStorage.setItem(k,JSON.stringify(p)); }catch(e){}
+  });
   if(antes) await page.addInitScript(antes);
   await page.goto(url);
   await page.waitForFunction(()=>typeof telaAtual!=='undefined');

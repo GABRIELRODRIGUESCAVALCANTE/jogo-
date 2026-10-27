@@ -129,9 +129,9 @@ function menuPad(k){
 }
 
 /* ---------- TELAS ---------- */
-const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaRanking','telaJogo'];
+const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaRanking','telaCena','telaJogo'];
 let telaAtual='telaPerfis';
-const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaRanking:()=>abrirMenu(), telaOpcoes:()=>voltarDeOpcoes()};
+const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaRanking:()=>abrirMenu(), telaCena:()=>$('btnCenaSeguir').click(), telaOpcoes:()=>voltarDeOpcoes()};
 function mostrar(id){
   for(const t of TELAS) $(t).hidden = t!==id;
   telaAtual=id; held.clear(); dpadSet({});
@@ -322,9 +322,13 @@ function abrirFases(){
 /* ---------- PARTIDA ---------- */
 const btnPausa=$('btnPausa');
 function fecharOverlays(){ for(const id of ['ovTitulo','ovPausa','ovDesmaio','ovFim']) $(id).hidden=true; fecharDialogo(); elToast.hidden=true; toastT=0; btnPausa.textContent=t('btn.pausar'); }
+// antes de cada fase, a cena de cordel (se estiver ligada nas Opções)
 function jogarFase(id){
   store.del(K_PARTIDA+perfil.id);
   iniciarFase(id); fecharOverlays(); running=false; paused=false;
+  mostrarCena(id,()=>abrirTitulo(id));
+}
+function abrirTitulo(id){
   $('tituloFase').textContent=t('fases.nDe',{n:id,t:FASES.length});
   $('tituloNome').textContent=fase.nome; $('tituloResumo').textContent=fase.resumo;
   mostrar('telaJogo'); $('ovTitulo').hidden=false; $('btnComecarFase').focus();
@@ -378,6 +382,7 @@ function concluirFase(){
   $('btnProxima').hidden=ultima;
   $('ovFim').hidden=false; (ultima?$('btnMenuFim'):$('btnProxima')).focus();
   if(primeiraVez) setTimeout(()=>sfx.libera(),900);
+  if(ultima) mostrarCena('final',()=>{ mostrar('telaJogo'); $('btnMenuFim').focus(); });
 }
 $('btnProxima').addEventListener('click',()=>jogarFase(fase.id+1));
 $('btnMenuFim').addEventListener('click',abrirMenu);
@@ -455,7 +460,7 @@ function abrirOpcoes(){
   $('opVolMusica').value=Math.round(volMusica*100); $('opVolEfeitos').value=Math.round(volEfeitos*100);
   $('opVolMusicaV').textContent=$('opVolMusica').value+'%'; $('opVolEfeitosV').textContent=$('opVolEfeitos').value+'%';
   $('opTexto').checked=!!prefs.textoGrande; $('opContraste').checked=!!prefs.contraste; $('opCalmo').checked=calm;
-  $('opSeta').checked=mostrarSeta; $('opVibrar').checked=prefs.vibrar!==false; $('opIdioma').value=idioma;
+  $('opSeta').checked=mostrarSeta; $('opVibrar').checked=prefs.vibrar!==false; $('opCenas').checked=prefs.cenas!==false; $('opIdioma').value=idioma;
   renderTeclas(); mostrar('telaOpcoes');
 }
 function voltarDeOpcoes(){
@@ -465,7 +470,7 @@ function voltarDeOpcoes(){
 }
 for(const [id,chave] of [['opVolMusica','volMusica'],['opVolEfeitos','volEfeitos']])
   $(id).addEventListener('input',()=>{ prefs[chave]=+$(id).value; $(id+'V').textContent=$(id).value+'%'; salvarPrefs(); aplicarOpcoes(); if(chave==='volEfeitos') sfx.clique(); });
-for(const [id,chave] of [['opTexto','textoGrande'],['opContraste','contraste'],['opCalmo','calmo'],['opSeta','seta'],['opVibrar','vibrar']])
+for(const [id,chave] of [['opTexto','textoGrande'],['opContraste','contraste'],['opCalmo','calmo'],['opSeta','seta'],['opVibrar','vibrar'],['opCenas','cenas']])
   $(id).addEventListener('change',()=>{ prefs[chave]=$(id).checked; salvarPrefs(); aplicarOpcoes(); });
 $('btnTeclasPadrao').addEventListener('click',()=>{ prefs.teclas={}; ouvindo=null; salvarPrefs(); montarTeclas(); renderTeclas(); });
 $('btnOpcoes').addEventListener('click',abrirOpcoes);
@@ -507,7 +512,7 @@ function trocarIdioma(novo){
   if(!IDIOMAS[novo]) return;
   idioma=novo; selIdioma.value=$('opIdioma').value=novo; salvarPrefs(); traduzirPagina(); labelSound(); atualizarLegenda();
   const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaOpcoes:renderTeclas,
-    telaConquistas:abrirConquistas, telaRanking:renderRanking, telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
+    telaConquistas:abrirConquistas, telaRanking:renderRanking, telaCena:()=>cenaAtual && textoCena(cenaAtual), telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
   if(reabrir) reabrir();
   else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
 }

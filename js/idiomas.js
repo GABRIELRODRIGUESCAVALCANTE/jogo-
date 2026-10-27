@@ -11,6 +11,12 @@ let idioma='pt';
 
 const TEXTOS={
 pt:{
+  'cena.aria':'Ilustração em xilogravura', 'cena.seguir':'Continuar', 'op.cenas':'Mostrar as cenas de cordel entre as fases',
+  'cena.1.t':'O boi que fugiu na lua cheia', 'cena.1':['Foi numa noite de lua','que o Estrela se soltou,','arrebentou a cerca velha','e pra serra disparou.'],
+  'cena.2.t':'A travessia do Velho Chico', 'cena.2':['Depois da mata e do espinho','vem o rio a atravessar,','mas a ponte tá quebrada','e o Caboclo a vigiar.'],
+  'cena.3.t':'A Serra do Fogo', 'cena.3':['Lá no alto da serra','onde a pedra pega fogo,','a Mula sem Cabeça','guarda o boi no seu jogo.'],
+  'cena.4.t':'A Noite de São João', 'cena.4':['Volta o boi pela duna','na noite de São João,','mas a lua acorda o bicho','que uiva na escuridão.'],
+  'cena.final.t':'Ê boi! Viva São João!', 'cena.final':['Acende a fogueira grande,','toca a sanfona, irmão:','o Estrela voltou pra casa','e é festa no sertão!'],
   'f4.nome':'A Noite de São João', 'f4.resumo':'Leve o Estrela para casa pelas dunas, à luz das fogueiras, e espante o Lobisomem antes da festa.',
   'f4.obj':['','Fale com a Comadre Fulozinha, entre os cajueiros a oeste','Acenda as fogueiras do caminho com o tição ({n}/3)','Espante o Lobisomem: atraia-o para perto do fogo e use o chicote','Leve o Estrela até a fogueira da festa, na vila ao sul','Viva São João!'],
   'f4.ticao':'Tição aceso', 'f4.pegouTicao':'Você ganhou um tição aceso!', 'f4.acesa':'Fogueira acesa ({n}/3). Se desmaiar, você volta para cá.',
@@ -175,6 +181,12 @@ pt:{
 },
 
 en:{
+  'cena.aria':'Woodcut illustration', 'cena.seguir':'Continue', 'op.cenas':'Show the cordel scenes between levels',
+  'cena.1.t':'The ox that fled under the full moon', 'cena.1':['It was on a moonlit night','that Estrela broke away,','smashed right through the old fence','and ran off to the ridge that day.'],
+  'cena.2.t':'Crossing the Old Chico', 'cena.2':['Past the woods and through the thorns','lies a river wide to cross,','but the bridge is torn to pieces','and the Caboclo is the boss.'],
+  'cena.3.t':'Fire Ridge', 'cena.3':['High upon the burning ridge','where the very stones catch fire,','the Headless Mule is guarding','the ox beside her pyre.'],
+  'cena.4.t':'Saint John’s Night', 'cena.4':['Back across the moonlit dunes','on the night of Saint John,','but the moon awakes a creature','howling until dawn.'],
+  'cena.final.t':'Hey ox! Long live Saint John!', 'cena.final':['Light the great bonfire high,','play the accordion, friend:','Estrela has come home','and the party has no end!'],
   'f4.nome':'Saint John’s Night', 'f4.resumo':'Take Estrela home across the dunes by bonfire light, and scare off the Werewolf before the festival.',
   'f4.obj':['','Talk to Comadre Fulozinha, among the cashew trees to the west','Light the bonfires along the way with the firebrand ({n}/3)','Scare off the Werewolf: lure him near the fire and use your whip','Bring Estrela to the festival bonfire, in the village to the south','Long live Saint John!'],
   'f4.ticao':'Burning firebrand', 'f4.pegouTicao':'You got a burning firebrand!', 'f4.acesa':'Bonfire lit ({n}/3). If you faint, you come back here.',
@@ -339,6 +351,12 @@ en:{
 },
 
 es:{
+  'cena.aria':'Ilustración en xilografía', 'cena.seguir':'Continuar', 'op.cenas':'Mostrar las escenas de cordel entre los niveles',
+  'cena.1.t':'El buey que huyó en luna llena', 'cena.1':['Fue en una noche de luna','que Estrella se escapó,','rompió la cerca vieja','y a la sierra disparó.'],
+  'cena.2.t':'La travesía del Viejo Chico', 'cena.2':['Pasando el monte y la espina','hay un río que cruzar,','pero el puente está roto','y el Caboclo a vigilar.'],
+  'cena.3.t':'La Sierra del Fuego', 'cena.3':['Allá arriba en la sierra','donde la piedra es tizón,','la Mula sin Cabeza','guarda al buey en su rincón.'],
+  'cena.4.t':'La Noche de San Juan', 'cena.4':['Vuelve el buey por la duna','en la noche de San Juan,','pero la luna despierta','al bicho del arenal.'],
+  'cena.final.t':'¡Eh buey! ¡Viva San Juan!', 'cena.final':['Enciende la hoguera grande,','toca el acordeón, señor:','Estrella volvió a casa','¡y es fiesta en el sertón!'],
   'f4.nome':'La Noche de San Juan', 'f4.resumo':'Lleva a Estrella a casa por las dunas, a la luz de las hogueras, y espanta al Lobisón antes de la fiesta.',
   'f4.obj':['','Habla con la Comadre Fulozinha, entre los marañones al oeste','Enciende las hogueras del camino con el tizón ({n}/3)','Espanta al Lobisón: atráelo cerca del fuego y usa el látigo','Lleva a Estrella hasta la hoguera de la fiesta, en el pueblo al sur','¡Viva San Juan!'],
   'f4.ticao':'Tizón encendido', 'f4.pegouTicao':'¡Recibiste un tizón encendido!', 'f4.acesa':'Hoguera encendida ({n}/3). Si te desmayas, vuelves aquí.',

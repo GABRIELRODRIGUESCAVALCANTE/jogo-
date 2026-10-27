@@ -139,6 +139,7 @@
         <label class="caixa"><input type="checkbox" id="opContraste"><span data-t="op.contraste">Alto contraste</span></label>
         <label class="caixa"><input type="checkbox" id="opCalmo"><span data-t="op.calmo">Reduzir movimento</span></label>
         <label class="caixa"><input type="checkbox" id="opSeta"><span data-t="op.seta">Mostrar a seta do objetivo</span></label>
+        <label class="caixa"><input type="checkbox" id="opCenas"><span data-t="op.cenas">Mostrar as cenas de cordel entre as fases</span></label>
         <label class="caixa"><input type="checkbox" id="opVibrar"><span data-t="op.vibrar">Vibrar ao levar dano</span></label>
         <label class="faixa"><span data-t="idioma">Idioma</span><select id="opIdioma"></select></label>
       </fieldset>
@@ -149,6 +150,14 @@
       </fieldset>
     </div>
     <div class="rodape"><button class="btn sec" id="btnVoltarOpcoes" data-t="voltar">Voltar</button></div>
+  </section>
+
+  <!-- cena de cordel -->
+  <section class="tela cena" id="telaCena" aria-labelledby="cenaTitulo" hidden>
+    <canvas id="cenaTela" width="480" height="270" role="img" data-t-aria="cena.aria"></canvas>
+    <h2 id="cenaTitulo" tabindex="-1"></h2>
+    <p class="verso" id="cenaVerso"></p>
+    <button class="btn" id="btnCenaSeguir" data-t="cena.seguir">Continuar</button>
   </section>
 
   <!-- jogo -->
@@ -285,5 +294,6 @@
 <script src="js/conquistas.js"></script>
 <script src="js/ranking.js"></script>
 <script src="js/telas.js"></script>
+<script src="js/cenas.js"></script>
 </body>
 </html>
