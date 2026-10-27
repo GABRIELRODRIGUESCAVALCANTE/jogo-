@@ -135,6 +135,7 @@ const FASES=[
 {
   id:1, nome:'A Caatinga', resumo:'Ganhe a ajuda da Caipora e escape das Cabras Cabriolas para abrir o caminho do norte.',
   musica:'sertao', mapa:MAPA_1, spawn:[23,20],
+  aberto:m=>m.map(r=>r.replace(/E/g,',')), pontosChave:[[23,0]], fechadoAntes:[[23,0]],
   npcs:[['avo',21,19],['caipora',6,9]],
   zonas:{caatinga:[14,4,46,23]},
   inimigos:[['cabra',36,5,'caatinga'],['cabra',40,9,'caatinga'],['cabra',44,12,'caatinga'],['cabra',34,16,'caatinga'],['cabra',41,20,'caatinga'],['cabra',38,13,'caatinga'],['cabra',33,7,'caatinga'],['cabra',45,5,'caatinga']],
@@ -197,6 +198,7 @@ const FASES=[
 {
   id:2, nome:'O Velho Chico', resumo:"Conserte a ponte do Rio São Francisco e tome a última tábua do Caboclo d'água.",
   musica:'rio', mapa:MAPA_2, spawn:[23,26],
+  aberto:m=>m.map(r=>r.replace(/Q/g,'=')), pontosChave:[[23,0],[34,23]], fechadoAntes:[[23,0]],
   npcs:[['barqueiro',21,19]],
   zonas:{oeste:[1,18,20,27], poco:[28,18,46,27], norte:[1,2,46,8]},
   inimigos:[['jacare',6,20,'oeste'],['jacare',12,24,'oeste'],['jacare',4,26,'oeste'],['jacare',30,23,'poco'],['jacare',46,26,'poco'],['jacare',10,5,'norte'],['jacare',38,4,'norte']],
@@ -271,6 +273,7 @@ const FASES=[
 {
   id:3, nome:'A Serra do Fogo', resumo:'Suba a serra entre brasas e morcegos e quebre o encanto da Mula sem Cabeça.',
   musica:'serra', mapa:MAPA_3, spawn:[24,31], retorno:{acima:13, x:24, y:14},
+  pontosChave:[[24,5],[24,2]],
   npcs:[],
   zonas:{meio:[2,19,45,24], topo:[2,13,45,15], baixo:[2,29,45,32]},
   inimigos:[['morcego',10,21,'meio'],['morcego',22,20,'meio'],['morcego',36,22,'meio'],['morcego',30,14,'topo'],['morcego',13,14,'topo'],['cabra',14,30,'baixo'],['cabra',36,31,'baixo']],
