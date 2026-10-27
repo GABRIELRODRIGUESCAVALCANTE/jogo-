@@ -11,6 +11,7 @@ let idioma='pt';
 
 const TEXTOS={
 pt:{
+  'dif.titulo':'Dificuldade', 'dif.facil':'Fácil', 'dif.normal':'Normal', 'dif.dificil':'Difícil', 'dif.facil.d':'Mais corações e inimigos mais lentos', 'dif.normal.d':'O sertão como ele é', 'dif.dificil.d':'Menos corações, inimigos mais rápidos e chefes mais fortes',
   'op.titulo':'Opções', 'op.som':'Som', 'op.volMusica':'Volume da música', 'op.volEfeitos':'Volume dos efeitos', 'op.tela':'Tela e leitura',
   'op.texto':'Texto grande', 'op.contraste':'Alto contraste (brasas listradas, contorno nos inimigos)', 'op.calmo':'Reduzir movimento (sem tremor de tela)',
   'op.seta':'Mostrar a seta do objetivo', 'op.vibrar':'Vibrar ao levar dano (celular)', 'op.teclas':'Teclas', 'op.teclasDica':'Clique em Trocar e aperte a tecla nova. Esc cancela.',
@@ -38,7 +39,7 @@ pt:{
   'pers.tiao.titulo':'o ferreiro', 'pers.tiao.trato':'ferreiro', 'pers.tiao.desc':'Lento como carro de boi, mas cada lambada vale por duas. Tem um coração a mais.',
   'pers.rosa.titulo':'a rezadeira', 'pers.rosa.trato':'rezadeira', 'pers.rosa.desc':'Tem o corpo fechado: brasa e rastro de fogo não a queimam.', 'pers.rosa.liberar':'Vença a Serra do Fogo para liberar',
   'fases.titulo':'Fases', 'fases.aviso':'Vença uma fase para liberar a seguinte.', 'fases.avisoSalva':'Você tem uma partida salva na fase {n}. Começar outra fase descarta essa partida.',
-  'fases.n':'Fase {n}', 'fases.nDe':'Fase {n} de {t}', 'fases.concluida':'Concluída', 'fases.info':'Recorde {tempo} · Cordéis {n}/{t}', 'fases.liberar':'Vença a fase {n} para liberar',
+  'fases.n':'Fase {n}', 'fases.nDe':'Fase {n} de {t}', 'fases.concluida':'Concluída', 'fases.info':'Recorde no {dif}: {tempo} · Cordéis {n}/{t}', 'fases.liberar':'Vença a fase {n} para liberar',
   'fases.bloqueada':'Bloqueada', 'fases.continuar':'Continuar', 'fases.recomecar':'Recomeçar', 'fases.jogar':'Jogar',
   'jogo.aria':'Tela do jogo Estrela do Sertão', 'jogo.comecar':'Começar', 
   'hud.vida':'Vida: {n} de {t}', 'hud.cordeis':'Cordéis {n}/{t}',
@@ -51,7 +52,7 @@ pt:{
   'fim.titulo':'Fase concluída!', 'fim.tituloFinal':'Ê boi! O Estrela voltou', 'fim.fase':'Fase {n} · {nomeFase}',
   'fim.1':'A Caipora abriu o espinheiro. Adiante corre o Velho Chico.', 'fim.2':"A ponte está de pé e o Caboclo d'água voltou para o fundo do poço. Lá em cima, a Serra do Fogo.",
   'fim.final':'{nome} desceu a serra tocando o boi, e o sertão inteiro cantou essa história em cordel.', 'fim.rosa':' Nova personagem liberada: Rosa, a rezadeira!',
-  'fim.recordeNovo':'Novo recorde nesta fase!', 'fim.recorde':'Recorde: {tempo}', 'fim.falta1':' · Ficou 1 folheto de cordel pelo caminho.', 'fim.faltaN':' · Ficaram {n} folhetos de cordel pelo caminho.', 'fim.todos':' · Todos os cordéis desta fase!',
+  'fim.recordeNovo':'Novo recorde no {dif}!', 'fim.recorde':'Recorde no {dif}: {tempo}', 'fim.falta1':' · Ficou 1 folheto de cordel pelo caminho.', 'fim.faltaN':' · Ficaram {n} folhetos de cordel pelo caminho.', 'fim.todos':' · Todos os cordéis desta fase!',
   'ctrl.aria':'Controles de toque', 'ctrl.cima':'Cima', 'ctrl.esquerda':'Esquerda', 'ctrl.direita':'Direita', 'ctrl.baixo':'Baixo', 'ctrl.falar':'Falar', 'ctrl.chicote':'Chicote',
   'leg.andar':'andar', 'leg.chicote':'chicote', 'leg.falar':'falar e avançar diálogo', 'leg.pausar':'pausar',
   'best.aria':'Personagens do folclore',
@@ -128,6 +129,7 @@ pt:{
 },
 
 en:{
+  'dif.titulo':'Difficulty', 'dif.facil':'Easy', 'dif.normal':'Normal', 'dif.dificil':'Hard', 'dif.facil.d':'More hearts and slower enemies', 'dif.normal.d':'The backlands as they are', 'dif.dificil.d':'Fewer hearts, faster enemies and stronger bosses',
   'op.titulo':'Options', 'op.som':'Sound', 'op.volMusica':'Music volume', 'op.volEfeitos':'Sound effects volume', 'op.tela':'Display and reading',
   'op.texto':'Large text', 'op.contraste':'High contrast (striped embers, outlined enemies)', 'op.calmo':'Reduce motion (no screen shake)',
   'op.seta':'Show the objective arrow', 'op.vibrar':'Vibrate when hurt (phone)', 'op.teclas':'Keys', 'op.teclasDica':'Click Change and press the new key. Esc cancels.',
@@ -155,7 +157,7 @@ en:{
   'pers.tiao.titulo':'the blacksmith', 'pers.tiao.trato':'blacksmith', 'pers.tiao.desc':'Slow as an oxcart, but every lash counts twice. Has one extra heart.',
   'pers.rosa.titulo':'the folk healer', 'pers.rosa.trato':'healer', 'pers.rosa.desc':'Her body is blessed: embers and fire trails cannot burn her.', 'pers.rosa.liberar':'Beat Fire Ridge to unlock',
   'fases.titulo':'Levels', 'fases.aviso':'Beat a level to unlock the next one.', 'fases.avisoSalva':'You have a saved game in level {n}. Starting another level discards it.',
-  'fases.n':'Level {n}', 'fases.nDe':'Level {n} of {t}', 'fases.concluida':'Completed', 'fases.info':'Record {tempo} · Booklets {n}/{t}', 'fases.liberar':'Beat level {n} to unlock',
+  'fases.n':'Level {n}', 'fases.nDe':'Level {n} of {t}', 'fases.concluida':'Completed', 'fases.info':'Record on {dif}: {tempo} · Booklets {n}/{t}', 'fases.liberar':'Beat level {n} to unlock',
   'fases.bloqueada':'Locked', 'fases.continuar':'Continue', 'fases.recomecar':'Restart', 'fases.jogar':'Play',
   'jogo.aria':'Estrela do Sertão game screen', 'jogo.comecar':'Start', 
   'hud.vida':'Health: {n} of {t}', 'hud.cordeis':'Booklets {n}/{t}',
@@ -168,7 +170,7 @@ en:{
   'fim.titulo':'Level complete!', 'fim.tituloFinal':'Hey ox! Estrela is back', 'fim.fase':'Level {n} · {nomeFase}',
   'fim.1':'The Caipora opened the thorn hedge. Ahead runs the Old Chico.', 'fim.2':"The bridge is standing and the Caboclo d'Água went back to the bottom of his pool. Up ahead, Fire Ridge.",
   'fim.final':'{nome} came down the ridge driving the ox, and the whole backlands sang this story in cordel.', 'fim.rosa':' New character unlocked: Rosa, the folk healer!',
-  'fim.recordeNovo':'New record for this level!', 'fim.recorde':'Record: {tempo}', 'fim.falta1':' · 1 cordel booklet was left behind.', 'fim.faltaN':' · {n} cordel booklets were left behind.', 'fim.todos':' · All the booklets in this level!',
+  'fim.recordeNovo':'New record on {dif}!', 'fim.recorde':'Record on {dif}: {tempo}', 'fim.falta1':' · 1 cordel booklet was left behind.', 'fim.faltaN':' · {n} cordel booklets were left behind.', 'fim.todos':' · All the booklets in this level!',
   'ctrl.aria':'Touch controls', 'ctrl.cima':'Up', 'ctrl.esquerda':'Left', 'ctrl.direita':'Right', 'ctrl.baixo':'Down', 'ctrl.falar':'Talk', 'ctrl.chicote':'Whip',
   'leg.andar':'walk', 'leg.chicote':'whip', 'leg.falar':'talk and advance dialogue', 'leg.pausar':'pause',
   'best.aria':'Folklore characters',
@@ -245,6 +247,7 @@ en:{
 },
 
 es:{
+  'dif.titulo':'Dificultad', 'dif.facil':'Fácil', 'dif.normal':'Normal', 'dif.dificil':'Difícil', 'dif.facil.d':'Más corazones y enemigos más lentos', 'dif.normal.d':'El sertón tal como es', 'dif.dificil.d':'Menos corazones, enemigos más rápidos y jefes más fuertes',
   'op.titulo':'Opciones', 'op.som':'Sonido', 'op.volMusica':'Volumen de la música', 'op.volEfeitos':'Volumen de los efectos', 'op.tela':'Pantalla y lectura',
   'op.texto':'Texto grande', 'op.contraste':'Alto contraste (brasas rayadas, contorno en los enemigos)', 'op.calmo':'Reducir movimiento (sin temblor de pantalla)',
   'op.seta':'Mostrar la flecha del objetivo', 'op.vibrar':'Vibrar al recibir daño (celular)', 'op.teclas':'Teclas', 'op.teclasDica':'Haz clic en Cambiar y presiona la tecla nueva. Esc cancela.',
@@ -272,7 +275,7 @@ es:{
   'pers.tiao.titulo':'el herrero', 'pers.tiao.trato':'herrero', 'pers.tiao.desc':'Lento como carreta de bueyes, pero cada latigazo vale por dos. Tiene un corazón más.',
   'pers.rosa.titulo':'la curandera', 'pers.rosa.trato':'curandera', 'pers.rosa.desc':'Tiene el cuerpo protegido: las brasas y el rastro de fuego no la queman.', 'pers.rosa.liberar':'Vence la Sierra del Fuego para desbloquear',
   'fases.titulo':'Niveles', 'fases.aviso':'Vence un nivel para desbloquear el siguiente.', 'fases.avisoSalva':'Tienes una partida guardada en el nivel {n}. Empezar otro nivel la descarta.',
-  'fases.n':'Nivel {n}', 'fases.nDe':'Nivel {n} de {t}', 'fases.concluida':'Completado', 'fases.info':'Récord {tempo} · Cordeles {n}/{t}', 'fases.liberar':'Vence el nivel {n} para desbloquear',
+  'fases.n':'Nivel {n}', 'fases.nDe':'Nivel {n} de {t}', 'fases.concluida':'Completado', 'fases.info':'Récord en {dif}: {tempo} · Cordeles {n}/{t}', 'fases.liberar':'Vence el nivel {n} para desbloquear',
   'fases.bloqueada':'Bloqueado', 'fases.continuar':'Continuar', 'fases.recomecar':'Reiniciar', 'fases.jogar':'Jugar',
   'jogo.aria':'Pantalla del juego Estrela do Sertão', 'jogo.comecar':'Empezar', 
   'hud.vida':'Vida: {n} de {t}', 'hud.cordeis':'Cordeles {n}/{t}',
@@ -285,7 +288,7 @@ es:{
   'fim.titulo':'¡Nivel completado!', 'fim.tituloFinal':'¡Eh buey! Estrella volvió', 'fim.fase':'Nivel {n} · {nomeFase}',
   'fim.1':'La Caipora abrió el espinar. Más adelante corre el Viejo Chico.', 'fim.2':"El puente está en pie y el Caboclo d'Água volvió al fondo de su pozo. Allá arriba, la Sierra del Fuego.",
   'fim.final':'{nome} bajó la sierra arreando al buey, y todo el sertón cantó esta historia en cordel.', 'fim.rosa':' ¡Nuevo personaje desbloqueado: Rosa, la curandera!',
-  'fim.recordeNovo':'¡Nuevo récord en este nivel!', 'fim.recorde':'Récord: {tempo}', 'fim.falta1':' · Quedó 1 cordel por el camino.', 'fim.faltaN':' · Quedaron {n} cordeles por el camino.', 'fim.todos':' · ¡Todos los cordeles de este nivel!',
+  'fim.recordeNovo':'¡Nuevo récord en {dif}!', 'fim.recorde':'Récord en {dif}: {tempo}', 'fim.falta1':' · Quedó 1 cordel por el camino.', 'fim.faltaN':' · Quedaron {n} cordeles por el camino.', 'fim.todos':' · ¡Todos los cordeles de este nivel!',
   'ctrl.aria':'Controles táctiles', 'ctrl.cima':'Arriba', 'ctrl.esquerda':'Izquierda', 'ctrl.direita':'Derecha', 'ctrl.baixo':'Abajo', 'ctrl.falar':'Hablar', 'ctrl.chicote':'Látigo',
   'leg.andar':'caminar', 'leg.chicote':'látigo', 'leg.falar':'hablar y avanzar el diálogo', 'leg.pausar':'pausar',
   'best.aria':'Personajes del folclore',

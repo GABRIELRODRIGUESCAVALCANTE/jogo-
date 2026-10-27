@@ -157,12 +157,13 @@ function carregarPerfis(){
   if(d && Array.isArray(d.lista)) perfis={lista:d.lista.filter(x=>x && x.id && x.nome), ultimo:d.ultimo||null};
   for(const pf of perfis.lista){
     pf.fases=pf.fases||{}; pf.cordeis=Array.isArray(pf.cordeis)?pf.cordeis:[];
+    if(!DIFICULDADES[pf.dificuldade]) pf.dificuldade='normal';
     if(!PERSONAGENS[pf.personagem] || !liberado(pf.personagem,pf)) pf.personagem='ze';
   }
 }
 function salvarPerfis(){ store.set(K_PERFIS,{v:1, lista:perfis.lista, ultimo:perfis.ultimo}); }
-function novoPerfil(nome,pers){
-  const pf={id:'j'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), nome, personagem:pers, criado:Date.now(), fases:{}, cordeis:[], bonusVida:0, fim:false};
+function novoPerfil(nome,pers,dificuldade='normal'){
+  const pf={id:'j'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), nome, personagem:pers, dificuldade, criado:Date.now(), fases:{}, cordeis:[], bonusVida:0, fim:false};
   perfis.lista.push(pf); salvarPerfis(); return pf;
 }
 function apagarPerfil(id){
@@ -199,10 +200,11 @@ function confirmarApagar(pf,pe){
 }
 function entrarComo(pf){ perfil=pf; heroi=PERSONAGENS[pf.personagem]; perfis.ultimo=pf.id; salvarPerfis(); abrirMenu(); }
 
-let escolhaNovo='ze';
+let escolhaNovo='ze', difNovo='normal';
 function abrirNovo(){
-  $('nomeNovo').value=''; $('erroNovo').hidden=true; escolhaNovo='ze';
+  $('nomeNovo').value=''; $('erroNovo').hidden=true; escolhaNovo='ze'; difNovo='normal';
   renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; });
+  seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; });
   $('btnCancelarNovo').hidden=!perfis.lista.length;
   mostrar('telaNovo'); $('nomeNovo').focus();
 }
@@ -212,10 +214,26 @@ $('formNovo').addEventListener('submit',e=>{
   const erro=!nome ? t('novo.erroVazio') : perfis.lista.some(x=>x.nome.toLowerCase()===nome.toLowerCase()) ? t('novo.erroRepetido') : '';
   if(erro){ erroEl.textContent=erro; erroEl.hidden=false; $('nomeNovo').setAttribute('aria-invalid','true'); $('nomeNovo').focus(); return; }
   $('nomeNovo').removeAttribute('aria-invalid'); sfx.libera();
-  entrarComo(novoPerfil(nome,escolhaNovo));
+  entrarComo(novoPerfil(nome,escolhaNovo,difNovo));
 });
 $('btnNovoPerfil').addEventListener('click',abrirNovo);
 $('btnCancelarNovo').addEventListener('click',abrirPerfis);
+
+/* ---------- DIFICULDADE E RECORDES ---------- */
+function seletorDificuldade(box,atual,onPick){
+  box.textContent='';
+  for(const d of Object.keys(DIFICULDADES)){
+    const b=el('button','dif'); b.type='button'; b.dataset.dif=d; b.setAttribute('role','radio'); b.setAttribute('aria-checked',String(d===atual));
+    b.append(el('b','',t('dif.'+d)), el('small','',t('dif.'+d+'.d')));
+    b.addEventListener('click',()=>{ sfx.clique(); onPick(d); seletorDificuldade(box,d,onPick); box.querySelector(`[data-dif="${d}"]`).focus(); });
+    box.append(b);
+  }
+}
+// recordes de tempo separados por dificuldade (perfis antigos guardavam um só, que vale como Normal)
+function recorde(pf,fid,d=pf.dificuldade||'normal'){
+  const reg=pf.fases[fid]; if(!reg) return 0;
+  return (reg.tempos && reg.tempos[d]) || (d==='normal' && reg.tempo) || 0;
+}
 
 /* ---------- PERSONAGENS ---------- */
 function statsEl(ch){
@@ -252,9 +270,10 @@ function abrirMenu(){
   $('nomeMenu').textContent=perfil.nome;
   $('persMenu').textContent=`${heroi.nome}, ${heroi.titulo}`;
   const av=$('avatarMenu'); av.dataset.pers=perfil.personagem; av.dataset.anda='1';
-  const total=FASES.filter(f=>perfil.fases[f.id] && perfil.fases[f.id].tempo>0).reduce((s,f)=>s+perfil.fases[f.id].tempo,0);
+  const total=FASES.every(f=>recorde(perfil,f.id)>0) ? FASES.reduce((s,f)=>s+recorde(perfil,f.id),0) : 0;
   $('resumoMenu').innerHTML=`<li>${t('menu.rFases')} <b>${feitas(perfil)}/${FASES.length}</b></li><li>${t('menu.rCordeis')} <b>${perfil.cordeis.length}/${CORDEIS_IDS.length}</b></li>`
-    +`<li>${t('menu.rCoracoes')} <b>${heroi.vida+(perfil.bonusVida||0)}</b></li>`+(perfil.fim?`<li>${t('menu.rMelhor')} <b>${fmt(total)}</b></li>`:'');
+    +`<li>${t('menu.rCoracoes')} <b>${heroi.vida+(perfil.bonusVida||0)}</b></li>`+(total?`<li>${t('menu.rMelhor')} <b>${fmt(total)}</b></li>`:'');
+  seletorDificuldade($('difMenu'),perfil.dificuldade||'normal',d=>{ perfil.dificuldade=d; salvarPerfis(); abrirMenu(); $('difMenu').querySelector(`[data-dif="${d}"]`).focus(); });
   const d=partidaSalva(perfil), n=proximaFase(perfil), bj=$('btnJogar');
   const linha=(a,b)=>{ bj.textContent=a; bj.append(el('small','',b)); };
   if(d) linha(t('menu.continuar'),`${t('fases.n',{n:d.fase})} · ${FASES[d.fase-1].nome}`);
@@ -274,14 +293,14 @@ const miniCache={};
 function abrirFases(){
   const box=$('listaFases'), d=partidaSalva(perfil); box.textContent='';
   for(const f of FASES){
-    const livre=f.id===1 || !!(perfil.fases[f.id-1] && perfil.fases[f.id-1].feita), reg=perfil.fases[f.id]||{};
+    const livre=f.id===1 || !!(perfil.fases[f.id-1] && perfil.fases[f.id-1].feita), reg=perfil.fases[f.id]||{}, rec=recorde(perfil,f.id);
     const card=el('div','fase'+(livre?'':' bloqueada')), corpo=el('div','fase-corpo'), bt=el('div','fase-botoes');
     if(!miniCache[f.id]){ miniCache[f.id]=document.createElement('canvas'); miniatura(f,miniCache[f.id]); }
     const cnv=document.createElement('canvas'); cnv.width=miniCache[f.id].width; cnv.height=miniCache[f.id].height; cnv.setAttribute('aria-hidden','true');
     cnv.getContext('2d').drawImage(miniCache[f.id],0,0);
     corpo.append(el('p','eyebrow',t('fases.n',{n:f.id})), el('h3','',f.nome), el('p','',f.resumo));
     if(reg.feita) corpo.append(el('span','selo-feita',t('fases.concluida')));
-    corpo.append(el('p','fase-info', livre ? t('fases.info',{tempo:reg.tempo>0?fmt(reg.tempo):'—', n:achados(f), t:cordeisDaFase(f).length}) : t('fases.liberar',{n:f.id-1})));
+    corpo.append(el('p','fase-info', livre ? t('fases.info',{dif:t('dif.'+(perfil.dificuldade||'normal')), tempo:rec>0?fmt(rec):'—', n:achados(f), t:cordeisDaFase(f).length}) : t('fases.liberar',{n:f.id-1})));
     const botao=(txt,cls,fn)=>{ const b=el('button',cls,txt); b.type='button'; b.addEventListener('click',()=>{ sfx.clique(); fn(); }); bt.append(b); return b; };
     if(!livre) botao(t('fases.bloqueada'),'btn',()=>{}).disabled=true;
     else if(d && d.fase===f.id){ botao(t('fases.continuar'),'btn',()=>continuar(d)); botao(t('fases.recomecar'),'btn sec',()=>jogarFase(f.id)); }
@@ -333,8 +352,10 @@ $('btnLevantar').addEventListener('click',()=>{
 
 function concluirFase(){
   running=false; S0.won=true; sfx.win(); elToast.hidden=true; toastT=0;
-  const reg=perfil.fases[fase.id]||{}, novo=!(reg.tempo>0) || time<reg.tempo, ultima=fase.id===FASES.length, primeiraVez=ultima && !perfil.fim;
-  perfil.fases[fase.id]={feita:true, tempo:novo?time:reg.tempo};
+  const d=perfil.dificuldade||'normal', antigo=recorde(perfil,fase.id,d), novo=!(antigo>0) || time<antigo, ultima=fase.id===FASES.length, primeiraVez=ultima && !perfil.fim;
+  const reg=perfil.fases[fase.id]||{}, tempos=Object.assign({}, reg.tempos, reg.tempo>0 && !(reg.tempos||{}).normal ? {normal:reg.tempo} : {});
+  if(novo) tempos[d]=time;
+  perfil.fases[fase.id]={feita:true, tempos};
   if(ultima) perfil.fim=true;
   perfis.ultimo=perfil.id; salvarPerfis(); store.del(K_PARTIDA+perfil.id);
   const total=cordeisDaFase(fase).length, n=achados(fase), falta=total-n;
@@ -342,7 +363,8 @@ function concluirFase(){
   $('fimTitulo').textContent=t(ultima?'fim.tituloFinal':'fim.titulo');
   $('fimTexto').textContent=t(ultima?'fim.final':'fim.'+fase.id)+(primeiraVez?t('fim.rosa'):'');
   $('fimTempo').textContent=fmt(time); $('fimInimigos').textContent=S0.kills; $('fimCordeis').textContent=`${n}/${total}`;
-  $('fimRecorde').textContent=(novo?t('fim.recordeNovo'):t('fim.recorde',{tempo:fmt(perfil.fases[fase.id].tempo)}))
+  const nomeDif=t('dif.'+d);
+  $('fimRecorde').textContent=(novo?t('fim.recordeNovo',{dif:nomeDif}):t('fim.recorde',{dif:nomeDif, tempo:fmt(tempos[d])}))
     +(falta ? t(falta===1?'fim.falta1':'fim.faltaN',{n:falta}) : t('fim.todos'));
   $('btnProxima').hidden=ultima;
   $('ovFim').hidden=false; (ultima?$('btnMenuFim'):$('btnProxima')).focus();
@@ -475,7 +497,7 @@ function trocarIdioma(novo){
   if(!IDIOMAS[novo]) return;
   idioma=novo; selIdioma.value=$('opIdioma').value=novo; salvarPrefs(); traduzirPagina(); labelSound(); atualizarLegenda();
   const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaOpcoes:renderTeclas,
-    telaNovo:()=>renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; })}[telaAtual];
+    telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
   if(reabrir) reabrir();
   else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
 }

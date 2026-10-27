@@ -218,3 +218,14 @@ body.texto-grande{font-size:18px}
 .contraste .toast{background:#000;border-width:3px}
 .contraste .dialogo{border-width:4px}
 .contraste .bolsa span{box-shadow:2px 2px 0 #000;outline:2px solid #000}
+
+/* ---------- dificuldade ---------- */
+.dificuldade{display:flex;flex-wrap:wrap;gap:10px;width:100%}
+.dif{all:unset;box-sizing:border-box;cursor:pointer;flex:1 1 170px;max-width:280px;background:var(--couro-2);color:var(--papel);border:3px solid #5a4636;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.dif b{font-family:var(--display);font-weight:400;font-size:20px}
+.dif small{color:var(--poeira);font-size:14px}
+.dif:hover{border-color:var(--poeira)}
+.dif[aria-checked="true"]{border-color:var(--sol);box-shadow:4px 4px 0 var(--sol)}
+.dif:focus-visible{outline:3px solid var(--papel);outline-offset:3px}
+.hub-dif{width:100%;display:flex;flex-direction:column;gap:8px}
+.hub-dif h3{margin:0;font-family:var(--display);font-weight:400;font-size:20px;color:var(--sol)}

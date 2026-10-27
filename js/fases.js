@@ -112,7 +112,7 @@ const dentro=(e,r)=>e.x>=r[0]*T && e.x<(r[2]+1)*T && e.y>=r[1]*T && e.y<(r[3]+1)
 
 function abrirEspinheiro(){
   S0.thornsOpen=true; S0.hasFumo=false;
-  if(!perfil.bonusVida){ perfil.bonusVida=1; salvarPerfis(); S0.maxHp++; }
+  if(!perfil.bonusVida){ perfil.bonusVida=1; salvarPerfis(); S0.maxHp=vidaMaxima(); }
   S0.hp=S0.maxHp;
   for(let ty=0;ty<MH;ty++) for(let tx=0;tx<MW;tx++) if(map[ty][tx]==='E') burst(tx*T+8,ty*T+8,'#5e4a36',8);
   trocarTiles('E',','); sfx.pick(); setStage(4); toast(t('f1.aberto'));

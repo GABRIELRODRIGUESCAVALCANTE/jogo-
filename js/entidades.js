@@ -116,7 +116,7 @@ function criarInimigo(tipo,tx,ty,z,i){
 function atualizarInimigo(c,dt){
   const k=INIM[c.tipo];
   c.flash=Math.max(0,c.flash-dt); c.anim+=dt;
-  let [vx,vy]=k.update(c,dt);
+  let [vx,vy]=k.update(c,dt); vx*=dif().vel; vy*=dif().vel;
   vx+=c.kx; vy+=c.ky; const dm=Math.min(1,dt*8); c.kx-=c.kx*dm; c.ky-=c.ky*dm;
   if(Math.abs(vx)>3) c.face=Math.sign(vx);
   c.moving=Math.hypot(vx,vy)>3;
@@ -169,10 +169,10 @@ function atualizaMula(m,dt,hp,wb){
     m.t-=dt; m.dir=p.x>m.x?1:-1;
     const dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy)||1;
     moveEnt(m,dx/d*22*dt,dy/d*22*dt); if(m.y>ARENA_Y) m.y=ARENA_Y;
-    if(m.t<=0){ m.state='wind'; m.t=m.furia?0.42:0.55; }
+    if(m.t<=0){ m.state='wind'; m.t=(m.furia?0.42:0.55)/dif().vel; }
   } else if(m.state==='wind'){
     m.t-=dt; m.dir=p.x>m.x?1:-1;
-    if(m.t<=0){ const dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy)||1, spd=170+(6-m.hp)*14; m.vx=dx/d*spd; m.vy=dy/d*spd; m.state='charge'; m.t=1.6; m.fireT=0; }
+    if(m.t<=0){ const dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy)||1, spd=(170+(m.max-m.hp)*14)*dif().vel; m.vx=dx/d*spd; m.vy=dy/d*spd; m.state='charge'; m.t=1.6; m.fireT=0; }
   } else if(m.state==='charge'){
     m.t-=dt; m.fireT-=dt; m.dir=m.vx>=0?1:-1;
     if(m.fireT<=0){ m.fireT=0.05; fires.push({x:m.x-m.dir*8,y:m.y+2,t:2.4,s:Math.random()*6}); }
@@ -190,14 +190,14 @@ function atualizaMula(m,dt,hp,wb){
     if(m.state==='stun'){
       m.hp=Math.max(0,m.hp-heroi.dano); m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08; burst(m.x,m.y-8,'#ffd23a',6,50); updateHud();
       if(m.hp<=0) fase.vencerChefe();
-      else if(!m.furia && m.hp<=3){ m.furia=true; toast(t('toast.mulaFuria'),3.4); }
+      else if(!m.furia && m.hp<=m.max/2){ m.furia=true; toast(t('toast.mulaFuria'),3.4); }
     }
     else { sfx.clink(); burst(m.x,m.y-8,'#9aa0a8',4,40); }
   }
 }
 function anelDeFogo(m){
   const n=m.hp<=1?12:8, a0=Math.random()*Math.PI;
-  for(let i=0;i<n;i++){ const a=a0+i*Math.PI*2/n; balls.push({tipo:'fogo',x:m.x,y:m.y-6,vx:Math.cos(a)*68,vy:Math.sin(a)*68,t:4}); }
+  for(let i=0;i<n;i++){ const a=a0+i*Math.PI*2/n; balls.push({tipo:'fogo',x:m.x,y:m.y-6,vx:Math.cos(a)*68*dif().tiros,vy:Math.sin(a)*68*dif().tiros,t:4}); }
   sfx.fogo(); shake=Math.max(shake,.12);
 }
 function drawMula(m){
@@ -244,13 +244,13 @@ function atualizaCaboclo(c,dt,hp,wb){
     c.t-=dt;
     if(c.t<=0 && d<=v){ c.estado='sobe'; c.t=.45; sfx.agua(); burst(c.x,c.y,'#cfe7f2',6,30); }
   } else if(c.estado==='sobe'){
-    c.t-=dt; if(c.t<=0){ c.estado='fora'; c.t=c.hp<=2?2.2:1.9; c.tiros=0; }
+    c.t-=dt; if(c.t<=0){ c.estado='fora'; c.t=c.hp<=c.max/2?2.2:1.9; c.tiros=0; }
   } else if(c.estado==='fora'){
     c.t-=dt; c.face=p.x>c.x?1:-1;
-    const quando=c.hp<=2?[1.8,1.2,.6]:[1.4,.7];
+    const quando=c.hp<=c.max/2?[1.8,1.2,.6]:[1.4,.7];
     if(c.tiros<quando.length && c.t<quando[c.tiros]){ c.tiros++; c.braco=.25;
       const dx=p.x-c.x, dy=p.y-5-(c.y-10), d=Math.hypot(dx,dy)||1;
-      balls.push({tipo:'lama',x:c.x,y:c.y-10,vx:dx/d*80,vy:dy/d*80,t:3}); sfx.lama(); }
+      const v=80*dif().tiros; balls.push({tipo:'lama',x:c.x,y:c.y-10,vx:dx/d*v,vy:dy/d*v,t:3}); sfx.lama(); }
     c.braco=Math.max(0,(c.braco||0)-dt);
     if(c.t<=0){ c.estado='desce'; c.t=.3; }
   } else if(c.estado==='desce'){
@@ -292,7 +292,7 @@ const CHEFES={
     criar:def=>{ const spots=pocos(def.zona), s=spots[0]; return {tipo:'caboclo', x:s.x, y:s.y, w:14, h:8, hp:4, max:4, estado:'fundo', t:1, alvo:null, spots, active:false, dead:false, lastSwing:-1, flash:0, anim:0, tiros:0, braco:0, face:1}; },
     caixa:c=>({x:c.x,y:c.y-8,w:16,h:18}), update:atualizaCaboclo, draw:drawCaboclo, visivel:c=>c.active&&!c.dead},
 };
-const criarChefe=def=>CHEFES[def.tipo].criar(def);
+const criarChefe=def=>{ const c=CHEFES[def.tipo].criar(def); c.hp=c.max=Math.max(2,Math.round(c.max*dif().chefe)); return c; };
 
 /* ---------- ITENS, FOGO E TIROS ---------- */
 function drawItem(it){

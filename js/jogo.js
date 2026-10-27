@@ -1,13 +1,22 @@
 'use strict';
 /* ---------- ESTADO ---------- */
 let fase=null, perfil=null, heroi=PERSONAGENS.ze;
+// vida: corações a mais ou a menos · vel: velocidade de inimigos e chefes · chefe: vida dos chefes
+// tiros: velocidade das bolas de fogo e lama · invul: segundos de proteção depois de um golpe · gotas: chance de rapadura
+const DIFICULDADES={
+  facil:{vida:2, vel:.75, chefe:.67, tiros:.8, invul:1.6, gotas:.6},
+  normal:{vida:0, vel:1, chefe:1, tiros:1, invul:1.1, gotas:.4},
+  dificil:{vida:-1, vel:1.2, chefe:1.34, tiros:1.2, invul:.9, gotas:.15},
+};
+const dif=()=>DIFICULDADES[(perfil && perfil.dificuldade) || 'normal'];
+const vidaMaxima=()=>Math.max(2, heroi.vida+(perfil.bonusVida||0)+dif().vida);
 let S0=null, p=null, npcs=[], inimigos=[], items=[], fires=[], balls=[], parts=[], chefe=null;
 let running=false, paused=false, shake=0, time=0, freeze=0, autoT=3, avisoT=0, passoT=0, toastT=0;
 
 function iniciarFase(id){
   fase=FASES[id-1];
   map=fase.mapa.map(r=>r.split('')); MH=map.length; MW=map[0].length; drawMap();
-  const maxHp=heroi.vida+(perfil.bonusVida||0);
+  const maxHp=vidaMaxima();
   S0=Object.assign({fase:id, stage:1, maxHp, hp:maxHp, kills:0, got:[], dead:[], chefeIntro:false, chefeVencido:false, won:false, saindo:false}, fase.estado());
   const sp=nearestFree(fase.spawn[0],fase.spawn[1]);
   p={x:sp.x, y:sp.y, w:10, h:8, dir:{x:0,y:-1}, anim:0, moving:false, whipT:0, whipCd:0, swing:0, inv:0, kx:0, ky:0, lama:0};
@@ -31,7 +40,7 @@ function partidaSalva(pf){ const d=store.get(K_PARTIDA+pf.id); return d && d.v==
 function carregarPartida(d){
   iniciarFase(d.fase);
   Object.assign(S0,d.S); S0.saindo=false; time=+d.time||0;
-  S0.maxHp=heroi.vida+(perfil.bonusVida||0); S0.hp=clamp(Math.round(S0.hp)||1,1,S0.maxHp);
+  S0.maxHp=vidaMaxima(); S0.hp=clamp(Math.round(S0.hp)||1,1,S0.maxHp);
   if(Number.isFinite(d.x) && Number.isFinite(d.y) && !boxHits(d.x,d.y,p.w,p.h)){ p.x=d.x; p.y=d.y; }
   for(const i of S0.dead) if(inimigos[i]) inimigos[i].dead=true;
   items=items.filter(it=>!S0.got.includes(it.id));
@@ -44,7 +53,7 @@ const hurtP=()=>({x:p.x,y:p.y-5,w:9,h:13});
 function burst(x,y,col,n=8,sp=50){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=sp*(0.4+Math.random()); parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-10,t:0.4+Math.random()*0.3,col}); } }
 function hurt(n,fx,fy){
   if(p.inv>0||S0.won) return;
-  S0.hp-=n; p.inv=1.1; const dx=p.x-fx, dy=p.y-fy, d=Math.hypot(dx,dy)||1;
+  S0.hp-=n; p.inv=dif().invul; const dx=p.x-fx, dy=p.y-fy, d=Math.hypot(dx,dy)||1;
   p.kx=dx/d*170; p.ky=dy/d*170; shake=Math.max(shake,.15); freeze=Math.max(freeze,.05); sfx.hurt(); updateHud();
   if(prefs.vibrar!==false && navigator.vibrate) navigator.vibrate(70);
   if(S0.hp<=0){ S0.hp=0; updateHud(); desmaiar(); }
@@ -63,7 +72,7 @@ function golpearInimigo(c){
   if(c.hp<=0){
     c.dead=true; S0.kills++; S0.dead.push(c.i);
     burst(c.x,c.y-4,'#3d3532',12,60); burst(c.x,c.y-4,'#c4462c',6,40);
-    if(Math.random()<.4 && !c.voa) items.push({type:'rapadura',x:c.x,y:c.y});
+    if(Math.random()<dif().gotas && !c.voa) items.push({type:'rapadura',x:c.x,y:c.y});
   }
 }
 function nearbyNpc(){
