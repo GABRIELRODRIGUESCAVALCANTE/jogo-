@@ -111,7 +111,14 @@ function drawTile(g,at,c,tx,ty){
 }
 function drawMap(){
   mapCv.width=MW*T; mapCv.height=MH*T;
-  for(let ty=0;ty<MH;ty++) for(let tx=0;tx<MW;tx++) drawTile(mg,tileAt,map[ty][tx],tx,ty);
+  for(let ty=0;ty<MH;ty++) for(let tx=0;tx<MW;tx++){ drawTile(mg,tileAt,map[ty][tx],tx,ty); if(contraste) padraoContraste(mg,map[ty][tx],tx,ty); }
+}
+// alto contraste: listras nas brasas, pontinhos no chão que deixa lento, borda nas fendas de fogo
+function padraoContraste(g,c,tx,ty){
+  const r=(col,x,y,w,h)=>{ g.fillStyle=col; g.fillRect(tx*T+x,ty*T+y,w,h); };
+  if(c==='b') for(let k=0;k<16;k++){ r('#ffe14a',k,k,1,1); r('#ffe14a',(k+8)%16,k,1,1); }
+  else if(c==='w'||c==='l'||c==='j'){ const col=c==='w'?'rgba(255,255,255,.7)':'rgba(255,214,140,.75)'; for(let y=2;y<16;y+=5) for(let x=(y%2?1:3);x<16;x+=5) r(col,x,y,2,2); }
+  else if(c==='F'){ r('#ffe14a',0,0,16,1); r('#ffe14a',0,15,16,1); r('#ffe14a',0,0,1,16); r('#ffe14a',15,0,1,16); }
 }
 // miniatura do mapa de uma fase, 4 px por tile, para a tela de fases
 function miniatura(f,cnv){

@@ -4,7 +4,8 @@
    entidades, fases, jogo, telas) e compartilham o escopo global da página. */
 
 const T = 16, VW = 320, VH = 208;
-const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// opções de acessibilidade (ajustadas na tela de Opções): menos movimento, alto contraste, seta do objetivo
+let calm = matchMedia('(prefers-reduced-motion: reduce)').matches, contraste = false, mostrarSeta = true;
 
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
@@ -28,8 +29,13 @@ function hh(x,y,s){
 const cv = document.getElementById('tela');
 const ctx = cv.getContext('2d');
 ctx.imageSmoothingEnabled = false;
-let dc = ctx, tint = null;   // dc: onde os sprites são desenhados (a tela do jogo ou um avatar de menu)
-function S(c,x,y,w,h){ dc.fillStyle=tint||c; dc.fillRect(Math.round(x),Math.round(y),w,h); }
+let dc = ctx, tint = null, tintForcado = null;   // dc: onde os sprites são desenhados (a tela do jogo ou um avatar de menu)
+function S(c,x,y,w,h){ dc.fillStyle=tintForcado||tint||c; dc.fillRect(Math.round(x),Math.round(y),w,h); }
 function shadow(x,y,w){ dc.fillStyle='rgba(50,25,5,.3)'; dc.fillRect(Math.round(x-w/2),Math.round(y-1),w,3); }
 const flip=(x,y,face)=>(c,ox,oy,w,h)=>S(c, face>0? x+ox : x-ox-w, y+oy, w,h);
 function noContexto(g,fn){ const antes=dc; dc=g; try{ fn(); } finally{ dc=antes; } }
+// alto contraste: desenha o sprite com um contorno claro em volta
+function comContorno(fn,cor='#fff7d0'){
+  tintForcado=cor; for(const [ox,oy] of [[-1,0],[1,0],[0,-1],[0,1]]){ dc.save(); dc.translate(ox,oy); fn(); dc.restore(); }
+  tintForcado=null; fn();
+}

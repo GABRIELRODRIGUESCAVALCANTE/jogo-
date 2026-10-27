@@ -11,6 +11,12 @@ let idioma='pt';
 
 const TEXTOS={
 pt:{
+  'op.titulo':'Opções', 'op.som':'Som', 'op.volMusica':'Volume da música', 'op.volEfeitos':'Volume dos efeitos', 'op.tela':'Tela e leitura',
+  'op.texto':'Texto grande', 'op.contraste':'Alto contraste (brasas listradas, contorno nos inimigos)', 'op.calmo':'Reduzir movimento (sem tremor de tela)',
+  'op.seta':'Mostrar a seta do objetivo', 'op.vibrar':'Vibrar ao levar dano (celular)', 'op.teclas':'Teclas', 'op.teclasDica':'Clique em Trocar e aperte a tecla nova. Esc cancela.',
+  'op.padrao':'Restaurar teclas padrão', 'op.trocar':'Trocar', 'op.ouvindo':'Aperte uma tecla…', 'tecla.espaco':'Espaço', 'ou':'ou',
+  'acao.up':'Andar para cima', 'acao.down':'Andar para baixo', 'acao.left':'Andar para a esquerda', 'acao.right':'Andar para a direita', 'acao.whip':'Chicote', 'acao.talk':'Falar e avançar diálogo', 'acao.pause':'Pausar',
+
   'cab.eyebrow':'Aventura no sertão nordestino',
   'cab.lede':"O Boi Estrela fugiu na lua cheia. Escolha seu vaqueiro ou sua vaqueira e atravesse a caatinga, o Velho Chico e a Serra do Fogo, com a Caipora, o Caboclo d'água e a Mula sem Cabeça no caminho.",
   'idioma':'Idioma', 'voltar':'Voltar', 'instalar':'Instalar o jogo',
@@ -34,7 +40,7 @@ pt:{
   'fases.titulo':'Fases', 'fases.aviso':'Vença uma fase para liberar a seguinte.', 'fases.avisoSalva':'Você tem uma partida salva na fase {n}. Começar outra fase descarta essa partida.',
   'fases.n':'Fase {n}', 'fases.nDe':'Fase {n} de {t}', 'fases.concluida':'Concluída', 'fases.info':'Recorde {tempo} · Cordéis {n}/{t}', 'fases.liberar':'Vença a fase {n} para liberar',
   'fases.bloqueada':'Bloqueada', 'fases.continuar':'Continuar', 'fases.recomecar':'Recomeçar', 'fases.jogar':'Jogar',
-  'jogo.aria':'Tela do jogo Estrela do Sertão', 'jogo.comecar':'Começar', 'jogo.dicas':'Setas ou WASD para andar · Espaço para o chicote · E para falar · Esc para pausar',
+  'jogo.aria':'Tela do jogo Estrela do Sertão', 'jogo.comecar':'Começar', 
   'hud.vida':'Vida: {n} de {t}', 'hud.cordeis':'Cordéis {n}/{t}',
   'pausa.titulo':'Pausa', 'pausa.texto':'{nome} sentou na sombra de um juazeiro pra tomar fôlego. A partida fica salva neste navegador.',
   'pausa.voltar':'Voltar ao jogo', 'pausa.reiniciar':'Reiniciar fase', 'pausa.sair':'Sair para o menu', 'pausa.dica':'Esc ou P para continuar',
@@ -47,7 +53,7 @@ pt:{
   'fim.final':'{nome} desceu a serra tocando o boi, e o sertão inteiro cantou essa história em cordel.', 'fim.rosa':' Nova personagem liberada: Rosa, a rezadeira!',
   'fim.recordeNovo':'Novo recorde nesta fase!', 'fim.recorde':'Recorde: {tempo}', 'fim.falta1':' · Ficou 1 folheto de cordel pelo caminho.', 'fim.faltaN':' · Ficaram {n} folhetos de cordel pelo caminho.', 'fim.todos':' · Todos os cordéis desta fase!',
   'ctrl.aria':'Controles de toque', 'ctrl.cima':'Cima', 'ctrl.esquerda':'Esquerda', 'ctrl.direita':'Direita', 'ctrl.baixo':'Baixo', 'ctrl.falar':'Falar', 'ctrl.chicote':'Chicote',
-  'leg.andar':'<kbd>↑↓←→</kbd>ou <kbd>WASD</kbd>andar', 'leg.chicote':'<kbd>Espaço</kbd>chicote', 'leg.falar':'<kbd>E</kbd>falar e avançar diálogo', 'leg.pausar':'<kbd>Esc</kbd>pausar',
+  'leg.andar':'andar', 'leg.chicote':'chicote', 'leg.falar':'falar e avançar diálogo', 'leg.pausar':'pausar',
   'best.aria':'Personagens do folclore',
   'best.caipora.t':'Caipora', 'best.caipora.d':'Guardiã da mata, montada num caititu. Protege os bichos e adora fumo de rolo: quem leva um presente ganha sua ajuda.',
   'best.cabra.t':'Cabra Cabriola', 'best.cabra.d':'Cabra-monstro de olhos de brasa que solta fogo pelas ventas e persegue quem anda desatento pela caatinga.',
@@ -122,6 +128,12 @@ pt:{
 },
 
 en:{
+  'op.titulo':'Options', 'op.som':'Sound', 'op.volMusica':'Music volume', 'op.volEfeitos':'Sound effects volume', 'op.tela':'Display and reading',
+  'op.texto':'Large text', 'op.contraste':'High contrast (striped embers, outlined enemies)', 'op.calmo':'Reduce motion (no screen shake)',
+  'op.seta':'Show the objective arrow', 'op.vibrar':'Vibrate when hurt (phone)', 'op.teclas':'Keys', 'op.teclasDica':'Click Change and press the new key. Esc cancels.',
+  'op.padrao':'Restore default keys', 'op.trocar':'Change', 'op.ouvindo':'Press a key…', 'tecla.espaco':'Space', 'ou':'or',
+  'acao.up':'Walk up', 'acao.down':'Walk down', 'acao.left':'Walk left', 'acao.right':'Walk right', 'acao.whip':'Whip', 'acao.talk':'Talk and advance dialogue', 'acao.pause':'Pause',
+
   'cab.eyebrow':'An adventure in the Brazilian backlands',
   'cab.lede':"Estrela the Ox ran off under the full moon. Pick your cowboy or cowgirl and cross the caatinga scrubland, the Old Chico river and Fire Ridge, with the Caipora, the Caboclo d'Água and the Headless Mule along the way.",
   'idioma':'Language', 'voltar':'Back', 'instalar':'Install the game',
@@ -145,7 +157,7 @@ en:{
   'fases.titulo':'Levels', 'fases.aviso':'Beat a level to unlock the next one.', 'fases.avisoSalva':'You have a saved game in level {n}. Starting another level discards it.',
   'fases.n':'Level {n}', 'fases.nDe':'Level {n} of {t}', 'fases.concluida':'Completed', 'fases.info':'Record {tempo} · Booklets {n}/{t}', 'fases.liberar':'Beat level {n} to unlock',
   'fases.bloqueada':'Locked', 'fases.continuar':'Continue', 'fases.recomecar':'Restart', 'fases.jogar':'Play',
-  'jogo.aria':'Estrela do Sertão game screen', 'jogo.comecar':'Start', 'jogo.dicas':'Arrows or WASD to walk · Space to whip · E to talk · Esc to pause',
+  'jogo.aria':'Estrela do Sertão game screen', 'jogo.comecar':'Start', 
   'hud.vida':'Health: {n} of {t}', 'hud.cordeis':'Booklets {n}/{t}',
   'pausa.titulo':'Paused', 'pausa.texto':'{nome} sat down in the shade of a juazeiro tree to catch a breath. Your game is saved in this browser.',
   'pausa.voltar':'Back to the game', 'pausa.reiniciar':'Restart level', 'pausa.sair':'Quit to menu', 'pausa.dica':'Esc or P to continue',
@@ -158,7 +170,7 @@ en:{
   'fim.final':'{nome} came down the ridge driving the ox, and the whole backlands sang this story in cordel.', 'fim.rosa':' New character unlocked: Rosa, the folk healer!',
   'fim.recordeNovo':'New record for this level!', 'fim.recorde':'Record: {tempo}', 'fim.falta1':' · 1 cordel booklet was left behind.', 'fim.faltaN':' · {n} cordel booklets were left behind.', 'fim.todos':' · All the booklets in this level!',
   'ctrl.aria':'Touch controls', 'ctrl.cima':'Up', 'ctrl.esquerda':'Left', 'ctrl.direita':'Right', 'ctrl.baixo':'Down', 'ctrl.falar':'Talk', 'ctrl.chicote':'Whip',
-  'leg.andar':'<kbd>↑↓←→</kbd>or <kbd>WASD</kbd>walk', 'leg.chicote':'<kbd>Space</kbd>whip', 'leg.falar':'<kbd>E</kbd>talk and advance dialogue', 'leg.pausar':'<kbd>Esc</kbd>pause',
+  'leg.andar':'walk', 'leg.chicote':'whip', 'leg.falar':'talk and advance dialogue', 'leg.pausar':'pause',
   'best.aria':'Folklore characters',
   'best.caipora.t':'Caipora', 'best.caipora.d':'Guardian of the woods, riding a wild peccary. She protects the animals and loves rolled tobacco: bring her a gift and she will help you.',
   'best.cabra.t':'Cabra Cabriola', 'best.cabra.d':'A monster goat with ember eyes that breathes fire through its nostrils and chases careless travelers in the scrubland.',
@@ -233,6 +245,12 @@ en:{
 },
 
 es:{
+  'op.titulo':'Opciones', 'op.som':'Sonido', 'op.volMusica':'Volumen de la música', 'op.volEfeitos':'Volumen de los efectos', 'op.tela':'Pantalla y lectura',
+  'op.texto':'Texto grande', 'op.contraste':'Alto contraste (brasas rayadas, contorno en los enemigos)', 'op.calmo':'Reducir movimiento (sin temblor de pantalla)',
+  'op.seta':'Mostrar la flecha del objetivo', 'op.vibrar':'Vibrar al recibir daño (celular)', 'op.teclas':'Teclas', 'op.teclasDica':'Haz clic en Cambiar y presiona la tecla nueva. Esc cancela.',
+  'op.padrao':'Restaurar teclas predeterminadas', 'op.trocar':'Cambiar', 'op.ouvindo':'Presiona una tecla…', 'tecla.espaco':'Espacio', 'ou':'o',
+  'acao.up':'Caminar hacia arriba', 'acao.down':'Caminar hacia abajo', 'acao.left':'Caminar a la izquierda', 'acao.right':'Caminar a la derecha', 'acao.whip':'Látigo', 'acao.talk':'Hablar y avanzar el diálogo', 'acao.pause':'Pausar',
+
   'cab.eyebrow':'Aventura en el sertón nordestino',
   'cab.lede':"El Buey Estrella se escapó en luna llena. Elige a tu vaquero o vaquera y cruza la caatinga, el Viejo Chico y la Sierra del Fuego, con la Caipora, el Caboclo d'Água y la Mula sin Cabeza en el camino.",
   'idioma':'Idioma', 'voltar':'Volver', 'instalar':'Instalar el juego',
@@ -256,7 +274,7 @@ es:{
   'fases.titulo':'Niveles', 'fases.aviso':'Vence un nivel para desbloquear el siguiente.', 'fases.avisoSalva':'Tienes una partida guardada en el nivel {n}. Empezar otro nivel la descarta.',
   'fases.n':'Nivel {n}', 'fases.nDe':'Nivel {n} de {t}', 'fases.concluida':'Completado', 'fases.info':'Récord {tempo} · Cordeles {n}/{t}', 'fases.liberar':'Vence el nivel {n} para desbloquear',
   'fases.bloqueada':'Bloqueado', 'fases.continuar':'Continuar', 'fases.recomecar':'Reiniciar', 'fases.jogar':'Jugar',
-  'jogo.aria':'Pantalla del juego Estrela do Sertão', 'jogo.comecar':'Empezar', 'jogo.dicas':'Flechas o WASD para caminar · Espacio para el látigo · E para hablar · Esc para pausar',
+  'jogo.aria':'Pantalla del juego Estrela do Sertão', 'jogo.comecar':'Empezar', 
   'hud.vida':'Vida: {n} de {t}', 'hud.cordeis':'Cordeles {n}/{t}',
   'pausa.titulo':'Pausa', 'pausa.texto':'{nome} se sentó a la sombra de un juazeiro para tomar aliento. La partida queda guardada en este navegador.',
   'pausa.voltar':'Volver al juego', 'pausa.reiniciar':'Reiniciar nivel', 'pausa.sair':'Salir al menú', 'pausa.dica':'Esc o P para continuar',
@@ -269,7 +287,7 @@ es:{
   'fim.final':'{nome} bajó la sierra arreando al buey, y todo el sertón cantó esta historia en cordel.', 'fim.rosa':' ¡Nuevo personaje desbloqueado: Rosa, la curandera!',
   'fim.recordeNovo':'¡Nuevo récord en este nivel!', 'fim.recorde':'Récord: {tempo}', 'fim.falta1':' · Quedó 1 cordel por el camino.', 'fim.faltaN':' · Quedaron {n} cordeles por el camino.', 'fim.todos':' · ¡Todos los cordeles de este nivel!',
   'ctrl.aria':'Controles táctiles', 'ctrl.cima':'Arriba', 'ctrl.esquerda':'Izquierda', 'ctrl.direita':'Derecha', 'ctrl.baixo':'Abajo', 'ctrl.falar':'Hablar', 'ctrl.chicote':'Látigo',
-  'leg.andar':'<kbd>↑↓←→</kbd>o <kbd>WASD</kbd>caminar', 'leg.chicote':'<kbd>Espacio</kbd>látigo', 'leg.falar':'<kbd>E</kbd>hablar y avanzar el diálogo', 'leg.pausar':'<kbd>Esc</kbd>pausar',
+  'leg.andar':'caminar', 'leg.chicote':'látigo', 'leg.falar':'hablar y avanzar el diálogo', 'leg.pausar':'pausar',
   'best.aria':'Personajes del folclore',
   'best.caipora.t':'Caipora', 'best.caipora.d':'Guardiana del monte, montada en un pecarí. Protege a los animales y adora el tabaco en rollo: quien le lleva un regalo gana su ayuda.',
   'best.cabra.t':'Cabra Cabriola', 'best.cabra.d':'Cabra monstruosa de ojos de brasa que echa fuego por la nariz y persigue a los distraídos en la caatinga.',

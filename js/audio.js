@@ -1,8 +1,9 @@
 'use strict';
 /* ---------- EFEITOS ---------- */
-let ac=null, muted=false;
+let ac=null, muted=false, volMusica=1, volEfeitos=1;
 function tone(f,d,type='square',vol=.05,slide=0,delay=0){
-  if(!ac||muted) return;
+  if(!ac||muted||volEfeitos<=0) return;
+  vol*=volEfeitos;
   const t0=ac.currentTime+delay, o=ac.createOscillator(), g=ac.createGain();
   o.type=type; o.frequency.setValueAtTime(f,t0);
   if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t0+d);
@@ -79,13 +80,14 @@ function musTick(){
   if(want!==mus.song){
     mus.song=want; mus.step=0; mus.loop=0; mus.next=now+.06;
     musG.gain.cancelScheduledValues(now);
-    if(want) musG.gain.setValueAtTime(MUS_VOL,now); else musG.gain.setTargetAtTime(0,now,.06);
+    if(want) musG.gain.setValueAtTime(MUS_VOL*volMusica,now); else musG.gain.setTargetAtTime(0,now,.06);
   }
   if(!want) return;
   const s=SONGS[want], u=60/s.bpm/4;
   if(mus.next<now) mus.next=now+.02;
   while(mus.next<now+.15){ musStep(s,mus.step,mus.next,u); mus.next+=u; if(++mus.step>=s.len){ mus.step=0; mus.loop++; } }
 }
+function aplicarVolume(){ if(ac && musG && mus.song) musG.gain.setTargetAtTime(MUS_VOL*volMusica,ac.currentTime,.05); }
 function initAudio(){
   try{
     if(!ac){ ac=new (window.AudioContext||window.webkitAudioContext)(); musG=ac.createGain(); musG.gain.value=0; musG.connect(ac.destination); }

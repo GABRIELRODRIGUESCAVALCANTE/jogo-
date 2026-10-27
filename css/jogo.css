@@ -184,3 +184,37 @@ form{display:flex;flex-direction:column;gap:18px;width:100%}
 .idioma{display:flex;align-items:center;gap:6px;color:var(--poeira);font-size:15px;font-weight:700}
 .idioma select{font:inherit;font-weight:700;background:var(--couro-2);color:var(--papel);border:2px solid var(--poeira);padding:2px 6px}
 .idioma select:focus-visible{outline:3px solid var(--papel);outline-offset:2px}
+
+/* ---------- opções ---------- */
+.opcoes{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.grupo{background:var(--couro-2);border:3px solid #5a4636;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.grupo legend{font-family:var(--display);font-weight:400;font-size:22px;color:var(--sol);padding:0 6px;margin:0}
+.faixa{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;font-weight:700}
+.faixa span{grid-column:1/-1}
+.faixa input[type=range]{width:100%;accent-color:var(--sol)}
+.faixa output{font-variant-numeric:tabular-nums;color:var(--poeira);min-width:4ch;text-align:right}
+.faixa select{font:inherit;font-weight:700;background:var(--couro);color:var(--papel);border:2px solid var(--poeira);padding:4px 8px}
+.caixa{display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer}
+.caixa input{width:22px;height:22px;accent-color:var(--sol);flex:none}
+.grupo .sub{font-size:15px}
+.grupo.largo{grid-column:1/-1}
+.teclas{display:grid;grid-template-columns:minmax(10em,max-content) 1fr auto;gap:8px 10px;align-items:center}
+.teclas kbd{font-family:var(--body);font-weight:800;background:var(--papel);color:var(--tinta);padding:0 7px;border-bottom:3px solid var(--poeira);white-space:nowrap}
+.teclas .ouvindo{background:var(--sol);color:var(--tinta)}
+.grupo :focus-visible{outline:3px solid var(--papel);outline-offset:2px}
+
+/* texto grande */
+body.texto-grande{font-size:18px}
+.texto-grande .dialogo .fala,.texto-grande .dialogo .quem{font-size:clamp(16px,2.6vw,25px)}
+.texto-grande .dialogo .fala{min-height:2.6em}
+.texto-grande .hud{font-size:clamp(13px,2.1vw,19px)}
+.texto-grande .toast{font-size:clamp(14px,2.2vw,20px)}
+.texto-grande .overlay p{font-size:clamp(15px,2.3vw,20px)}
+.texto-grande .sub,.texto-grande .pers-desc,.texto-grande .fase p,.texto-grande .legenda{font-size:17px}
+
+/* alto contraste */
+.contraste{--poeira:#e4d2b0}
+.contraste .obj,.contraste .chefe{background:#000;border-color:var(--sol)}
+.contraste .toast{background:#000;border-width:3px}
+.contraste .dialogo{border-width:4px}
+.contraste .bolsa span{box-shadow:2px 2px 0 #000;outline:2px solid #000}

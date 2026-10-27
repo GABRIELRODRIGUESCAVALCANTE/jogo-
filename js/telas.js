@@ -60,8 +60,9 @@ function lerCordel(id){
 /* ---------- ENTRADA ---------- */
 const held=new Set(), just=new Set(), toque={}, pad={};
 const segura=k=>held.has(k)||toque[k]||pad[k];
-const KEYMAP={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',Space:'whip',KeyJ:'whip',KeyZ:'whip',KeyE:'talk',Enter:'talk',KeyK:'talk',KeyX:'talk',Escape:'pause',KeyP:'pause'};
+let KEYMAP={};   // tecla → ação, montado por montarTeclas() a partir das teclas padrão e das escolhidas nas Opções
 addEventListener('keydown',e=>{
+  if(ouvindo){ e.preventDefault(); gravarTecla(e.code); return; }
   if(telaAtual!=='telaJogo'){ if(e.code==='Escape' && VOLTAR[telaAtual]){ e.preventDefault(); VOLTAR[telaAtual](); } return; }
   const k=KEYMAP[e.code]; if(!k) return;
   if(k==='pause'){ if(running||paused){ e.preventDefault(); if(!e.repeat) togglePause(); } return; }
@@ -128,9 +129,9 @@ function menuPad(k){
 }
 
 /* ---------- TELAS ---------- */
-const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaJogo'];
+const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaJogo'];
 let telaAtual='telaPerfis';
-const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu()};
+const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaOpcoes:()=>voltarDeOpcoes()};
 function mostrar(id){
   for(const t of TELAS) $(t).hidden = t!==id;
   telaAtual=id; held.clear(); dpadSet({});
@@ -360,6 +361,84 @@ const btnSom=$('btnSom'), btnMusica=$('btnMusica');
 const prefs=store.get(K_PREF)||{};
 muted=prefs.efeitos===false; mus.on=prefs.musica!==false;
 function salvarPrefs(){ Object.assign(prefs,{efeitos:!muted, musica:mus.on, idioma}); store.set(K_PREF,prefs); }
+
+/* ---------- OPÇÕES ---------- */
+const ACOES=['up','down','left','right','whip','talk','pause'];
+const TECLAS_PADRAO={up:['ArrowUp','KeyW'], down:['ArrowDown','KeyS'], left:['ArrowLeft','KeyA'], right:['ArrowRight','KeyD'],
+  whip:['Space','KeyJ','KeyZ'], talk:['KeyE','Enter','KeyK','KeyX'], pause:['Escape','KeyP']};
+let TECLAS={}, ouvindo=null, origemOpcoes='telaPerfis';
+const nomeTecla=c=>({ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',Escape:'Esc',Space:t('tecla.espaco'),Enter:'Enter'})[c] || c.replace(/^(Key|Digit|Numpad)/,'');
+// a tecla escolhida vem primeiro; as padrão continuam valendo se nenhuma outra ação tomou o lugar delas
+function montarTeclas(){
+  const escolhidas=prefs.teclas||{}; KEYMAP={}; TECLAS={};
+  for(const a of ACOES) if(escolhidas[a]) KEYMAP[escolhidas[a]]=a;
+  for(const a of ACOES){ TECLAS[a]=escolhidas[a]?[escolhidas[a]]:[]; for(const c of TECLAS_PADRAO[a]) if(!KEYMAP[c]){ KEYMAP[c]=a; TECLAS[a].push(c); } }
+  atualizarLegenda();
+}
+function atualizarLegenda(){
+  const leg=document.querySelector('.legenda'), antes=leg.querySelector('.botoes');
+  for(const x of leg.querySelectorAll('.leg-tecla')) x.remove();
+  const anda=i=>{ const ordem=i?['up','left','down','right']:['up','down','left','right'];   // ↑↓←→ e WASD
+    return ordem.every(a=>TECLAS[a][i]) ? ordem.map(a=>nomeTecla(TECLAS[a][i])).join('') : ''; };
+  const itens=[[[anda(0),anda(1)].filter(Boolean),'leg.andar'],[[nomeTecla(TECLAS.whip[0])],'leg.chicote'],[[nomeTecla(TECLAS.talk[0])],'leg.falar'],[[nomeTecla(TECLAS.pause[0])],'leg.pausar']];
+  for(const [teclas,k] of itens){
+    const sp=el('span','so-teclado leg-tecla');
+    teclas.forEach((n,i)=>{ if(i) sp.append(t('ou')+' '); sp.append(el('kbd','',n)); });
+    sp.append(t(k)); leg.insertBefore(sp,antes);
+  }
+  $('dicasTeclas').textContent=itens.map(([teclas,k])=>`${teclas.join(' / ')} ${t(k)}`).join(' · ');
+}
+function renderTeclas(){
+  const box=$('listaTeclas'); box.textContent='';
+  for(const a of ACOES){
+    const kb=el('span'); TECLAS[a].forEach(c=>kb.append(el('kbd','',nomeTecla(c)),' '));
+    const b=el('button','link',t('op.trocar')); b.type='button'; b.setAttribute('aria-label',`${t('op.trocar')}: ${t('acao.'+a)}`);
+    b.addEventListener('click',()=>{ ouvindo=a; kb.textContent=''; kb.append(el('kbd','ouvindo',t('op.ouvindo'))); });
+    box.append(el('span','',t('acao.'+a)),kb,b);
+  }
+}
+function gravarTecla(code){
+  const a=ouvindo; ouvindo=null;
+  if(code!=='Escape' && code!=='Tab'){
+    prefs.teclas=prefs.teclas||{};
+    for(const x of ACOES) if(prefs.teclas[x]===code) delete prefs.teclas[x];
+    prefs.teclas[a]=code; salvarPrefs();
+  }
+  montarTeclas(); renderTeclas();
+}
+function aplicarOpcoes(){
+  document.body.classList.toggle('texto-grande',!!prefs.textoGrande);
+  document.body.classList.toggle('contraste',!!prefs.contraste);
+  const mudouContraste=contraste!==!!prefs.contraste;
+  contraste=!!prefs.contraste; mostrarSeta=prefs.seta!==false;
+  calm=prefs.calmo!=null ? !!prefs.calmo : matchMedia('(prefers-reduced-motion: reduce)').matches;
+  volMusica=(prefs.volMusica!=null?prefs.volMusica:100)/100; volEfeitos=(prefs.volEfeitos!=null?prefs.volEfeitos:100)/100; aplicarVolume();
+  if(mudouContraste && fase && map.length) drawMap();
+  measureHud();
+}
+function abrirOpcoes(){
+  if(telaAtual==='telaOpcoes') return;
+  if(telaAtual==='telaJogo' && running) pause();
+  origemOpcoes=telaAtual;
+  $('opVolMusica').value=Math.round(volMusica*100); $('opVolEfeitos').value=Math.round(volEfeitos*100);
+  $('opVolMusicaV').textContent=$('opVolMusica').value+'%'; $('opVolEfeitosV').textContent=$('opVolEfeitos').value+'%';
+  $('opTexto').checked=!!prefs.textoGrande; $('opContraste').checked=!!prefs.contraste; $('opCalmo').checked=calm;
+  $('opSeta').checked=mostrarSeta; $('opVibrar').checked=prefs.vibrar!==false; $('opIdioma').value=idioma;
+  renderTeclas(); mostrar('telaOpcoes');
+}
+function voltarDeOpcoes(){
+  ouvindo=null;
+  if(origemOpcoes==='telaJogo'){ mostrar('telaJogo'); if(paused) $('btnVoltar').focus(); return; }
+  ({telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaNovo:()=>mostrar('telaNovo')}[origemOpcoes]||abrirPerfis)();
+}
+for(const [id,chave] of [['opVolMusica','volMusica'],['opVolEfeitos','volEfeitos']])
+  $(id).addEventListener('input',()=>{ prefs[chave]=+$(id).value; $(id+'V').textContent=$(id).value+'%'; salvarPrefs(); aplicarOpcoes(); if(chave==='volEfeitos') sfx.clique(); });
+for(const [id,chave] of [['opTexto','textoGrande'],['opContraste','contraste'],['opCalmo','calmo'],['opSeta','seta'],['opVibrar','vibrar']])
+  $(id).addEventListener('change',()=>{ prefs[chave]=$(id).checked; salvarPrefs(); aplicarOpcoes(); });
+$('btnTeclasPadrao').addEventListener('click',()=>{ prefs.teclas={}; ouvindo=null; salvarPrefs(); montarTeclas(); renderTeclas(); });
+$('btnOpcoes').addEventListener('click',abrirOpcoes);
+$('btnOpcoesPausa').addEventListener('click',abrirOpcoes);
+$('btnVoltarOpcoes').addEventListener('click',voltarDeOpcoes);
 function labelSound(){
   btnSom.textContent=t(muted?'som.efeitos.off':'som.efeitos.on'); btnSom.setAttribute('aria-pressed',String(!muted));
   btnMusica.textContent=t(mus.on?'som.musica.on':'som.musica.off'); btnMusica.setAttribute('aria-pressed',String(mus.on));
@@ -388,18 +467,19 @@ $('btnInstalar').addEventListener('click',async()=>{ if(!pedidoInstalar) return;
 
 /* ---------- IDIOMA ---------- */
 const selIdioma=$('selIdioma');
-for(const [cod,nome] of Object.entries(IDIOMAS)) selIdioma.append(Object.assign(el('option','',nome),{value:cod}));
-selIdioma.value=idioma;
-selIdioma.addEventListener('change',()=>trocarIdioma(selIdioma.value));
+for(const sel of [selIdioma,$('opIdioma')]){
+  for(const [cod,nome] of Object.entries(IDIOMAS)) sel.append(Object.assign(el('option','',nome),{value:cod}));
+  sel.value=idioma; sel.addEventListener('change',()=>trocarIdioma(sel.value));
+}
 function trocarIdioma(novo){
   if(!IDIOMAS[novo]) return;
-  idioma=novo; selIdioma.value=novo; salvarPrefs(); traduzirPagina(); labelSound();
-  const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases,
+  idioma=novo; selIdioma.value=$('opIdioma').value=novo; salvarPrefs(); traduzirPagina(); labelSound(); atualizarLegenda();
+  const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaOpcoes:renderTeclas,
     telaNovo:()=>renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; })}[telaAtual];
   if(reabrir) reabrir();
   else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
 }
 
-traduzirPagina(); carregarPerfis(); labelSound();
+traduzirPagina(); montarTeclas(); aplicarOpcoes(); carregarPerfis(); labelSound();
 if(perfis.lista.length) abrirPerfis(); else abrirNovo();
 requestAnimationFrame(frame);

@@ -46,6 +46,7 @@ function hurt(n,fx,fy){
   if(p.inv>0||S0.won) return;
   S0.hp-=n; p.inv=1.1; const dx=p.x-fx, dy=p.y-fy, d=Math.hypot(dx,dy)||1;
   p.kx=dx/d*170; p.ky=dy/d*170; shake=Math.max(shake,.15); freeze=Math.max(freeze,.05); sfx.hurt(); updateHud();
+  if(prefs.vibrar!==false && navigator.vibrate) navigator.vibrate(70);
   if(S0.hp<=0){ S0.hp=0; updateHud(); desmaiar(); }
 }
 function respawn(){
@@ -216,9 +217,10 @@ function render(){
   }
   const list=[];
   for(const it of items) list.push([it.y,()=>drawItem(it)]);
-  for(const c of inimigos) if(!c.dead) list.push([c.y,()=>INIM[c.tipo].draw(c)]);
+  const desenha=fn=>contraste?()=>comContorno(fn):fn;
+  for(const c of inimigos) if(!c.dead) list.push([c.y,desenha(()=>INIM[c.tipo].draw(c))]);
   for(const n of npcs) list.push([n.y,()=>NPC_DRAW[n.type](n)]);
-  if(chefe && CHEFES[chefe.tipo].visivel(chefe)) list.push([chefe.y,()=>CHEFES[chefe.tipo].draw(chefe)]);
+  if(chefe && CHEFES[chefe.tipo].visivel(chefe)) list.push([chefe.y,desenha(()=>CHEFES[chefe.tipo].draw(chefe))]);
   list.push([p.y,drawJogador]);
   list.sort((a,b)=>a[0]-b[0]); for(const [,fn] of list) fn();
   for(const b of balls) drawBall(b);
@@ -228,5 +230,5 @@ function render(){
   if(fase.tom){ ctx.fillStyle=fase.tom(); ctx.fillRect(0,0,VW,VH); }
   ctx.fillStyle=vg; ctx.fillRect(0,0,VW,VH);
   if(S0.hp===1 && !S0.won){ ctx.globalAlpha=calm?.6:.55+.45*Math.sin(time*5); ctx.fillStyle=vgDor; ctx.fillRect(0,0,VW,VH); ctx.globalAlpha=1; }
-  if(running && !dlg.open) drawArrow(cx,cy);
+  if(running && !dlg.open && mostrarSeta) drawArrow(cx,cy);
 }

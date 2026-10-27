@@ -89,6 +89,31 @@
     <div class="rodape"><button class="btn sec" id="btnVoltarFases" data-t="voltar">Voltar</button></div>
   </section>
 
+  <!-- opções -->
+  <section class="tela" id="telaOpcoes" aria-labelledby="tOpcoes" hidden>
+    <h2 id="tOpcoes" tabindex="-1" data-t="op.titulo">Opções</h2>
+    <div class="opcoes">
+      <fieldset class="grupo"><legend data-t="op.som">Som</legend>
+        <label class="faixa"><span data-t="op.volMusica">Volume da música</span><input type="range" id="opVolMusica" min="0" max="100" step="5"><output id="opVolMusicaV" for="opVolMusica"></output></label>
+        <label class="faixa"><span data-t="op.volEfeitos">Volume dos efeitos</span><input type="range" id="opVolEfeitos" min="0" max="100" step="5"><output id="opVolEfeitosV" for="opVolEfeitos"></output></label>
+      </fieldset>
+      <fieldset class="grupo"><legend data-t="op.tela">Tela e leitura</legend>
+        <label class="caixa"><input type="checkbox" id="opTexto"><span data-t="op.texto">Texto grande</span></label>
+        <label class="caixa"><input type="checkbox" id="opContraste"><span data-t="op.contraste">Alto contraste</span></label>
+        <label class="caixa"><input type="checkbox" id="opCalmo"><span data-t="op.calmo">Reduzir movimento</span></label>
+        <label class="caixa"><input type="checkbox" id="opSeta"><span data-t="op.seta">Mostrar a seta do objetivo</span></label>
+        <label class="caixa"><input type="checkbox" id="opVibrar"><span data-t="op.vibrar">Vibrar ao levar dano</span></label>
+        <label class="faixa"><span data-t="idioma">Idioma</span><select id="opIdioma"></select></label>
+      </fieldset>
+      <fieldset class="grupo largo"><legend data-t="op.teclas">Teclas</legend>
+        <p class="sub" data-t="op.teclasDica">Escolha uma ação, clique em Trocar e aperte a tecla nova.</p>
+        <div class="teclas" id="listaTeclas"></div>
+        <button class="btn sec" type="button" id="btnTeclasPadrao" data-t="op.padrao">Restaurar teclas padrão</button>
+      </fieldset>
+    </div>
+    <div class="rodape"><button class="btn sec" id="btnVoltarOpcoes" data-t="voltar">Voltar</button></div>
+  </section>
+
   <!-- jogo -->
   <div class="game" id="telaJogo" hidden>
     <div class="frame" id="frame">
@@ -112,7 +137,7 @@
         <h2 id="tituloNome"></h2>
         <p id="tituloResumo"></p>
         <button class="btn" id="btnComecarFase" data-t="jogo.comecar">Começar</button>
-        <p class="miudo so-teclado" data-t="jogo.dicas">Setas ou WASD para andar · Espaço para o chicote · E para falar · Esc para pausar</p>
+        <p class="miudo so-teclado" id="dicasTeclas"></p>
       </div>
       <div class="overlay" id="ovPausa" hidden>
         <h2 data-t="pausa.titulo">Pausa</h2>
@@ -120,6 +145,7 @@
         <div class="ov-botoes">
           <button class="btn" id="btnVoltar" data-t="pausa.voltar">Voltar ao jogo</button>
           <button class="btn sec" id="btnReiniciar" data-t="pausa.reiniciar">Reiniciar fase</button>
+          <button class="btn sec" id="btnOpcoesPausa" data-t="op.titulo">Opções</button>
           <button class="btn sec" id="btnSairMenu" data-t="pausa.sair">Sair para o menu</button>
         </div>
         <p class="miudo so-teclado" data-t="pausa.dica">Esc ou P para continuar</p>
@@ -160,10 +186,7 @@
     </div>
 
     <section class="legenda">
-      <span class="so-teclado" data-t-html="leg.andar"><kbd>↑↓←→</kbd>ou <kbd>WASD</kbd>andar</span>
-      <span class="so-teclado" data-t-html="leg.chicote"><kbd>Espaço</kbd>chicote</span>
-      <span class="so-teclado" data-t-html="leg.falar"><kbd>E</kbd>falar e avançar diálogo</span>
-      <span class="so-teclado" data-t-html="leg.pausar"><kbd>Esc</kbd>pausar</span>
+      <span class="so-teclado" id="legendaTeclas"></span>
       <div class="botoes"><button class="som" id="btnPausa">Pausar</button></div>
     </section>
   </div>
@@ -171,6 +194,7 @@
   <div class="barra">
     <p class="quem-joga" id="quemJoga" hidden></p>
     <button class="som" id="btnInstalar" data-t="instalar" hidden>Instalar o jogo</button>
+    <button class="som" id="btnOpcoes" data-t="op.titulo">Opções</button>
     <button class="som" id="btnMusica" aria-pressed="true">Música: ligada</button>
     <button class="som" id="btnSom" aria-pressed="true">Efeitos: ligados</button>
     <label class="idioma"><span data-t="idioma">Idioma</span> <select id="selIdioma"></select></label>
