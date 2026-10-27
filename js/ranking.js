@@ -51,6 +51,3 @@ async function renderRanking(){
     lista.append(li);
   });
 }
-// substituído por js/online.js quando as contas online estão configuradas
-const onlineAtivo=()=>typeof contaOnline!=='undefined' && contaOnline.configurado();
-async function rankingMundial(){ return []; }

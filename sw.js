@@ -5,7 +5,7 @@ const CACHE = 'estrela-app';
 const FONTES = 'estrela-fontes';
 const ARQUIVOS = [
   './', 'index.html', 'manifest.webmanifest', 'css/jogo.css',
-  'js/base.js', 'js/idiomas.js', 'js/audio.js', 'js/personagens.js', 'js/terreno.js', 'js/entidades.js', 'js/fases.js', 'js/jogo.js', 'js/conquistas.js', 'js/ranking.js', 'js/telas.js', 'js/cenas.js',
+  'js/config.js', 'js/base.js', 'js/idiomas.js', 'js/audio.js', 'js/personagens.js', 'js/terreno.js', 'js/entidades.js', 'js/fases.js', 'js/jogo.js', 'js/conquistas.js', 'js/ranking.js', 'js/telas.js', 'js/cenas.js', 'js/online.js', 'js/inicio.js',
   'icones/icone-192.png', 'icones/icone-512.png', 'icones/icone-maskable-512.png', 'icones/icone-180.png', 'icones/favicon-32.png',
 ];
 
@@ -21,6 +21,7 @@ self.addEventListener('fetch', e=>{
   const req = e.request;
   if(req.method!=='GET') return;
   const url = new URL(req.url);
+  if(url.pathname.includes('/api/')) return;   // contas online e ranking mundial: sempre direto na rede
   if(url.origin===self.location.origin) e.respondWith(redePrimeiro(req));
   else if(/^fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) e.respondWith(cachePrimeiro(req));
 });

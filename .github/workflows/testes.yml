@@ -16,3 +16,33 @@ jobs:
       - run: npm install
       - run: npx playwright install --with-deps chromium
       - run: npm test
+
+  servidor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: teste
+          POSTGRES_DB: estrela
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:teste@localhost:5432/estrela
+    defaults:
+      run:
+        working-directory: servidor
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run migrar
+      - run: npm test

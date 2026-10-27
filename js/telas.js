@@ -129,9 +129,9 @@ function menuPad(k){
 }
 
 /* ---------- TELAS ---------- */
-const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaRanking','telaCena','telaJogo'];
+const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaRanking','telaCena','telaConta','telaJogo'];
 let telaAtual='telaPerfis';
-const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaRanking:()=>abrirMenu(), telaCena:()=>$('btnCenaSeguir').click(), telaOpcoes:()=>voltarDeOpcoes()};
+const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaRanking:()=>abrirMenu(), telaCena:()=>$('btnCenaSeguir').click(), telaOpcoes:()=>voltarDeOpcoes(), telaConta:()=>$('btnVoltarConta').click()};
 function mostrar(id){
   for(const t of TELAS) $(t).hidden = t!==id;
   telaAtual=id; held.clear(); dpadSet({});
@@ -161,7 +161,7 @@ function carregarPerfis(){
     if(!PERSONAGENS[pf.personagem] || !liberado(pf.personagem,pf)) pf.personagem='ze';
   }
 }
-function salvarPerfis(){ store.set(K_PERFIS,{v:1, lista:perfis.lista, ultimo:perfis.ultimo}); }
+function salvarPerfis(){ store.set(K_PERFIS,{v:1, lista:perfis.lista, ultimo:perfis.ultimo}); agendarSync(); }
 function novoPerfil(nome,pers,dificuldade='normal'){
   const pf={id:'j'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), nome, personagem:pers, dificuldade, criado:Date.now(), fases:{}, cordeis:[], bonusVida:0, fim:false};
   perfis.lista.push(pf); salvarPerfis(); return pf;
@@ -170,6 +170,7 @@ function apagarPerfil(id){
   perfis.lista=perfis.lista.filter(x=>x.id!==id); store.del(K_PARTIDA+id);
   if(perfis.ultimo===id) perfis.ultimo=null;
   if(perfil && perfil.id===id) perfil=null;
+  if(sessoes[id]){ delete sessoes[id]; salvarSessoes(); }   // a conta online continua existindo; só deixa de estar ligada aqui
   salvarPerfis();
 }
 const feitas=pf=>FASES.filter(f=>pf.fases[f.id] && pf.fases[f.id].feita).length;
@@ -190,6 +191,7 @@ function renderPerfis(){
     pe.append(apagar); card.append(entrar,pe); box.append(card);
   }
   const cheio=perfis.lista.length>=8; $('btnNovoPerfil').hidden=cheio; $('limitePerfis').hidden=!cheio;
+  atualizarOnline();
 }
 function confirmarApagar(pf,pe){
   pe.textContent='';
@@ -206,7 +208,7 @@ function abrirNovo(){
   $('nomeNovo').value=''; $('erroNovo').hidden=true; escolhaNovo='ze'; difNovo='normal';
   renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; });
   seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; });
-  $('btnCancelarNovo').hidden=!perfis.lista.length;
+  $('btnCancelarNovo').hidden=!perfis.lista.length; atualizarOnline();
   mostrar('telaNovo'); $('nomeNovo').focus();
 }
 $('formNovo').addEventListener('submit',e=>{
@@ -283,6 +285,7 @@ function abrirMenu(){
   if(d) linha(t('menu.continuar'),`${t('fases.n',{n:d.fase})} · ${FASES[d.fase-1].nome}`);
   else if(n) linha(t('menu.jogar'),`${t('fases.n',{n})} · ${FASES[n-1].nome}`);
   else linha(t('menu.jogarDeNovo'),t('menu.escolhaFase'));
+  atualizarOnline();
   mostrar('telaMenu');
 }
 $('btnJogar').addEventListener('click',()=>{ sfx.clique(); const d=partidaSalva(perfil), n=proximaFase(perfil); if(d) continuar(d); else if(n) jogarFase(n); else abrirFases(); });
@@ -371,6 +374,7 @@ function concluirFase(){
   if(ultima) perfil.fim=true;
   perfis.ultimo=perfil.id; salvarPerfis(); store.del(K_PARTIDA+perfil.id);
   aoConcluirFase(ultima);
+  if(novo) enviarRecorde(perfil,fase.id,d,time);
   const total=cordeisDaFase(fase).length, n=achados(fase), falta=total-n;
   $('fimFase').textContent=t('fim.fase',{n:fase.id,nomeFase:fase.nome});
   $('fimTitulo').textContent=t(ultima?'fim.tituloFinal':'fim.titulo');
@@ -512,11 +516,8 @@ function trocarIdioma(novo){
   if(!IDIOMAS[novo]) return;
   idioma=novo; selIdioma.value=$('opIdioma').value=novo; salvarPrefs(); traduzirPagina(); labelSound(); atualizarLegenda();
   const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaOpcoes:renderTeclas,
-    telaConquistas:abrirConquistas, telaRanking:renderRanking, telaCena:()=>cenaAtual && textoCena(cenaAtual), telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
+    telaConquistas:abrirConquistas, telaRanking:renderRanking, telaConta:renderConta, telaCena:()=>cenaAtual && textoCena(cenaAtual), telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
   if(reabrir) reabrir();
   else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
 }
 
-traduzirPagina(); montarTeclas(); aplicarOpcoes(); carregarPerfis(); labelSound();
-if(perfis.lista.length) abrirPerfis(); else abrirNovo();
-requestAnimationFrame(frame);

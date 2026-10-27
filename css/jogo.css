@@ -283,3 +283,18 @@ body.texto-grande{font-size:18px}
 .cena canvas{display:block;width:100%;max-width:760px;height:auto;box-shadow:6px 6px 0 var(--sol)}
 .cena h2{margin-top:6px}
 .verso{margin:0;display:flex;flex-direction:column;gap:2px;font-size:clamp(17px,2.4vw,21px);font-style:italic;color:var(--papel)}
+
+/* conta online */
+#formConta{display:flex;flex-direction:column;gap:16px;width:min(100%,520px)}
+#formConta .miudo{font-size:15px}
+.campo .dica{color:var(--poeira);font-size:14px}
+.conta-ligada{display:flex;flex-direction:column;gap:12px;width:100%;background:var(--couro-2);border:3px solid #5a4636;padding:16px}
+.conta-info{margin:0;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.conta-info b{font-family:var(--display);font-weight:400;font-size:24px;color:var(--sol)}
+.conta-info span{color:var(--poeira)}
+.conta-ligada .link,.confirma .link{color:var(--papel)}
+.conta-ligada .link.perigo{color:#ff9a7a}
+.confirma{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border-top:2px solid #5a4636;padding-top:12px}
+.confirma p{margin:0;flex:1 1 100%;font-weight:700}
+.selo-online{margin:4px 0 0;font-size:14px;font-weight:700;color:var(--mandacaru)}
+.selo-online::before{content:"● "}

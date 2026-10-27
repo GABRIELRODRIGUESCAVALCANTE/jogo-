@@ -1,0 +1,15 @@
+{
+  "name": "estrela-do-sertao-servidor",
+  "private": true,
+  "description": "API do Estrela do Sertão: contas, progresso na nuvem e ranking mundial, sobre PostgreSQL",
+  "main": "servidor.js",
+  "scripts": {
+    "start": "node migrar.js && node servidor.js",
+    "migrar": "node migrar.js",
+    "test": "node --test \"testes/*.test.js\""
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

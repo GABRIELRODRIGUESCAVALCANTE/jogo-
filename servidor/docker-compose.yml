@@ -1,0 +1,31 @@
+# Sobe o PostgreSQL e a API no seu computador:  docker compose up
+# A API fica em http://localhost:8787 (aponte js/config.js para ela).
+services:
+  banco:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: estrela
+      POSTGRES_DB: estrela
+    volumes:
+      - dados:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 10
+  api:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm start"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      DATABASE_URL: postgres://postgres:estrela@banco:5432/estrela
+      ORIGENS: "*"
+    ports:
+      - "8787:8787"
+    depends_on:
+      banco:
+        condition: service_healthy
+volumes:
+  dados:

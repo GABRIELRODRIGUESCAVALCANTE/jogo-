@@ -1,0 +1,27 @@
+# Publicação da API no Render (render.com → New → Blueprint → escolha este repositório).
+# Cria o PostgreSQL e a API; depois coloque o endereço da API em js/config.js.
+services:
+  - type: web
+    name: estrela-api
+    runtime: node
+    plan: free
+    rootDir: servidor
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/saude
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: estrela-banco
+          property: connectionString
+      - key: SEGREDO_TOKEN
+        generateValue: true
+      - key: ORIGENS
+        value: https://gabrielrodriguescavalcante.github.io
+      - key: NODE_ENV
+        value: production
+databases:
+  - name: estrela-banco
+    plan: free
+    databaseName: estrela
+    postgresMajorVersion: "16"

@@ -31,6 +31,7 @@
     <div class="perfis" id="listaPerfis"></div>
     <div class="rodape">
       <button class="btn" id="btnNovoPerfil" data-t="perfis.novo">+ Novo jogador</button>
+      <button class="btn sec" id="btnEntrarOnline" data-t="conta.entrarOnline" hidden>Entrar com conta online</button>
       <p class="sub" id="limitePerfis" data-t="perfis.limite" hidden>Limite de 8 jogadores. Apague um para criar outro.</p>
     </div>
   </section>
@@ -55,6 +56,7 @@
       <div class="rodape">
         <button class="btn" type="submit" data-t="novo.criar">Criar jogador</button>
         <button class="btn sec" type="button" id="btnCancelarNovo" data-t="novo.cancelar">Cancelar</button>
+        <button class="btn sec" type="button" id="btnContaNovo" data-t="conta.entrarOnline" hidden>Entrar com conta online</button>
       </div>
     </form>
   </section>
@@ -67,6 +69,7 @@
         <p class="eyebrow" id="persMenu"></p>
         <h2 id="nomeMenu" tabindex="-1"></h2>
         <ul class="resumo" id="resumoMenu"></ul>
+        <p class="selo-online" id="seloOnline" hidden></p>
       </div>
     </div>
     <div class="hub-botoes">
@@ -75,6 +78,7 @@
       <button class="btn sec" id="btnPersonagem" data-t="menu.personagem">Personagem</button>
       <button class="btn sec" id="btnConquistas" data-t="menu.conquistas">Conquistas</button>
       <button class="btn sec" id="btnRanking" data-t="menu.ranking">Ranking</button>
+      <button class="btn sec" id="btnConta" data-t="conta.titulo" hidden>Conta online</button>
       <button class="btn sec" id="btnTrocar" data-t="menu.trocar">Trocar jogador</button>
     </div>
     <div class="hub-dif">
@@ -150,6 +154,42 @@
       </fieldset>
     </div>
     <div class="rodape"><button class="btn sec" id="btnVoltarOpcoes" data-t="voltar">Voltar</button></div>
+  </section>
+
+  <!-- conta online -->
+  <section class="tela" id="telaConta" aria-labelledby="tConta" hidden>
+    <h2 id="tConta" tabindex="-1" data-t="conta.titulo">Conta online</h2>
+    <p class="sub" id="subConta"></p>
+    <div class="conta-ligada" id="contaLigada" hidden>
+      <p class="conta-info"><b id="contaNome"></b><span id="contaEmail"></span></p>
+      <p class="sub" id="contaEstado" role="status"></p>
+      <div class="rodape">
+        <button class="btn" type="button" id="btnSincronizar" data-t="conta.sincronizar">Sincronizar agora</button>
+        <button class="btn sec" type="button" id="btnSairConta" data-t="conta.sair">Desligar a conta deste jogador</button>
+        <button class="link perigo" type="button" id="btnApagarConta" data-t="conta.apagar">Apagar a conta online</button>
+      </div>
+      <div class="confirma" id="confirmaApagarConta" hidden>
+        <p data-t="conta.apagarPergunta">Apagar a conta, o progresso guardado no servidor e os tempos do ranking mundial? O jogador continua neste aparelho.</p>
+        <button class="link perigo" type="button" id="btnApagarSim" data-t="perfis.sim">Sim, apagar</button>
+        <button class="link" type="button" id="btnApagarNao" data-t="perfis.nao">Não</button>
+      </div>
+    </div>
+    <form id="formConta" novalidate>
+      <div class="abas" id="modoConta"></div>
+      <div class="campo">
+        <label for="emailConta" data-t="conta.email">E-mail</label>
+        <input id="emailConta" type="email" maxlength="200" autocomplete="email" spellcheck="false" aria-describedby="erroConta">
+      </div>
+      <div class="campo">
+        <label for="senhaConta" data-t="conta.senha">Senha</label>
+        <input id="senhaConta" type="password" maxlength="200" autocomplete="new-password" aria-describedby="dicaSenha erroConta">
+        <small class="dica" id="dicaSenha" data-t="conta.dicaSenha">Pelo menos 6 caracteres.</small>
+      </div>
+      <p class="erro" id="erroConta" role="alert" hidden></p>
+      <p class="sub miudo" data-t="conta.privacidade">Guardamos só o e-mail, o nome do jogador, o progresso e os melhores tempos. A senha não fica guardada: guardamos uma impressão dela que não dá para desfazer. Você pode apagar tudo quando quiser.</p>
+      <div class="rodape"><button class="btn" type="submit" id="btnEnviarConta"></button></div>
+    </form>
+    <div class="rodape"><button class="btn sec" id="btnVoltarConta" data-t="voltar">Voltar</button></div>
   </section>
 
   <!-- cena de cordel -->
@@ -283,6 +323,7 @@
   </section>
 </div>
 
+<script src="js/config.js"></script>
 <script src="js/base.js"></script>
 <script src="js/idiomas.js"></script>
 <script src="js/audio.js"></script>
@@ -295,5 +336,7 @@
 <script src="js/ranking.js"></script>
 <script src="js/telas.js"></script>
 <script src="js/cenas.js"></script>
+<script src="js/online.js"></script>
+<script src="js/inicio.js"></script>
 </body>
 </html>
