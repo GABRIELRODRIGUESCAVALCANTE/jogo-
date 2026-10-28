@@ -41,3 +41,33 @@ test('mapas das fases são consistentes e alcançáveis', async()=>{
   assert.deepEqual(problemas, []);
   assert.deepEqual(J.erros, []);
 });
+
+// o servidor recusa recordes abaixo de TEMPO_MINIMO; ele nunca pode passar do que um jogador perfeito consegue
+test('tempo mínimo do ranking cabe no menor caminho de cada fase', async()=>{
+  const { TEMPO_MINIMO, CHEFE_MINIMO } = require('../servidor/regras');
+  const caminhos = await J.ev(()=>{
+    // pontos por onde toda partida passa (itens de missão, quem precisa ouvir, chefes) e a saída
+    const OBRIG={1:{pts:[[43,6],[6,9]],fim:[23,0]}, 2:{pts:[[7,13],[3,22],[34,23],[21,19]],fim:[23,0],ultimo:4}, 3:{pts:[],fim:[24,2]}, 4:{pts:[[8,5],[12,7],[36,13],[24,23],[30,25]],fim:[24,30]}};
+    return FASES.map(f=>{
+      const rows=f.aberto?f.aberto(f.mapa):f.mapa, H=rows.length, W=rows[0].length, livre=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&!SOLID.has(rows[y][x]);
+      const dij=(sx,sy)=>{ const dist=new Map([[sx+','+sy,0]]), fila=[[0,sx,sy]];
+        while(fila.length){ fila.sort((a,b)=>a[0]-b[0]); const [d,x,y]=fila.shift(); if(d>dist.get(x+','+y)) continue;
+          for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){ const nx=x+dx, ny=y+dy;
+            if(!livre(nx,ny) || (dx&&dy&&(!livre(x+dx,y)||!livre(x,y+dy)))) continue;
+            const nd=d+(dx&&dy?Math.SQRT2:1), k=nx+','+ny; if(!(dist.get(k)<=nd)){ dist.set(k,nd); fila.push([nd,nx,ny]); } } }
+        return dist; };
+      const ate=(dist,[x,y])=>Math.min(...[[0,0],[1,0],[-1,0],[0,1],[0,-1]].map(([a,b])=>dist.get((x+a)+','+(y+b))??Infinity));
+      const o=OBRIG[f.id], todos=[f.spawn,...o.pts], D=todos.map(([x,y])=>dij(x,y));
+      const perms=a=>a.length<=1?[a]:a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(r=>[v,...r]));
+      let melhor=Infinity;
+      for(const pm of perms(o.pts.map((_,i)=>i+1))){ if(o.ultimo && pm.at(-1)!==o.ultimo) continue;
+        let tot=0, at=0; for(const j of pm){ tot+=ate(D[at],todos[j]); at=j; } melhor=Math.min(melhor, tot+ate(D[at],o.fim)); }
+      return { id:f.id, segundos:melhor*T/Math.max(...Object.values(PERSONAGENS).map(c=>c.vel)) };
+    });
+  });
+  assert.equal(caminhos.length, Object.keys(TEMPO_MINIMO).length);
+  for(const c of caminhos){
+    assert.ok(Number.isFinite(c.segundos), `F${c.id}: caminho não encontrado`);
+    assert.ok(TEMPO_MINIMO[c.id] <= Math.floor(c.segundos*0.85)+CHEFE_MINIMO[c.id], `F${c.id}: mínimo ${TEMPO_MINIMO[c.id]} s, caminho ${c.segundos.toFixed(1)} s`);
+  }
+});

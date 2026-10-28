@@ -2,6 +2,7 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const { preparar, abrir, sleep } = require('./ajuda');
+const { mesclarProgresso } = require('../servidor/mesclar');
 
 const API = 'http://api.teste';
 let A;
@@ -10,7 +11,7 @@ after(async()=>{ await A.fim(); });
 
 // imitação do servidor: contas em memória, token = "tok-<id>"
 function apiFalsa(){
-  const db = { contas:[], pedidos:[] };
+  const db = { contas:[], pedidos:[], partidas:[] };
   const contaDo = h=>db.contas.find(c=>`Bearer tok-${c.id}`===h.authorization);
   const conta = c=>({ token:`tok-${c.id}`, conta:{ id:c.id, nome:c.nome, email:c.email } });
   db.criar = (email,senha,nome)=>{ const c={ id:db.contas.length+1, email, senha, nome, dados:null, recordes:{} }; db.contas.push(c); return c; };
@@ -32,10 +33,13 @@ function apiFalsa(){
       }
       case 'DELETE /api/contas': if(!eu) return responder(401,{ erro:'nao_autorizado' }); db.contas=db.contas.filter(c=>c!==eu); return route.fulfill({ status:204, headers:{ 'Access-Control-Allow-Origin':'*' } });
       case 'GET /api/progresso': if(!eu) return responder(401,{ erro:'nao_autorizado' }); return responder(200,{ dados:eu.dados });
-      case 'PUT /api/progresso': if(!eu) return responder(401,{ erro:'nao_autorizado' }); eu.dados=corpo.dados; return responder(200,{ atualizado:new Date().toISOString() });
+      case 'PUT /api/progresso': if(!eu) return responder(401,{ erro:'nao_autorizado' }); eu.dados=mesclarProgresso(corpo.dados, eu.dados||{}); return responder(200,{ dados:eu.dados, atualizado:new Date().toISOString() });
+      case 'POST /api/partidas': if(!eu) return responder(401,{ erro:'nao_autorizado' }); db.partidas.push({ id:String(db.partidas.length+1), conta:eu, fase:corpo.fase, dificuldade:corpo.dificuldade }); return responder(200,{ partida:db.partidas.at(-1).id });
       case 'POST /api/recordes': {
         if(!eu) return responder(401,{ erro:'nao_autorizado' });
-        if(!(corpo.tempo>=15)) return responder(400,{ erro:'dados_invalidos' });
+        const pt=db.partidas.find(x=>x.id===corpo.partida && x.conta===eu && x.fase===corpo.fase && x.dificuldade===corpo.dificuldade);
+        if(!pt) return responder(400,{ erro:'partida_invalida' });
+        db.partidas=db.partidas.filter(x=>x!==pt);
         const k=`${corpo.fase}:${corpo.dificuldade}`, velho=eu.recordes[k];
         if(!velho || corpo.tempo<velho.tempo) eu.recordes[k]=corpo;
         return responder(200,{ tempo:eu.recordes[k].tempo, novo:eu.recordes[k]===corpo });
@@ -109,7 +113,14 @@ test('cria a conta, sincroniza o progresso, manda o recorde e mostra o ranking m
   // recorde ao concluir a fase
   await J.page.click('#btnVoltarConta');
   assert.match(await J.page.textContent('#seloOnline'), /ana@teste\.br/);
+  // outro aparelho achou um cordel; na próxima sincronização ele aparece aqui, sem perder o que foi feito aqui
+  ana.dados.cordeis.push('c9');
+  await J.ev(()=>{ perfil.cordeis.push('c2'); salvarPerfis(); return sincronizarPendentes(); });
+  assert.deepEqual((await J.ev(()=>perfil.cordeis)).sort(), ['c1','c2','c9']);
+  assert.deepEqual([...ana.dados.cordeis].sort(), ['c1','c2','c9']);
+
   await J.comecarFase(1);
+  await J.ate(()=>S0.partida && S0.partida.id);
   await J.ev(()=>{ time=100; concluirFase(); });
   await ate(()=>ana.recordes['1:normal']);
   assert.equal(ana.recordes['1:normal'].tempo, 100);
@@ -144,8 +155,9 @@ test('em outro aparelho, entrar com a conta traz o jogador e o progresso', async
   await J.ate(()=>telaAtual==='telaMenu');
   const pf = await J.ev(()=>({ nome:perfil.nome, pers:perfil.personagem, dif:perfil.dificuldade, feita:perfil.fases[1].feita, rec:recorde(perfil,1,'dificil'), cordeis:perfil.cordeis.length, sessao:!!sessaoDe(perfil) }));
   assert.deepEqual(pf, { nome:'Bia', pers:'luzia', dif:'dificil', feita:true, rec:140, cordeis:2, sessao:true });
-  // o recorde que veio no progresso também vai para o ranking
-  await ate(()=>c.recordes['1:dificil']);
+  // recordes antigos não vão para o ranking mundial: só valem fases começadas com o servidor marcando a hora
+  await J.ev(()=>sincronizarPendentes());
+  assert.ok(!db.pedidos.includes('POST /api/recordes'));
 
   // apagar a conta online mantém o jogador no aparelho
   await J.page.click('#btnConta');

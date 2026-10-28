@@ -9,11 +9,15 @@
 const http = require('node:http');
 const crypto = require('node:crypto');
 const { Pool } = require('pg');
+const { mesclarProgresso } = require('./mesclar');
 
 const TOTAL_FASES = 4;
 const DIFICULDADES = ['facil','normal','dificil'];
 const PERSONAGENS = ['ze','luzia','tiao','rosa'];
 const DIAS_TOKEN = 30;
+const { TEMPO_MINIMO } = require('./regras');
+const FOLGA_RELOGIO = 5;     // segundos de diferença aceitos entre o relógio do jogo e o do servidor
+const DIAS_PARTIDA = 30;     // partidas mais velhas que isso não valem mais
 
 /* ---------- senhas e tokens ---------- */
 function hashSenha(senha){
@@ -93,20 +97,45 @@ function criarServidor({ pool, segredo, origens=['*'] }){
       const { rows } = await pool.query('select dados, atualizado_em from progresso where conta_id=$1', [id]);
       return rows[0] ? { dados:rows[0].dados, atualizado:rows[0].atualizado_em } : { dados:null, atualizado:null };
     },
+    // junta com o que já está guardado (outro aparelho pode ter jogado offline) e devolve o resultado
     'PUT /api/progresso': async(req)=>{
       const id = exigirConta(req), { dados } = await lerCorpo(req);
       if(!dados || typeof dados!=='object' || Array.isArray(dados) || JSON.stringify(dados).length>32768) throw new ErroApi(400,'dados_invalidos');
-      const { rows } = await pool.query(
-        `insert into progresso (conta_id, dados, atualizado_em) values ($1,$2,now())
-         on conflict (conta_id) do update set dados=excluded.dados, atualizado_em=now() returning atualizado_em`, [id, dados]);
-      return { atualizado:rows[0].atualizado_em };
+      const cliente = await pool.connect();
+      try{
+        await cliente.query('begin');
+        await cliente.query('insert into progresso (conta_id) values ($1) on conflict do nothing', [id]);
+        const atual = (await cliente.query('select dados from progresso where conta_id=$1 for update', [id])).rows[0].dados;
+        const junto = mesclarProgresso(dados, atual||{});
+        if(JSON.stringify(junto).length>32768) throw new ErroApi(400,'dados_invalidos');
+        const { rows } = await cliente.query('update progresso set dados=$2, atualizado_em=now() where conta_id=$1 returning atualizado_em', [id, junto]);
+        await cliente.query('commit');
+        return { dados:junto, atualizado:rows[0].atualizado_em };
+      }catch(e){ await cliente.query('rollback'); throw e; }
+      finally{ cliente.release(); }
+    },
+
+    'POST /api/partidas': async(req)=>{
+      const id = exigirConta(req), r = await lerCorpo(req), fase = Number(r.fase);
+      if(!Number.isInteger(fase) || fase<1 || fase>TOTAL_FASES || !DIFICULDADES.includes(r.dificuldade)) throw new ErroApi(400,'dados_invalidos');
+      await pool.query(`delete from partidas where conta_id=$1 and iniciada_em < now() - interval '${DIAS_PARTIDA} days'`, [id]);
+      const { rows } = await pool.query('insert into partidas (conta_id, fase, dificuldade) values ($1,$2,$3) returning id', [id, fase, r.dificuldade]);
+      return { partida:String(rows[0].id) };
     },
 
     'POST /api/recordes': async(req)=>{
       const id = exigirConta(req), r = await lerCorpo(req);
       const fase = Number(r.fase), tempo = Number(r.tempo);
       if(!Number.isInteger(fase) || fase<1 || fase>TOTAL_FASES || !DIFICULDADES.includes(r.dificuldade) || !PERSONAGENS.includes(r.personagem)
-        || !(tempo>=15 && tempo<=36000) || (r.chapeu!=null && (typeof r.chapeu!=='string' || r.chapeu.length>16))) throw new ErroApi(400,'dados_invalidos');
+        || !(tempo>=1 && tempo<=36000) || (r.chapeu!=null && (typeof r.chapeu!=='string' || r.chapeu.length>16))) throw new ErroApi(400,'dados_invalidos');
+      if(tempo<TEMPO_MINIMO[fase]) throw new ErroApi(400,'tempo_impossivel');
+      // a partida precisa ter começado no servidor há pelo menos esse tempo; cada partida vale um recorde só
+      const { rows:[partida] } = await pool.query(
+        `delete from partidas where id=$1 and conta_id=$2 and fase=$3 and dificuldade=$4
+           and iniciada_em > now() - interval '${DIAS_PARTIDA} days'
+         returning extract(epoch from now()-iniciada_em) as decorrido`, [/^\d{1,18}$/.test(String(r.partida)) ? String(r.partida) : '0', id, fase, r.dificuldade]);
+      if(!partida) throw new ErroApi(400,'partida_invalida');
+      if(tempo > Number(partida.decorrido)+FOLGA_RELOGIO) throw new ErroApi(400,'tempo_impossivel');
       // guarda só se for o melhor tempo dessa conta nessa fase e dificuldade
       const { rows } = await pool.query(
         `insert into recordes (conta_id, fase, dificuldade, personagem, chapeu, tempo) values ($1,$2,$3,$4,$5,$6)

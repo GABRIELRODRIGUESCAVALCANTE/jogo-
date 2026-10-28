@@ -24,8 +24,21 @@ create table if not exists recordes (
   dificuldade    text not null check (dificuldade in ('facil','normal','dificil')),
   personagem     text not null check (char_length(personagem) <= 16),
   chapeu         text check (char_length(chapeu) <= 16),
-  tempo          real not null check (tempo between 15 and 36000),
+  tempo          real not null check (tempo between 1 and 36000),   -- o mínimo de cada fase é conferido pela API
   registrado_em  timestamptz not null default now(),
   primary key (conta_id, fase, dificuldade)
 );
 create index if not exists recordes_ranking on recordes (fase, dificuldade, tempo);
+-- versões antigas tinham um mínimo fixo de 15 s
+alter table recordes drop constraint if exists recordes_tempo_check;
+alter table recordes add constraint recordes_tempo_check check (tempo between 1 and 36000);
+
+-- cada fase começada por um jogador com conta: o recorde só vale com uma partida e com tempo que caiba no relógio do servidor
+create table if not exists partidas (
+  id           bigserial primary key,
+  conta_id     bigint not null references contas(id) on delete cascade,
+  fase         smallint not null check (fase between 1 and 4),
+  dificuldade  text not null check (dificuldade in ('facil','normal','dificil')),
+  iniciada_em  timestamptz not null default now()
+);
+create index if not exists partidas_conta on partidas (conta_id, iniciada_em);

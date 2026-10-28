@@ -161,7 +161,7 @@ function carregarPerfis(){
     if(!PERSONAGENS[pf.personagem] || !liberado(pf.personagem,pf)) pf.personagem='ze';
   }
 }
-function salvarPerfis(){ store.set(K_PERFIS,{v:1, lista:perfis.lista, ultimo:perfis.ultimo}); agendarSync(); }
+function salvarPerfis(semSync){ store.set(K_PERFIS,{v:1, lista:perfis.lista, ultimo:perfis.ultimo}); if(!semSync) agendarSync(); }
 function novoPerfil(nome,pers,dificuldade='normal'){
   const pf={id:'j'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), nome, personagem:pers, dificuldade, criado:Date.now(), fases:{}, cordeis:[], bonusVida:0, fim:false};
   perfis.lista.push(pf); salvarPerfis(); return pf;
@@ -336,7 +336,7 @@ function abrirTitulo(id){
   $('tituloNome').textContent=fase.nome; $('tituloResumo').textContent=fase.resumo;
   mostrar('telaJogo'); $('ovTitulo').hidden=false; $('btnComecarFase').focus();
 }
-$('btnComecarFase').addEventListener('click',()=>{ initAudio(); $('ovTitulo').hidden=true; running=true; held.clear(); say(fase.intro()); });
+$('btnComecarFase').addEventListener('click',()=>{ initAudio(); $('ovTitulo').hidden=true; running=true; held.clear(); registrarPartida(); say(fase.intro()); });
 function continuar(d){
   try{ carregarPartida(d); }catch(e){ jogarFase(d.fase); return; }
   fecharOverlays(); paused=false; mostrar('telaJogo'); running=true;
@@ -374,7 +374,7 @@ function concluirFase(){
   if(ultima) perfil.fim=true;
   perfis.ultimo=perfil.id; salvarPerfis(); store.del(K_PARTIDA+perfil.id);
   aoConcluirFase(ultima);
-  if(novo) enviarRecorde(perfil,fase.id,d,time);
+  if(novo) enviarRecorde(perfil,fase.id,d,time,S0.partida);
   const total=cordeisDaFase(fase).length, n=achados(fase), falta=total-n;
   $('fimFase').textContent=t('fim.fase',{n:fase.id,nomeFase:fase.nome});
   $('fimTitulo').textContent=t(ultima?'fim.tituloFinal':'fim.titulo');

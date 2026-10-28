@@ -30,26 +30,17 @@ async function pedirApi(metodo,caminho,corpo,token){
 /* ---------- PROGRESSO ---------- */
 // o que vai para o servidor: o jogador inteiro, menos o id, que só vale neste aparelho
 function dadosDoPerfil(pf){ const d=Object.assign({},pf); delete d.id; return d; }
-// junta dois progressos sem perder nada: fases feitas, melhores tempos, cordéis e conquistas dos dois lados
-function mesclarProgresso(local,remoto){
-  const r=Object.assign({},remoto,local), a=local.fases||{}, b=remoto.fases||{};
-  r.fases={};
-  for(const id of new Set([...Object.keys(a),...Object.keys(b)])){
-    const tempos={};
-    for(const reg of [a[id]||{},b[id]||{}]){
-      const ts=Object.assign(reg.tempo>0?{normal:reg.tempo}:{}, reg.tempos);
-      for(const [d,v] of Object.entries(ts)) if(v>0 && !(tempos[d]<=v)) tempos[d]=v;
-    }
-    r.fases[id]={feita:!!((a[id]||{}).feita || (b[id]||{}).feita), tempos};
-  }
-  r.cordeis=[...new Set([...(remoto.cordeis||[]),...(local.cordeis||[])])];
-  r.conquistas=Object.assign({},remoto.conquistas);
-  for(const [k,v] of Object.entries(local.conquistas||{})) if(!(r.conquistas[k]<=v)) r.conquistas[k]=v;
-  r.fezCom=[...new Set([...(remoto.fezCom||[]),...(local.fezCom||[])])];
-  r.estat={inimigos:Math.max((local.estat||{}).inimigos||0,(remoto.estat||{}).inimigos||0)};
-  r.bonusVida=Math.max(local.bonusVida||0,remoto.bonusVida||0);
-  r.fim=!!(local.fim||remoto.fim);
-  return r;
+// a função que junta dois progressos (mesclarProgresso) fica em js/mesclar.js, igual à do servidor
+// guarda no aparelho o que o servidor devolveu, sem perder o que mudou aqui enquanto o pedido ia e voltava
+function aplicarRemoto(pf,dados){
+  if(!dados) return;
+  const junto=mesclarProgresso(pf,dados); delete junto.id;
+  if(!PERSONAGENS[junto.personagem] || !liberado(junto.personagem,junto)) junto.personagem=pf.personagem;
+  if(!DIFICULDADES[junto.dificuldade]) junto.dificuldade=pf.dificuldade;
+  if(JSON.stringify(Object.assign({},pf,junto))===JSON.stringify(pf)) return;
+  Object.assign(pf,junto); salvarPerfis(true);
+  if(perfil===pf) heroi=PERSONAGENS[pf.personagem];
+  if(telaAtual==='telaMenu') abrirMenu();
 }
 
 let syncRelogio=0, syncPendente=new Set(), semRede=false, ultimoSync=0;
@@ -71,23 +62,26 @@ async function sincronizarPendentes(){
 }
 async function enviarProgresso(pf){
   const s=sessaoDe(pf);
-  try{ await pedirApi('PUT','/api/progresso',{dados:dadosDoPerfil(pf)},s.token); ultimoSync=Date.now(); }
+  try{ const r=await pedirApi('PUT','/api/progresso',{dados:dadosDoPerfil(pf)},s.token); ultimoSync=Date.now(); aplicarRemoto(pf,r&&r.dados); }
   catch(e){ if(e.codigo==='nao_autorizado') sessaoExpirou(pf); throw e; }
 }
 addEventListener('online',()=>{ if(syncPendente.size) sincronizarPendentes(); });
 function sessaoExpirou(pf){ delete sessoes[pf.id]; salvarSessoes(); }
 
 /* ---------- RECORDES E RANKING MUNDIAL ---------- */
-function enviarRecorde(pf,fid,d,tempo){
-  const s=sessaoDe(pf); if(!s) return Promise.resolve();
-  return pedirApi('POST','/api/recordes',{fase:fid, dificuldade:d, personagem:pf.personagem, chapeu:visualDe(pf).chapeu, tempo:Math.round(tempo*100)/100},s.token)
-    .catch(e=>{ if(e.codigo==='nao_autorizado') sessaoExpirou(pf); });
+// Para valer no ranking mundial, a fase precisa começar avisando o servidor: ele anota a hora e depois só aceita
+// um tempo que caiba no relógio dele. Fases jogadas sem conta ou sem internet ficam só no ranking do aparelho.
+function registrarPartida(){
+  const s=sessaoDe(perfil), estado=S0, d=perfil.dificuldade||'normal';
+  if(!s) return;
+  pedirApi('POST','/api/partidas',{fase:fase.id, dificuldade:d},s.token)
+    .then(r=>{ if(S0===estado) S0.partida={id:r.partida, dif:d}; })
+    .catch(e=>{ if(e.codigo==='nao_autorizado') sessaoExpirou(perfil); });
 }
-// depois de ligar a conta, manda todos os melhores tempos que o jogador já tinha
-function enviarTodosRecordes(pf){
-  const envios=[];
-  for(const f of FASES) for(const d of Object.keys(DIFICULDADES)){ const tp=recorde(pf,f.id,d); if(tp>0) envios.push(enviarRecorde(pf,f.id,d,tp)); }
-  return Promise.all(envios);
+function enviarRecorde(pf,fid,d,tempo,partida){
+  const s=sessaoDe(pf); if(!s || !partida || partida.dif!==d) return Promise.resolve();
+  return pedirApi('POST','/api/recordes',{fase:fid, dificuldade:d, personagem:pf.personagem, chapeu:visualDe(pf).chapeu, tempo:Math.round(tempo*100)/100, partida:partida.id},s.token)
+    .catch(e=>{ if(e.codigo==='nao_autorizado') sessaoExpirou(pf); });
 }
 async function rankingMundial(fase,dif){
   const s=sessaoDe(perfil), q=new URLSearchParams({fase:String(fase), dificuldade:dif});
@@ -159,7 +153,6 @@ async function ligarConta(r){
   if(!DIFICULDADES[pf.dificuldade]) pf.dificuldade='normal';
   sessoes[pf.id]={token:r.token, conta:r.conta}; salvarSessoes(); salvarPerfis();
   await enviarProgresso(pf).then(()=>{ syncPendente.delete(pf.id); semRede=false; }, ()=>{ syncPendente.add(pf.id); semRede=true; });
-  enviarTodosRecordes(pf);
   sfx.libera();
   if(contaPara){ if(perfil===pf) heroi=PERSONAGENS[pf.personagem]; renderConta(); $('tConta').focus(); }
   else entrarComo(pf);
@@ -167,9 +160,7 @@ async function ligarConta(r){
 $('btnSincronizar').addEventListener('click',async()=>{
   sfx.clique(); const pf=contaPara; $('contaEstado').textContent=t('rank.carregando');
   try{
-    const remoto=(await pedirApi('GET','/api/progresso',null,sessaoDe(pf).token)).dados;
-    if(remoto){ Object.assign(pf,mesclarProgresso(pf,remoto),{id:pf.id}); salvarPerfis(); }
-    await enviarProgresso(pf); syncPendente.delete(pf.id); semRede=false; enviarTodosRecordes(pf);
+    await enviarProgresso(pf); syncPendente.delete(pf.id); semRede=false;   // o servidor junta e devolve o progresso das duas pontas
   }catch(e){ if(e.codigo!=='nao_autorizado'){ syncPendente.add(pf.id); semRede=true; } }
   renderConta();
 });
