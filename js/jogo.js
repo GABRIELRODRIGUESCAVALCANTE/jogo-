@@ -90,10 +90,26 @@ function ganharCordel(id){
   sfx.pagina(); lerCordel(id);
 }
 // marcas no chão: respingo na água, lama, faíscas na brasa
+// a cada passo: respingo na água e na lama, faísca na brasa, e uma poeirinha que sobe devagar no chão seco
+const POEIRA={'.':'#d8bc84', ',':'#c8b274', k:'#a89a88', r:'#9a8c80', d:'#e6d2a0', x:'#c8a878', M:'#8a6a48', v:'#c8c08a'};
 function pegadas(piso){
-  const cor={w:'#cfe7f2', l:'#5a4228', b:'#ffb43a', j:'#9ab85a'}[piso]; if(!cor) return;
-  for(let i=0;i<3;i++) parts.push({x:p.x+(Math.random()-.5)*8, y:p.y+3, vx:(Math.random()-.5)*30, vy:-15-Math.random()*20, t:.3, col:cor});
-  if(piso==='w') sfx.agua();
+  const cor={w:'#cfe7f2', l:'#5a4228', b:'#ffb43a', j:'#9ab85a'}[piso];
+  if(cor){
+    for(let i=0;i<3;i++) parts.push({x:p.x+(Math.random()-.5)*8, y:p.y+3, vx:(Math.random()-.5)*30, vy:-15-Math.random()*20, t:.3, col:cor});
+    if(piso==='w'){ sfx.agua(); for(let i=0;i<2;i++) parts.push({x:p.x+(Math.random()-.5)*12, y:p.y+4, vx:(Math.random()-.5)*12, vy:-8, t:.35, col:'#7ab8d4', g:20}); }
+    return;
+  }
+  const po=POEIRA[piso]; if(!po) return;
+  for(let i=0;i<2;i++) parts.push({x:p.x-p.dir.x*4+(Math.random()-.5)*6, y:p.y+3, vx:-p.dir.x*8+(Math.random()-.5)*10, vy:-6-Math.random()*6, t:.45, col:po, g:-4});
+}
+// fagulhas soltas: brasa e fendas de fogo na tela soltam faíscas que sobem tremendo
+function fagulhas(dt,cx,cy){
+  for(let i=0;i<2;i++){
+    if(Math.random()>dt*30) continue;
+    const tx=Math.floor((cx+Math.random()*VW)/T), ty=Math.floor((cy+Math.random()*VH)/T), c=tileAt(tx,ty);
+    if(c!=='b' && c!=='F') continue;
+    parts.push({x:tx*T+Math.random()*T, y:ty*T+Math.random()*T, vx:(Math.random()-.5)*8, vy:-14-Math.random()*14, t:.6+Math.random()*.5, col:Math.random()<.5?'#ffb43a':'#ff6a2a', g:-6, treme:true});
+  }
 }
 
 /* ---------- ATUALIZAÇÃO ---------- */
@@ -177,8 +193,9 @@ function update(dt){
   }
   items=items.filter(i=>!i.got);
 
-  for(const q of parts){ q.t-=dt; q.x+=q.vx*dt; q.y+=q.vy*dt; q.vy+=60*dt; }
+  for(const q of parts){ q.t-=dt; q.x+=q.vx*dt+(q.treme?Math.sin(q.t*25)*.3:0); q.y+=q.vy*dt; q.vy+=(q.g??60)*dt; }
   parts=parts.filter(q=>q.t>0);
+  fagulhas(dt,clamp(p.x-VW/2,0,MW*T-VW),clamp(p.y-VH/2,0,MH*T-VH));
 }
 
 /* ---------- DESENHO ---------- */
@@ -216,6 +233,17 @@ function drawArrow(cx,cy){
 // noite: escuro azulado com buracos de luz na lamparina, nas fogueiras e em tudo que pega fogo
 const escuroCv=document.createElement('canvas'); escuroCv.width=VW; escuroCv.height=VH;
 const eg=escuroCv.getContext('2d');
+// os olhos do Lobisomem brilham no escuro; antes da luta, só eles aparecem, piscando na borda da luz
+function olhosNoEscuro(cx,cy){
+  const m=chefe; if(!m || m.tipo!=='lobisomem' || m.dead || m.estado==='medo') return;
+  if(!m.active && Math.sin(time*1.7)>.55) return;      // pisca
+  const x=Math.round(m.x)-cx, y=Math.round(m.y+m.h/2)-cy-21, olhos=m.face>0?[x,x+3]:[x-1,x-4];
+  if(x<-10||y<-10||x>VW+10||y>VH+10) return;
+  for(const ox of olhos){
+    const g=ctx.createRadialGradient(ox+.5,y+.5,0,ox+.5,y+.5,5); g.addColorStop(0,'rgba(255,210,58,.5)'); g.addColorStop(1,'rgba(255,210,58,0)');
+    ctx.fillStyle=g; ctx.fillRect(ox-5,y-5,11,11); ctx.fillStyle='#fff3b0'; ctx.fillRect(ox,y,1,1);
+  }
+}
 function desenharNoite(cx,cy){
   eg.globalCompositeOperation='source-over'; eg.fillStyle='rgba(6,10,36,.84)'; eg.fillRect(0,0,VW,VH);
   eg.globalCompositeOperation='destination-out';
@@ -267,7 +295,7 @@ function render(){
   for(const q of parts){ S(q.col,q.x,q.y,q.t>0.25?2:1,q.t>0.25?2:1); }
   if(fase.decorarAlto) fase.decorarAlto();
   ctx.restore();
-  if(fase.noite) desenharNoite(cx,cy);
+  if(fase.noite){ desenharNoite(cx,cy); olhosNoEscuro(cx,cy); }
   if(running && !dlg.open){ const n=nearbyNpc(); if(n){ ctx.save(); ctx.translate(-cx,-cy); drawBubble(n); ctx.restore(); } }
   if(fase.tom){ ctx.fillStyle=fase.tom(); ctx.fillRect(0,0,VW,VH); }
   ctx.fillStyle=vg; ctx.fillRect(0,0,VW,VH);

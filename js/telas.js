@@ -398,6 +398,13 @@ function musicaDesejada(){
   if(S0 && S0.festa) return 'festa';
   return chefe && chefe.active && !chefe.dead ? 'chefe' : fase.musica;
 }
+// a música reage à partida: apressa com um coração só, ganha percussão perto do perigo e o chocalho do boi quando ele vem junto
+function climaMusica(){
+  if(telaAtual!=='telaJogo' || !running || !S0 || !p) return {acel:1, tensao:false, chocalho:false};
+  const perto=(x,y,r)=>Math.hypot(x-p.x,y-p.y)<r;
+  const tensao=!!(chefe && !chefe.dead && (chefe.active || perto(chefe.x,chefe.y,10*T))) || inimigos.some(c=>!c.dead && perto(c.x,c.y,80));
+  return {acel:S0.hp===1 && !S0.won ? 1.12 : 1, tensao, chocalho:!S0.festa && p.moving && npcs.some(n=>n.segue)};
+}
 const btnSom=$('btnSom'), btnMusica=$('btnMusica');
 const prefs=store.get(K_PREF)||{};
 muted=prefs.efeitos===false; mus.on=prefs.musica!==false;

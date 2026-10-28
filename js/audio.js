@@ -65,12 +65,14 @@ const SONGS={
   chefe:song(138,['E2','A2','B2','E2'],`
     E5:1 -:1 E5:1 F5:1 E5:2 B4:2 | C5:1 -:1 C5:1 D5:1 C5:2 A4:2 | B4:1 -:1 B4:1 C5:1 B4:2 G#4:2 | A4:2 B4:2 E4:3 -:1`),
 };
-const MUS_VOL=.35, mus={on:true, song:null, step:0, next:0, loop:0};
+const MUS_VOL=.35, mus={on:true, song:null, step:0, next:0, loop:0, acel:1, clima:{acel:1, tensao:false, chocalho:false}};
 let musG=null;
 function env(t,vol,d,att=.005){ const g=ac.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(vol,t+att); g.gain.exponentialRampToValueAtTime(0.0001,t+d); g.connect(musG); return g; }
 function osc(type,f,t,d,dest){ const o=ac.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,t); o.connect(dest); o.start(t); o.stop(t+d+.02); return o; }
 function zabumba(t,forte){ const d=forte?.28:.14, o=osc('sine',forte?120:95,t,d,env(t,forte?.32:.16,d)); o.frequency.exponentialRampToValueAtTime(42,t+.16); }
 function triangulo(t,aberto){ const d=aberto?.22:.04, g=env(t,aberto?.018:.01,d,.002); osc('sine',4200,t,d,g); osc('sine',6300,t,d,g); }
+// chocalho do boi: dois tons metálicos curtos, como o sino no pescoço do Estrela
+function chocalho(t){ const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=900; bp.Q.value=3; bp.connect(env(t,.05,.12,.002)); osc('square',545,t,.12,bp); osc('square',815,t,.12,bp); }
 function baixo(n,t,d){ osc('triangle',hz(n),t,d,env(t,.16,d)); }
 function sanfona(n,t,d){
   const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800; lp.connect(env(t,.05,d,.02));
@@ -81,6 +83,9 @@ function musStep(s,i,t,u){
   if(s.ritmo==='xote'){ if(b===0) zabumba(t,true); else if(b===4||b===6) zabumba(t,false); }
   else if(b===0) zabumba(t,true); else if(b===3||b===4) zabumba(t,false);
   triangulo(t,b===2||b===6);
+  // camadas do clima da partida (climaMusica, em js/telas.js)
+  if(mus.clima.tensao){ if(b===2||b===6) zabumba(t,false); if(b%2===1) triangulo(t,false); }
+  if(mus.clima.chocalho && (b===0||b===4)) chocalho(t);
   if(b===0) baixo(r,t,u*2.8); else if(b===3||b===6) baixo(r,t,u*.9); else if(b===4) baixo(r+7,t,u*1.8);
   const m=s.at[i]; if(m && mus.loop%3!==2) sanfona(m[0],t,m[1]*u*.92);
 }
@@ -93,7 +98,9 @@ function musTick(){
     if(want) musG.gain.setValueAtTime(MUS_VOL*volMusica,now); else musG.gain.setTargetAtTime(0,now,.06);
   }
   if(!want) return;
-  const s=SONGS[want], u=60/s.bpm/4;
+  // um coração só: a música apressa aos poucos, e volta ao normal do mesmo jeito
+  mus.clima=climaMusica(); mus.acel+=(mus.clima.acel-mus.acel)*.04;
+  const s=SONGS[want], u=60/(s.bpm*mus.acel)/4;
   if(mus.next<now) mus.next=now+.02;
   while(mus.next<now+.15){ musStep(s,mus.step,mus.next,u); mus.next+=u; if(++mus.step>=s.len){ mus.step=0; mus.loop++; } }
 }
