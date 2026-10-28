@@ -12,6 +12,18 @@ Funciona no computador e no celular, em português, inglês e espanhol, e pode s
 
 Abra o `index.html` em qualquer navegador. Não precisa instalar nada.
 
+Para desenvolver, com Node.js 20 ou mais novo:
+
+```
+npm run dev
+```
+
+O jogo abre em http://localhost:5173 e a página recarrega sozinha a cada arquivo salvo. O editor de mapas fica em http://localhost:5173/editor.html. Outras formas:
+
+- `PORT=8080 npm run dev` usa outra porta;
+- `npm run dev -- --host` libera o acesso pela rede, para testar no celular (o endereço aparece no terminal);
+- `DATABASE_URL=postgres://... npm run dev` sobe também a API das contas online e já liga o jogo nela (antes, rode `npm install --prefix servidor` uma vez).
+
 | Ação | Teclado | Celular | Controle |
 |---|---|---|---|
 | Andar | Setas ou WASD | Direcional na tela (deslize o dedo; aceita diagonais) | Analógico ou direcional |
@@ -194,7 +206,7 @@ js/online.js          contas online, sincronização e ranking mundial
 js/inicio.js          abre a primeira tela
 servidor/             API das contas online (Node.js + PostgreSQL)
 tests/                testes do jogo no navegador
-scripts/              geradores dos ícones e do GIF do README (gravar-demo.js)
+scripts/              servidor de desenvolvimento (dev.js) e geradores dos ícones e do GIF do README
 docs/                 GIF e imagens do README
 ```
 
