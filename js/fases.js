@@ -199,7 +199,7 @@ const FASES=[
   intro:()=>t('f1.intro'),
   restaurar(){ if(S0.thornsOpen) trocarTiles('E',','); },
   falar(n){
-    if(n.type==='avo') say(t('f1.avo'+Math.min(S0.stage,4)));
+    if(n.type==='avo'){ if(!temArma(perfil,'gibao')) say(t('f1.avoGibao'),()=>ganharArma('gibao')); else say(t('f1.avo'+Math.min(S0.stage,4))); }
     else if(n.type==='caipora'){
       if(S0.thornsOpen){ say(t('f1.caiporaVai')); return; }
       const oi = S0.metCaipora ? [] : t('f1.caiporaOi');
@@ -245,7 +245,7 @@ const FASES=[
   falar(n){
     if(n.type!=='barqueiro') return;
     const falta=3-S0.tabuas;
-    if(!S0.falouBarqueiro) say(t('f2.barqExplica'), ()=>{ S0.falouBarqueiro=true; setStage(S0.tabuas>=3?3:2); });
+    if(!S0.falouBarqueiro) say(t('f2.barqExplica').concat(temArma(perfil,'baladeira')?[]:t('f2.barqBaladeira')), ()=>{ S0.falouBarqueiro=true; ganharArma('baladeira'); setStage(S0.tabuas>=3?3:2); });
     else if(S0.stage===2) say(t(falta===1?'f2.barqFalta1':'f2.barqFaltaN',{n:falta}));
     else if(S0.stage===3) say(t('f2.barqConserta'), consertarPonte);
     else say(t('f2.barqVai'));
@@ -341,7 +341,7 @@ const FASES=[
   estado:()=>({ticao:false, acesas:[], porteira:false, festa:false}),
   inicio(){ trilhaBoi=[]; },
   objetivo:s=>t('f4.obj',{n:s.acesas.length})[s.stage],
-  bolsa:s=>s.ticao && s.acesas.length<3 ? [t('f4.ticao')] : [],
+  bolsa:()=>[],                                      // os tições aparecem na bolsa pelas armas (js/armas.js)
   intro:()=>t('f4.intro'),
   restaurar(){
     for(const n of npcs) if(n.type==='fogueira' && S0.acesas.includes(n.idx)) n.acesa=true;
@@ -352,7 +352,7 @@ const FASES=[
   falar(n){
     if(n.type==='fulozinha'){
       if(S0.ticao) say(t('f4.fuloDica'));
-      else say(t('f4.fulo'), ()=>{ S0.ticao=true; sfx.pick(); toast(t('f4.pegouTicao')); setStage(2); });
+      else say(t('f4.fulo'), ()=>{ S0.ticao=true; S0.ticoes=TICOES_MAX; sfx.pick(); toast(t('f4.pegouTicao')); setStage(2); });
     }
     else if(n.type==='fogueira' && S0.ticao && !n.acesa) acenderFogueira(n);
     else if(n.type==='bastiao') say(t('f4.bastiao'));

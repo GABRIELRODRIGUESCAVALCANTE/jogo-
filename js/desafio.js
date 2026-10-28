@@ -19,7 +19,7 @@ const ETAPAS_DESAFIO=[
       inimigos=inimigos.filter(c=>c.tipo==='morcego' && c.y<16*T);
     }},
   {fase:4, nome:()=>CHEFES.lobisomem.nome, arrumar(){
-      Object.assign(S0,{ticao:true, acesas:[0,1,2], ultima:2, chefeIntro:true});
+      Object.assign(S0,{ticao:true, ticoes:TICOES_MAX, acesas:[0,1,2], ultima:2, chefeIntro:true});
       for(const n of npcs) if(n.type==='fogueira') n.acesa=true;
       p.x=24*T+8; p.y=21*T+8; const boi=npcs.find(n=>n.segue); boi.x=p.x; boi.y=p.y-14;
       inimigos=inimigos.filter(c=>c.tipo==='batatao' && c.y>19*T); chefe.active=true; setStage(3);

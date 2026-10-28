@@ -185,15 +185,7 @@ function atualizaMula(m,dt,hp,wb){
   }
   const cx=CHEFES.mula.caixa(m);
   if(m.state!=='stun' && overlap(hp,cx)) hurt(1,m.x,m.y);
-  if(wb && m.lastSwing!==p.swing && overlap(wb,cx)){
-    m.lastSwing=p.swing;
-    if(m.state==='stun'){
-      m.hp=Math.max(0,m.hp-heroi.dano); m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08; burst(m.x,m.y-8,'#ffd23a',6,50); updateHud();
-      if(m.hp<=0){ chefeVencido(); }
-      else if(!m.furia && m.hp<=m.max/2){ m.furia=true; toast(t('toast.mulaFuria'),3.4); }
-    }
-    else { sfx.clink(); burst(m.x,m.y-8,'#9aa0a8',4,40); }
-  }
+  if(wb && m.lastSwing!==p.swing && overlap(wb,cx)){ m.lastSwing=p.swing; acertarChefe(m,heroi.dano); }
 }
 function anelDeFogo(m){
   const n=m.hp<=1?12:8, a0=Math.random()*Math.PI;
@@ -259,11 +251,7 @@ function atualizaCaboclo(c,dt,hp,wb){
   const cx=CHEFES.caboclo.caixa(c);
   if(c.estado!=='fora') return;
   if(overlap(hp,cx)) hurt(1,c.x,c.y);
-  if(wb && c.lastSwing!==p.swing && overlap(wb,cx)){
-    c.lastSwing=p.swing; c.hp=Math.max(0,c.hp-heroi.dano); c.flash=.2; sfx.hit(); freeze=.08; shake=Math.max(shake,.1);
-    burst(c.x,c.y-12,'#cfe7f2',8,50); updateHud();
-    if(c.hp<=0){ chefeVencido(); } else { c.estado='desce'; c.t=.25; }
-  }
+  if(wb && c.lastSwing!==p.swing && overlap(wb,cx)){ c.lastSwing=p.swing; acertarChefe(c,heroi.dano); }
 }
 function drawCaboclo(c){
   const x=Math.round(c.x), y=Math.round(c.y+4);
@@ -287,11 +275,26 @@ function drawCaboclo(c){
 const CHEFES={
   mula:{get nome(){ return t('chefe.mula'); },
     criar:()=>({tipo:'mula', x:24*T+8, y:5*T+8, w:22, h:10, hp:6, max:6, state:'idle', t:1.5, dir:-1, vx:0, vy:0, fireT:0, flash:0, anim:0, active:false, dead:false, lastSwing:-1, furia:false}),
-    caixa:m=>({x:m.x,y:m.y-5,w:24,h:14}), update:atualizaMula, draw:drawMula, visivel:m=>!m.dead},
+    caixa:m=>({x:m.x,y:m.y-5,w:24,h:14}), update:atualizaMula, draw:drawMula, visivel:m=>!m.dead,
+    vulneravel:m=>m.state==='stun',                                          // só apanha tonta, depois de bater na pedra
+    ferir(m){ burst(m.x,m.y-8,'#ffd23a',6,50); if(m.hp>0 && !m.furia && m.hp<=m.max/2){ m.furia=true; toast(t('toast.mulaFuria'),3.4); } },
+    resiste(m){ sfx.clink(); burst(m.x,m.y-8,'#9aa0a8',4,40); }},
   caboclo:{get nome(){ return t('chefe.caboclo'); },
     criar:def=>{ const spots=pocos(def.zona), s=spots[0]; return {tipo:'caboclo', x:s.x, y:s.y, w:14, h:8, hp:4, max:4, estado:'fundo', t:1, alvo:null, spots, active:false, dead:false, lastSwing:-1, flash:0, anim:0, tiros:0, braco:0, face:1}; },
-    caixa:c=>({x:c.x,y:c.y-8,w:16,h:18}), update:atualizaCaboclo, draw:drawCaboclo, visivel:c=>c.active&&!c.dead},
+    caixa:c=>({x:c.x,y:c.y-8,w:16,h:18}), update:atualizaCaboclo, draw:drawCaboclo, visivel:c=>c.active&&!c.dead,
+    vulneravel:c=>c.estado==='fora',                                        // só apanha fora d'água
+    ferir(c){ burst(c.x,c.y-12,'#cfe7f2',8,50); if(c.hp>0){ c.estado='desce'; c.t=.25; } },
+    resiste(c){ sfx.agua(); burst(c.x,c.y,'#cfe7f2',4,30); }},
 };
+// qualquer golpe no chefe (chicote ou pedra da baladeira) passa por aqui: cada chefe só apanha na hora certa
+function acertarChefe(m,dano){
+  const C=CHEFES[m.tipo];
+  if(!C.vulneravel(m)){ C.resiste(m); return false; }
+  m.hp=Math.max(0,m.hp-dano); m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08;
+  C.ferir(m); updateHud();
+  if(m.hp<=0) chefeVencido();
+  return true;
+}
 const criarChefe=def=>{ const c=CHEFES[def.tipo].criar(def); c.hp=c.max=Math.max(2,Math.round(c.max*dif().chefe)); return c; };
 
 /* ---------- ITENS, FOGO E TIROS ---------- */
@@ -397,7 +400,7 @@ function atualizaLobisomem(m,dt,hp,wb){
   if(!m.active||m.dead) return;
   const dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy)||1, v=dif().vel, z=m.zona;
   const mover=(vx,vy)=>{ const hit=moveEnt(m,vx*dt,vy*dt); m.x=clamp(m.x,z[0],z[2]); m.y=clamp(m.y,z[1],z[3]); return hit; };
-  const fogo=fogueirasAcesas().find(f=>Math.hypot(f.x-m.x,f.y-m.y)<46);
+  const fogo=fogosNoChao().find(f=>Math.hypot(f.x-m.x,f.y-m.y)<46);     // fogueira acesa ou tição jogado no chão
   if(fogo && m.estado!=='medo' && m.cdMedo<=0){
     m.estado='medo'; m.t=2.3; m.fx=fogo.x; m.fy=fogo.y; sfx.uivo(true); burst(m.x,m.y-12,'#ffd23a',8,40);
   }
@@ -422,14 +425,7 @@ function atualizaLobisomem(m,dt,hp,wb){
   }
   const cx=CHEFES.lobisomem.caixa(m);
   if(m.estado!=='medo' && overlap(hp,cx)) hurt(1,m.x,m.y);
-  if(wb && m.lastSwing!==p.swing && overlap(wb,cx)){
-    m.lastSwing=p.swing;
-    if(m.estado==='medo'){
-      m.hp=Math.max(0,m.hp-heroi.dano); m.flash=.2; sfx.hit(); shake=Math.max(shake,.1); freeze=.08; burst(m.x,m.y-12,'#9a8e9a',8,50); updateHud();
-      if(m.hp<=0){ chefeVencido(); }
-      else if(!m.furia && m.hp<=m.max/2){ m.furia=true; toast(t('toast.lobisomemFuria'),3.4); }
-    } else { sfx.clink(); burst(m.x,m.y-12,'#5a5056',4,40); }
-  }
+  if(wb && m.lastSwing!==p.swing && overlap(wb,cx)){ m.lastSwing=p.swing; acertarChefe(m,heroi.dano); }
 }
 function drawLobisomem(m){
   const x=Math.round(m.x), y=Math.round(m.y+m.h/2), F=flip(x,y,m.face), medo=m.estado==='medo', lf=m.estado==='bote'||m.estado==='ronda'?Math.floor(m.anim*10)%2:0;
@@ -452,4 +448,7 @@ function drawLobisomem(m){
 CHEFES.lobisomem={get nome(){ return t('chefe.lobisomem'); },
   criar:def=>{ const q=nearestFree(def.x,def.y); return {tipo:'lobisomem', x:q.x, y:q.y, w:14, h:8, hp:5, max:5, estado:'ronda', t:1, vx:0, vy:0, face:1, anim:0, flash:0,
     active:false, dead:false, lastSwing:-1, furia:false, zona:[def.zona[0]*T+8,def.zona[1]*T+8,def.zona[2]*T+8,def.zona[3]*T+8], zonaTiles:def.zona}; },
-  caixa:m=>({x:m.x,y:m.y-10,w:16,h:20}), update:atualizaLobisomem, draw:drawLobisomem, visivel:m=>!m.dead && m.active};
+  caixa:m=>({x:m.x,y:m.y-10,w:16,h:20}), update:atualizaLobisomem, draw:drawLobisomem, visivel:m=>!m.dead && m.active,
+  vulneravel:m=>m.estado==='medo',                                         // só apanha com medo do fogo
+  ferir(m){ burst(m.x,m.y-12,'#9a8e9a',8,50); if(m.hp>0 && !m.furia && m.hp<=m.max/2){ m.furia=true; toast(t('toast.lobisomemFuria'),3.4); } },
+  resiste(m){ sfx.clink(); burst(m.x,m.y-12,'#5a5056',4,40); }};

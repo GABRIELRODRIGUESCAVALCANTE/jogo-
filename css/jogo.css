@@ -76,7 +76,8 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:320/208;image-rendering
 
 .controles{display:none;justify-content:space-between;align-items:center;gap:12px;touch-action:none;user-select:none;-webkit-user-select:none}
 .dpad{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:4px}
-.acoes{display:flex;gap:14px;align-items:center}
+.acoes{display:grid;grid-template-columns:repeat(2,auto);gap:10px 14px;align-items:end;justify-items:center}
+.acoes .tecla.falar,.acoes .tecla.chicote{grid-row:2}
 .tecla{background:var(--couro-2);color:var(--papel);border:2px solid var(--poeira);font-family:var(--body);font-weight:800;font-size:20px;touch-action:none;cursor:pointer}
 .tecla:active,.tecla.on{background:var(--sol);color:var(--tinta)}
 .tecla.up{grid-column:2;grid-row:1}.tecla.left{grid-column:1;grid-row:2}.tecla.right{grid-column:3;grid-row:2}.tecla.down{grid-column:2;grid-row:3}
@@ -315,3 +316,4 @@ body.texto-grande{font-size:18px}
 .pagina.oculta{box-shadow:5px 5px 0 #5a4636}
 .pagina.oculta canvas{filter:sepia(.4) brightness(.92)}
 .pagina.oculta h3{color:#7a6a58}
+.acoes .tecla.tiro{grid-row:1;grid-column:2;width:62px;height:62px;background:#6b4423;color:var(--papel);border-color:var(--papel);font-size:13px}   /* em cima do chicote */

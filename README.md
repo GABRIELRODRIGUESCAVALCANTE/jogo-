@@ -16,6 +16,7 @@ Abra o `index.html` em qualquer navegador. Não precisa instalar nada.
 |---|---|---|---|
 | Andar | Setas ou WASD | Direcional na tela (deslize o dedo; aceita diagonais) | Analógico ou direcional |
 | Chicote | Espaço (ou J/Z) | Botão "Chicote" | A ou X |
+| Arremessar (baladeira ou tição) | Q (ou L/C) | Botão "Baladeira" / "Tição" | LB, RB ou gatilhos |
 | Falar / avançar diálogo | E (ou Enter) | Botão "Falar" | B ou Y |
 | Pausar | Esc ou P | Botão "Pausar" | Start |
 
@@ -37,6 +38,15 @@ Quando o jogo está ligado a um servidor (veja [Contas online](#contas-online)),
 | **Rosa**, a rezadeira | 3 | Corpo fechado: brasa e rastro de fogo não a queimam. Liberada ao vencer a Serra do Fogo |
 
 Troque de personagem a qualquer momento em **Personagem**, no menu do jogador. Ali também ficam os **chapéus** (palha, vermelho, estrelado, de festa) e **chicotes** (trançado, prata, dourado, de fogo) liberados pelas conquistas.
+
+## Armas
+
+- **Chicote**: a arma de todo mundo. Cada personagem tem o seu alcance, ritmo e força (o do Tião tira 2).
+- **Gibão de couro**: o Vô Chico dá logo no começo da fase 1. Segura o primeiro golpe de cada luta com chefe.
+- **Baladeira**: o barqueiro Bené dá na fase 2. Atira pedrinhas de longe, ótima contra o Caboclo d'água, que fica no meio do poço.
+- **Tição**: na Noite de São João, com o tição da Fulozinha, dá para jogar até 3. O tição queima no chão e o Lobisomem foge dele como de uma fogueira, e aí pode apanhar. Encostar numa fogueira acesa acende os tições de novo.
+
+Os chefes só sentem o golpe na hora certa, seja de chicote ou de pedra: o Caboclo quando sobe da água, a Mula quando fica tonta depois de bater numa pedra e o Lobisomem quando está com medo do fogo.
 
 ## Fases
 
@@ -172,6 +182,7 @@ js/entidades.js       NPCs, inimigos, chefes, itens e tiros
 js/fases.js           cordéis, mapas e a lógica de cada fase
 js/jogo.js            estado da partida, dificuldade, atualização e desenho do jogo
 js/fantasma.js        grava o caminho do recorde e desenha o fantasma
+js/armas.js           baladeira, tição para arremessar e gibão de couro
 js/conquistas.js      conquistas, chapéus e chicotes
 js/ranking.js         ranking do aparelho e mundial
 js/telas.js           HUD, diálogos, controles, menus, jogadores e opções

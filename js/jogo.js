@@ -27,7 +27,7 @@ function iniciarFase(id){
     .filter(it=>!(it.type==='cordel' && perfil.cordeis.includes(it.id)));
   chefe=fase.chefe?criarChefe(fase.chefe):null;
   if(fase.inicio) fase.inicio();
-  fires=[]; balls=[]; parts=[]; time=0; shake=0; freeze=0; autoT=3; avisoT=0;
+  fires=[]; balls=[]; parts=[]; pedras=[]; recargaTiro=0; time=0; shake=0; freeze=0; autoT=3; avisoT=0;
   updateHud();
 }
 
@@ -55,6 +55,7 @@ const hurtP=()=>({x:p.x,y:p.y-5,w:9,h:13});
 function burst(x,y,col,n=8,sp=50){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=sp*(0.4+Math.random()); parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-10,t:0.4+Math.random()*0.3,col}); } }
 function hurt(n,fx,fy){
   if(p.inv>0||S0.won) return;
+  if(gibaoSegura(fx,fy)) return;
   S0.hp-=n; p.inv=dif().invul; const dx=p.x-fx, dy=p.y-fy, d=Math.hypot(dx,dy)||1;
   p.kx=dx/d*170; p.ky=dy/d*170; shake=Math.max(shake,.15); freeze=Math.max(freeze,.05); sfx.hurt(); aoLevarDano(); updateHud();
   if(prefs.vibrar!==false && navigator.vibrate) navigator.vibrate(70);
@@ -64,7 +65,7 @@ function chefeVencido(){ aoVencerChefe(); if(desafio){ chefe.dead=true; etapaVen
 function respawn(){
   const sp=fase.retornar ? fase.retornar() : nearestFree(fase.spawn[0],fase.spawn[1]);
   S0.hp=S0.maxHp; p.x=sp.x; p.y=sp.y; p.inv=1; p.kx=p.ky=0; p.whipT=0; p.lama=0;
-  fires=[]; balls=[]; S0.danoChefe=0;
+  fires=[]; balls=[]; pedras=[]; S0.danoChefe=0; S0.gibaoUsado=false;
   if(chefe && !chefe.dead){ const keep=chefe.lastSwing; chefe=criarChefe(fase.chefe); chefe.lastSwing=keep; }
   updateHud(); salvarPartida();
 }
@@ -174,6 +175,7 @@ function update(dt){
     if(n.type==='boi' && !n.segue && Math.hypot(n.x-p.x,n.y-p.y)<20) fase.falar(n);
   }
   if(chefe) CHEFES[chefe.tipo].update(chefe,dt,hp,wb);
+  atualizarArmas(dt,hp);
 
   for(const f of fires){ f.t-=dt; if(f.t>0.3 && !heroi.imuneFogo && overlap(hp,{x:f.x,y:f.y,w:8,h:6})) hurt(1,f.x,f.y); }
   fires=fires.filter(f=>f.t>0);
@@ -255,6 +257,7 @@ function desenharNoite(cx,cy){
   for(const c of inimigos) if(!c.dead && c.tipo==='batatao') luzes.push([c.x,c.y-10,38,.85]);
   for(const b of balls) luzes.push([b.x,b.y,22,.7]);
   if(fase.luzes) luzes.push(...fase.luzes());
+  luzes.push(...luzesDasArmas());
   for(const [x,y,r,forca] of luzes){
     const gx=x-cx, gy=y-cy; if(gx<-r||gy<-r||gx>VW+r||gy>VH+r) continue;
     const g=eg.createRadialGradient(gx,gy,0,gx,gy,r);
@@ -296,6 +299,7 @@ function render(){
   list.push([p.y,drawJogador]);
   list.sort((a,b)=>a[0]-b[0]); for(const [,fn] of list) fn();
   for(const b of balls) drawBall(b);
+  drawArmas();
   for(const q of parts){ S(q.col,q.x,q.y,q.t>0.25?2:1,q.t>0.25?2:1); }
   if(fase.decorarAlto) fase.decorarAlto();
   ctx.restore();

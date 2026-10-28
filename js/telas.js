@@ -12,7 +12,8 @@ function updateHud(){
   elVida.innerHTML=h; elVida.setAttribute('aria-label',t('hud.vida',{n:S0.hp,t:S0.maxHp}));
   elObj.textContent=desafio ? t('des.obj',{n:desafio.etapa+1, t:ETAPAS_DESAFIO.length, nome:ETAPAS_DESAFIO[desafio.etapa].nome()}) : fase.objetivo(S0)||'';
   const n=desafio?0:achados(fase);
-  elBolsa.innerHTML=(desafio?[]:fase.bolsa(S0)).concat(n?[t('hud.cordeis',{n,t:cordeisDaFase(fase).length})]:[]).map(t=>`<span>${t}</span>`).join('');
+  elBolsa.innerHTML=(desafio?[]:fase.bolsa(S0)).concat(bolsaDasArmas(),n?[t('hud.cordeis',{n,t:cordeisDaFase(fase).length})]:[]).map(t=>`<span>${t}</span>`).join('');
+  const arma=armaDeArremesso(), bt=$('btnTiro'); bt.hidden=!arma; if(arma) bt.textContent=t('ctrl.'+arma);
   const on=!!chefe && chefe.active && !chefe.dead; elChefe.hidden=!on;
   if(on){
     elChefeNome.textContent=CHEFES[chefe.tipo].nome;
@@ -105,7 +106,7 @@ let padAntes={};
 function readPad(){
   let gp=null; if(navigator.getGamepads) for(const g of navigator.getGamepads()) if(g&&g.connected){ gp=g; break; }
   const b=i=>!!(gp&&gp.buttons[i]&&gp.buttons[i].pressed), ax=gp?gp.axes[0]||0:0, ay=gp?gp.axes[1]||0:0;
-  const st={left:ax<-.45||b(14), right:ax>.45||b(15), up:ay<-.45||b(12), down:ay>.45||b(13), whip:b(0)||b(2), talk:b(1)||b(3), pause:b(9)};
+  const st={left:ax<-.45||b(14), right:ax>.45||b(15), up:ay<-.45||b(12), down:ay>.45||b(13), whip:b(0)||b(2), talk:b(1)||b(3), tiro:b(4)||b(5)||b(6)||b(7), pause:b(9)};
   const jogo=telaAtual==='telaJogo';
   for(const k in st){
     if(st[k] && !padAntes[k]){
@@ -159,6 +160,7 @@ function carregarPerfis(){
     pf.fases=pf.fases||{}; pf.cordeis=Array.isArray(pf.cordeis)?pf.cordeis:[];
     if(!DIFICULDADES[pf.dificuldade]) pf.dificuldade='normal';
     if(!PERSONAGENS[pf.personagem] || !liberado(pf.personagem,pf)) pf.personagem='ze';
+    armasDeQuemJaJogou(pf);
   }
 }
 function salvarPerfis(semSync){ store.set(K_PERFIS,{v:1, lista:perfis.lista, ultimo:perfis.ultimo}); if(!semSync) agendarSync(); }
@@ -412,9 +414,9 @@ muted=prefs.efeitos===false; mus.on=prefs.musica!==false;
 function salvarPrefs(){ Object.assign(prefs,{efeitos:!muted, musica:mus.on, idioma}); store.set(K_PREF,prefs); }
 
 /* ---------- OPÇÕES ---------- */
-const ACOES=['up','down','left','right','whip','talk','pause'];
+const ACOES=['up','down','left','right','whip','tiro','talk','pause'];
 const TECLAS_PADRAO={up:['ArrowUp','KeyW'], down:['ArrowDown','KeyS'], left:['ArrowLeft','KeyA'], right:['ArrowRight','KeyD'],
-  whip:['Space','KeyJ','KeyZ'], talk:['KeyE','Enter','KeyK','KeyX'], pause:['Escape','KeyP']};
+  whip:['Space','KeyJ','KeyZ'], tiro:['KeyQ','KeyL','KeyC'], talk:['KeyE','Enter','KeyK','KeyX'], pause:['Escape','KeyP']};
 let TECLAS={}, ouvindo=null, origemOpcoes='telaPerfis';
 const nomeTecla=c=>({ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',Escape:'Esc',Space:t('tecla.espaco'),Enter:'Enter'})[c] || c.replace(/^(Key|Digit|Numpad)/,'');
 // a tecla escolhida vem primeiro; as padrão continuam valendo se nenhuma outra ação tomou o lugar delas
@@ -429,7 +431,7 @@ function atualizarLegenda(){
   for(const x of leg.querySelectorAll('.leg-tecla')) x.remove();
   const anda=i=>{ const ordem=i?['up','left','down','right']:['up','down','left','right'];   // ↑↓←→ e WASD
     return ordem.every(a=>TECLAS[a][i]) ? ordem.map(a=>nomeTecla(TECLAS[a][i])).join('') : ''; };
-  const itens=[[[anda(0),anda(1)].filter(Boolean),'leg.andar'],[[nomeTecla(TECLAS.whip[0])],'leg.chicote'],[[nomeTecla(TECLAS.talk[0])],'leg.falar'],[[nomeTecla(TECLAS.pause[0])],'leg.pausar']];
+  const itens=[[[anda(0),anda(1)].filter(Boolean),'leg.andar'],[[nomeTecla(TECLAS.whip[0])],'leg.chicote'],[[nomeTecla(TECLAS.tiro[0])],'leg.tiro'],[[nomeTecla(TECLAS.talk[0])],'leg.falar'],[[nomeTecla(TECLAS.pause[0])],'leg.pausar']];
   for(const [teclas,k] of itens){
     const sp=el('span','so-teclado leg-tecla');
     teclas.forEach((n,i)=>{ if(i) sp.append(t('ou')+' '); sp.append(el('kbd','',n)); });

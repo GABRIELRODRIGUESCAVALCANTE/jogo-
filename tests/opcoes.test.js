@@ -9,7 +9,7 @@ after(async()=>{ await A.fim(); });
 
 test('trocar a tecla do chicote vale no jogo e aparece na legenda', async()=>{
   await J.page.click('#btnOpcoes'); assert.equal(await J.ev(()=>telaAtual), 'telaOpcoes');
-  const linhas=await J.page.locator('#listaTeclas button').count(); assert.equal(linhas, 7);
+  const linhas=await J.page.locator('#listaTeclas button').count(); assert.equal(linhas, 8);
   await J.page.click('#listaTeclas button >> nth=4');           // chicote
   await J.page.keyboard.press('KeyF');
   assert.equal(await J.ev(()=>KEYMAP.KeyF), 'whip');

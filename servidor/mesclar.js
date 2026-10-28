@@ -26,6 +26,8 @@ function mesclarProgresso(novo, velho){
   r.estat = maiorDeCada(novo.estat, velho.estat);
   r.bonusVida = Math.max(novo.bonusVida||0, velho.bonusVida||0);
   r.fim = !!(novo.fim || velho.fim);
+  r.armas = Object.assign({}, velho.armas, novo.armas);   // armas ganhas não se perdem
+  for(const k of Object.keys(r.armas)) r.armas[k] = !!((velho.armas||{})[k] || (novo.armas||{})[k]);
   const dn = (novo.desafio||{}).tempos||{}, dv = (velho.desafio||{}).tempos||{}, desafio = {};
   for(const [d,v] of [...Object.entries(dv), ...Object.entries(dn)]) if(v>0 && !(desafio[d]<=v)) desafio[d] = v;
   if(Object.keys(desafio).length) r.desafio = { tempos:desafio };
