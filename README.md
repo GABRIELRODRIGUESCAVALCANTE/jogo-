@@ -1,5 +1,9 @@
 # Estrela do Sertão
 
+<p align="center"><img src="docs/demo.gif" width="520" alt="O jogo rodando: a Luzia atravessa a caatinga, o Velho Chico, enfrenta a Mula sem Cabeça na Serra do Fogo e leva o Boi Estrela pela Noite de São João"></p>
+
+<p align="center"><a href="https://gabrielrodriguescavalcante.github.io/jogo-/"><b>▶ Jogar agora</b></a> · no navegador, no computador ou no celular, sem instalar nada</p>
+
 Jogo de aventura em pixel art ambientado no sertão nordestino. O Boi Estrela fugiu na lua cheia: escolha seu vaqueiro ou sua vaqueira e atravesse a caatinga, o Velho Chico, a Serra do Fogo e a noite de São João, encontrando criaturas do folclore brasileiro pelo caminho.
 
 Funciona no computador e no celular, em português, inglês e espanhol, e pode ser instalado como aplicativo para jogar sem internet.
@@ -129,6 +133,16 @@ As rotas de conta e progresso usam `Authorization: Bearer <token>`. Criar conta 
 
 Não é à prova de tudo (alguém pode esperar o tempo certo e mandar o número), mas acaba com o "terminei em meio segundo". Por isso, só entram no ranking mundial as fases começadas com a conta ligada e com internet; as outras continuam no ranking do aparelho.
 
+## Por baixo do capô
+
+- **Nenhuma imagem e nenhum arquivo de som.** Personagens, criaturas, terrenos e as cenas em xilogravura são desenhados pixel a pixel com a Canvas API. Os efeitos e as músicas (baião, xote, forró de festa e o tema dos chefes, com zabumba, triângulo, baixo, sanfona e o chocalho do boi) são sintetizados na hora com a Web Audio API, e a música muda de ritmo conforme a partida. Até os ícones do aplicativo saem de um script (`scripts/gerar-icones.js`).
+- **Sem etapa de build.** HTML, CSS e JavaScript puros: dá para abrir o `index.html` com dois cliques.
+- **Mapas provados por teste.** Os mapas são texto. A cada push, o GitHub Actions procura um caminho até cada item, personagem e saída, e recalcula o menor caminho possível de cada fase, que é o tempo mínimo aceito pelo ranking mundial.
+- **O jogo inteiro passa pelos testes.** Com Playwright, um navegador sem janela percorre as quatro fases do começo ao fim (fala com cada personagem, pega os itens, vence os chefes), troca de idioma, de teclas e de dificuldade, abre o jogo sem internet e conversa com uma API simulada das contas.
+- **Servidor pequeno e direto.** A API das contas usa só o módulo `http` do Node e o PostgreSQL, sem framework, com senhas em scrypt, tokens assinados e testes contra um banco de verdade.
+
+<p align="center"><img src="docs/cordel.png" width="420" alt="Cena de cordel em xilogravura: o boi, a fogueira e o Lobisomem uivando no alto da duna"></p>
+
 ## Tecnologia
 
 HTML, CSS e JavaScript puros, com Canvas 2D. Os sprites são desenhados em pixel art via código, e os efeitos sonoros e as trilhas (baião, xote, forró de festa e o tema dos chefes) são gerados com Web Audio. Não há etapa de build.
@@ -155,7 +169,8 @@ js/online.js          contas online, sincronização e ranking mundial
 js/inicio.js          abre a primeira tela
 servidor/             API das contas online (Node.js + PostgreSQL)
 tests/                testes do jogo no navegador
-scripts/              gerador dos ícones
+scripts/              geradores dos ícones e do GIF do README (gravar-demo.js)
+docs/                 GIF e imagens do README
 ```
 
 Os scripts são carregados em ordem pelo `index.html` e compartilham o escopo global da página. Todo texto visível passa por `t('chave')`, com as traduções em `js/idiomas.js`.
