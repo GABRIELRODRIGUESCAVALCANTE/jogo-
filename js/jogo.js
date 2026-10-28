@@ -122,7 +122,7 @@ function update(dt){
     return;
   }
   if(freeze>0){ freeze-=dt; return; }
-  time+=dt; shake=Math.max(0,shake-dt); avisoT=Math.max(0,avisoT-dt);
+  time+=dt; shake=Math.max(0,shake-dt); avisoT=Math.max(0,avisoT-dt); anotarRastro();
   autoT-=dt; if(autoT<=0){ autoT=3; salvarPartida(); }
 
   // jogador
@@ -290,6 +290,7 @@ function render(){
   for(const c of inimigos) if(!c.dead) list.push([c.y,desenha(()=>INIM[c.tipo].draw(c))]);
   for(const n of npcs) list.push([n.y,()=>NPC_DRAW[n.type](n)]);
   if(chefe && CHEFES[chefe.tipo].visivel(chefe)) list.push([chefe.y,desenha(()=>CHEFES[chefe.tipo].draw(chefe))]);
+  const fg=posFantasma(); if(fg) list.push([fg.y,()=>drawFantasma(fg)]);
   list.push([p.y,drawJogador]);
   list.sort((a,b)=>a[0]-b[0]); for(const [,fn] of list) fn();
   for(const b of balls) drawBall(b);

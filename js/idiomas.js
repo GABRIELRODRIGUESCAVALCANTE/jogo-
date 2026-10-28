@@ -12,6 +12,7 @@ let idioma='pt';
 const TEXTOS={
 pt:{
   'cena.aria':'Ilustração em xilogravura', 'cena.seguir':'Continuar', 'op.cenas':'Mostrar as cenas de cordel entre as fases',
+  'op.fantasma':'Correr com o fantasma do meu melhor tempo',
   'cena.1.t':'O boi que fugiu na lua cheia', 'cena.1':['Foi numa noite de lua','que o Estrela se soltou,','arrebentou a cerca velha','e pra serra disparou.'],
   'cena.2.t':'A travessia do Velho Chico', 'cena.2':['Depois da mata e do espinho','vem o rio a atravessar,','mas a ponte tá quebrada','e o Caboclo a vigiar.'],
   'cena.3.t':'A Serra do Fogo', 'cena.3':['Lá no alto da serra','onde a pedra pega fogo,','a Mula sem Cabeça','guarda o boi no seu jogo.'],
@@ -206,6 +207,7 @@ pt:{
 
 en:{
   'cena.aria':'Woodcut illustration', 'cena.seguir':'Continue', 'op.cenas':'Show the cordel scenes between levels',
+  'op.fantasma':'Race against the ghost of my best time',
   'cena.1.t':'The ox that fled under the full moon', 'cena.1':['It was on a moonlit night','that Estrela broke away,','smashed right through the old fence','and ran off to the ridge that day.'],
   'cena.2.t':'Crossing the Old Chico', 'cena.2':['Past the woods and through the thorns','lies a river wide to cross,','but the bridge is torn to pieces','and the Caboclo is the boss.'],
   'cena.3.t':'Fire Ridge', 'cena.3':['High upon the burning ridge','where the very stones catch fire,','the Headless Mule is guarding','the ox beside her pyre.'],
@@ -400,6 +402,7 @@ en:{
 
 es:{
   'cena.aria':'Ilustración en xilografía', 'cena.seguir':'Continuar', 'op.cenas':'Mostrar las escenas de cordel entre los niveles',
+  'op.fantasma':'Correr con el fantasma de mi mejor tiempo',
   'cena.1.t':'El buey que huyó en luna llena', 'cena.1':['Fue en una noche de luna','que Estrella se escapó,','rompió la cerca vieja','y a la sierra disparó.'],
   'cena.2.t':'La travesía del Viejo Chico', 'cena.2':['Pasando el monte y la espina','hay un río que cruzar,','pero el puente está roto','y el Caboclo a vigilar.'],
   'cena.3.t':'La Sierra del Fuego', 'cena.3':['Allá arriba en la sierra','donde la piedra es tizón,','la Mula sin Cabeza','guarda al buey en su rincón.'],

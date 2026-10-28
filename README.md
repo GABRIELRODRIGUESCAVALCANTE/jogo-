@@ -57,6 +57,7 @@ No menu do jogador, o **Almanaque** guarda uma página em xilogravura para cada 
 
 - **Dificuldade**: Fácil (mais corações, inimigos mais lentos), Normal e Difícil (menos corações, inimigos mais rápidos e chefes mais fortes). Muda a qualquer hora no menu do jogador; cada dificuldade tem seus próprios recordes.
 - **Conquistas**: 15, uma delas secreta. Algumas liberam chapéus e chicotes.
+- **Fantasma do melhor tempo**: quando você bate o seu recorde numa fase, o caminho fica gravado. Na próxima tentativa, uma silhueta clara corre junto, no ritmo do recorde, para você ver onde está ganhando ou perdendo tempo. Desliga nas Opções.
 - **Ranking**: os melhores tempos por fase e da jornada inteira, por dificuldade. A aba **Neste aparelho** compara os jogadores locais; a aba **Mundial** aparece com as contas online.
 
 ## Opções e acessibilidade
@@ -165,6 +166,7 @@ js/terreno.js         legenda dos tiles, colisão, efeitos de terreno e desenho 
 js/entidades.js       NPCs, inimigos, chefes, itens e tiros
 js/fases.js           cordéis, mapas e a lógica de cada fase
 js/jogo.js            estado da partida, dificuldade, atualização e desenho do jogo
+js/fantasma.js        grava o caminho do recorde e desenha o fantasma
 js/conquistas.js      conquistas, chapéus e chicotes
 js/ranking.js         ranking do aparelho e mundial
 js/telas.js           HUD, diálogos, controles, menus, jogadores e opções

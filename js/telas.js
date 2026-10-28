@@ -167,7 +167,7 @@ function novoPerfil(nome,pers,dificuldade='normal'){
   perfis.lista.push(pf); salvarPerfis(); return pf;
 }
 function apagarPerfil(id){
-  perfis.lista=perfis.lista.filter(x=>x.id!==id); store.del(K_PARTIDA+id);
+  perfis.lista=perfis.lista.filter(x=>x.id!==id); store.del(K_PARTIDA+id); apagarFantasmas(id);
   if(perfis.ultimo===id) perfis.ultimo=null;
   if(perfil && perfil.id===id) perfil=null;
   if(sessoes[id]){ delete sessoes[id]; salvarSessoes(); }   // a conta online continua existindo; só deixa de estar ligada aqui
@@ -328,7 +328,7 @@ function fecharOverlays(){ for(const id of ['ovTitulo','ovPausa','ovDesmaio','ov
 // antes de cada fase, a cena de cordel (se estiver ligada nas Opções)
 function jogarFase(id){
   store.del(K_PARTIDA+perfil.id);
-  iniciarFase(id); fecharOverlays(); running=false; paused=false;
+  iniciarFase(id); prepararFantasma(); fecharOverlays(); running=false; paused=false;
   mostrarCena(id,()=>abrirTitulo(id));
 }
 function abrirTitulo(id){
@@ -338,7 +338,7 @@ function abrirTitulo(id){
 }
 $('btnComecarFase').addEventListener('click',()=>{ initAudio(); $('ovTitulo').hidden=true; running=true; held.clear(); registrarPartida(); say(fase.intro()); });
 function continuar(d){
-  try{ carregarPartida(d); }catch(e){ jogarFase(d.fase); return; }
+  try{ carregarPartida(d); prepararFantasma(); }catch(e){ jogarFase(d.fase); return; }
   fecharOverlays(); paused=false; mostrar('telaJogo'); running=true;
   toast(t('partida.retomada'));
 }
@@ -369,7 +369,7 @@ function concluirFase(){
   running=false; S0.won=true; sfx.win(); elToast.hidden=true; toastT=0;
   const d=perfil.dificuldade||'normal', antigo=recorde(perfil,fase.id,d), novo=!(antigo>0) || time<antigo, ultima=fase.id===FASES.length, primeiraVez=fase.id===3 && !liberado('rosa',perfil);   // a Rosa é liberada ao vencer a Serra do Fogo
   const reg=perfil.fases[fase.id]||{}, tempos=Object.assign({}, reg.tempos, reg.tempo>0 && !(reg.tempos||{}).normal ? {normal:reg.tempo} : {});
-  if(novo) tempos[d]=time;
+  if(novo){ tempos[d]=time; guardarFantasma(d); }
   perfil.fases[fase.id]={feita:true, tempos};
   if(ultima) perfil.fim=true;
   perfis.ultimo=perfil.id; salvarPerfis(); store.del(K_PARTIDA+perfil.id);
@@ -459,6 +459,7 @@ function aplicarOpcoes(){
   document.body.classList.toggle('contraste',!!prefs.contraste);
   const mudouContraste=contraste!==!!prefs.contraste;
   contraste=!!prefs.contraste; mostrarSeta=prefs.seta!==false;
+  if(prefs.fantasma===false) fantasma=null;
   calm=prefs.calmo!=null ? !!prefs.calmo : matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.body.classList.toggle('calmo',calm);
   volMusica=(prefs.volMusica!=null?prefs.volMusica:100)/100; volEfeitos=(prefs.volEfeitos!=null?prefs.volEfeitos:100)/100; aplicarVolume();
@@ -472,7 +473,7 @@ function abrirOpcoes(){
   $('opVolMusica').value=Math.round(volMusica*100); $('opVolEfeitos').value=Math.round(volEfeitos*100);
   $('opVolMusicaV').textContent=$('opVolMusica').value+'%'; $('opVolEfeitosV').textContent=$('opVolEfeitos').value+'%';
   $('opTexto').checked=!!prefs.textoGrande; $('opContraste').checked=!!prefs.contraste; $('opCalmo').checked=calm;
-  $('opSeta').checked=mostrarSeta; $('opVibrar').checked=prefs.vibrar!==false; $('opCenas').checked=prefs.cenas!==false; $('opIdioma').value=idioma;
+  $('opSeta').checked=mostrarSeta; $('opVibrar').checked=prefs.vibrar!==false; $('opCenas').checked=prefs.cenas!==false; $('opFantasma').checked=prefs.fantasma!==false; $('opIdioma').value=idioma;
   renderTeclas(); mostrar('telaOpcoes');
 }
 function voltarDeOpcoes(){
@@ -482,7 +483,7 @@ function voltarDeOpcoes(){
 }
 for(const [id,chave] of [['opVolMusica','volMusica'],['opVolEfeitos','volEfeitos']])
   $(id).addEventListener('input',()=>{ prefs[chave]=+$(id).value; $(id+'V').textContent=$(id).value+'%'; salvarPrefs(); aplicarOpcoes(); if(chave==='volEfeitos') sfx.clique(); });
-for(const [id,chave] of [['opTexto','textoGrande'],['opContraste','contraste'],['opCalmo','calmo'],['opSeta','seta'],['opVibrar','vibrar'],['opCenas','cenas']])
+for(const [id,chave] of [['opTexto','textoGrande'],['opContraste','contraste'],['opCalmo','calmo'],['opSeta','seta'],['opVibrar','vibrar'],['opCenas','cenas'],['opFantasma','fantasma']])
   $(id).addEventListener('change',()=>{ prefs[chave]=$(id).checked; salvarPrefs(); aplicarOpcoes(); });
 $('btnTeclasPadrao').addEventListener('click',()=>{ prefs.teclas={}; ouvindo=null; salvarPrefs(); montarTeclas(); renderTeclas(); });
 $('btnOpcoes').addEventListener('click',abrirOpcoes);
