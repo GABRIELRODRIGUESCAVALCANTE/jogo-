@@ -52,7 +52,7 @@ function aoVencerInimigo(){
   if(fase.id===1 && S0.kills>=8) conquistar('pastor');
 }
 function aoLevarDano(){ S0.danos=(S0.danos||0)+1; if(chefe && chefe.active && !chefe.dead) S0.danoChefe=(S0.danoChefe||0)+1; }
-function aoVencerChefe(){ if(!S0.danoChefe) conquistar('couro_grosso'); if(chefe && chefe.tipo==='lobisomem') conquistar('lua_cheia'); }
+function aoVencerChefe(){ contarCriatura('chefe',chefe.tipo); if(!S0.danoChefe) conquistar('couro_grosso'); if(chefe && chefe.tipo==='lobisomem') conquistar('lua_cheia'); }
 function aoLerCordel(){ conquistar('primeiro_cordel'); if(perfil.cordeis.length>=CORDEIS_IDS.length) conquistar('cordelista'); }
 function aoConcluirFase(ultima){
   const porFase={1:'pe_na_estrada',2:'travessia',3:'quebra_encanto'}[fase.id]; if(porFase) conquistar(porFase);

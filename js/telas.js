@@ -129,9 +129,9 @@ function menuPad(k){
 }
 
 /* ---------- TELAS ---------- */
-const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaRanking','telaCena','telaConta','telaJogo'];
+const TELAS=['telaPerfis','telaNovo','telaMenu','telaPersonagem','telaFases','telaOpcoes','telaConquistas','telaRanking','telaCena','telaConta','telaAlmanaque','telaJogo'];
 let telaAtual='telaPerfis';
-const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaRanking:()=>abrirMenu(), telaCena:()=>$('btnCenaSeguir').click(), telaOpcoes:()=>voltarDeOpcoes(), telaConta:()=>$('btnVoltarConta').click()};
+const VOLTAR={telaNovo:()=>{ if(perfis.lista.length) abrirPerfis(); }, telaMenu:()=>abrirPerfis(), telaPersonagem:()=>abrirMenu(), telaFases:()=>abrirMenu(), telaConquistas:()=>abrirMenu(), telaAlmanaque:()=>abrirMenu(), telaRanking:()=>abrirMenu(), telaCena:()=>$('btnCenaSeguir').click(), telaOpcoes:()=>voltarDeOpcoes(), telaConta:()=>$('btnVoltarConta').click()};
 function mostrar(id){
   for(const t of TELAS) $(t).hidden = t!==id;
   telaAtual=id; held.clear(); dpadSet({});
@@ -524,7 +524,7 @@ function trocarIdioma(novo){
   if(!IDIOMAS[novo]) return;
   idioma=novo; selIdioma.value=$('opIdioma').value=novo; salvarPrefs(); traduzirPagina(); labelSound(); atualizarLegenda();
   const reabrir={telaPerfis:abrirPerfis, telaMenu:abrirMenu, telaPersonagem:abrirPersonagens, telaFases:abrirFases, telaOpcoes:renderTeclas,
-    telaConquistas:abrirConquistas, telaRanking:renderRanking, telaConta:renderConta, telaCena:()=>cenaAtual && textoCena(cenaAtual), telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
+    telaConquistas:abrirConquistas, telaAlmanaque:abrirAlmanaque, telaRanking:renderRanking, telaConta:renderConta, telaCena:()=>cenaAtual && textoCena(cenaAtual), telaNovo:()=>{ renderEscolha($('escolhaNovo'),null,escolhaNovo,id=>{ escolhaNovo=id; }); seletorDificuldade($('difNovo'),difNovo,d=>{ difNovo=d; }); }}[telaAtual];
   if(reabrir) reabrir();
   else if(S0){ updateHud(); btnPausa.textContent=t(paused?'btn.continuar':'btn.pausar'); if(paused) $('textoPausa').textContent=t('pausa.texto'); }
 }

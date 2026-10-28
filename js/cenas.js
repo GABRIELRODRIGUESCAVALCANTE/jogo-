@@ -6,7 +6,7 @@ const CW=480, CH=270, PAPEL='#efe3c8', TINTA='#1c140f', VERMELHO='#b23a22';
 const cenaCv=document.createElement('canvas'); cenaCv.width=CW; cenaCv.height=CH;
 const camada=document.createElement('canvas'); camada.width=CW; camada.height=CH;
 
-function desenharCena(id, alvo){
+function desenharCena(id, alvo, def=CENAS[id]){
   const g=alvo.getContext('2d'), k=camada.getContext('2d');
   let semente=[...id].reduce((s,c)=>s*31+c.charCodeAt(0),7)>>>0;
   const rnd=()=>((semente=(semente*1103515245+12345)>>>0)/4294967296);
@@ -15,13 +15,13 @@ function desenharCena(id, alvo){
   for(let i=0;i<500;i++){ g.fillStyle=rnd()<.5?'rgba(120,90,50,.08)':'rgba(255,255,255,.25)'; g.fillRect(rnd()*CW,rnd()*CH,1+rnd()*3,1); }
   k.clearRect(0,0,CW,CH); k.fillStyle=TINTA; k.strokeStyle=TINTA; k.lineCap='round'; k.lineJoin='round';
   const P={k,rnd};
-  CENAS[id].desenho(P);
+  def.desenho(P);
   // goiva: riscos brancos só onde há tinta
   k.globalCompositeOperation='source-atop'; k.strokeStyle=PAPEL; k.lineWidth=1.3;
   for(let i=0;i<900;i++){ const x=rnd()*CW, y=rnd()*CH, l=3+rnd()*7, a=(rnd()-.5)*.6; k.beginPath(); k.moveTo(x,y); k.lineTo(x+Math.cos(a)*l,y+Math.sin(a)*l); k.stroke(); }
   k.globalCompositeOperation='source-over';
   g.drawImage(camada,0,0);
-  if(CENAS[id].vermelho) CENAS[id].vermelho(g,rnd);
+  if(def.vermelho) def.vermelho(g,rnd);
   // moldura de cordel
   g.strokeStyle=TINTA; g.lineWidth=10; g.strokeRect(5,5,CW-10,CH-10); g.lineWidth=2; g.strokeRect(16,16,CW-32,CH-32);
   for(const [x,y] of [[16,16],[CW-16,16],[16,CH-16],[CW-16,CH-16]]){ g.fillStyle=TINTA; g.beginPath(); g.arc(x,y,6,0,7); g.fill(); g.fillStyle=PAPEL; g.beginPath(); g.arc(x,y,2.5,0,7); g.fill(); }

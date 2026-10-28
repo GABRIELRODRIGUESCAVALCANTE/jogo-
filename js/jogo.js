@@ -72,7 +72,7 @@ function golpearInimigo(c){
   const kd=Math.hypot(c.x-p.x,c.y-p.y)||1; c.kx=(c.x-p.x)/kd*160; c.ky=(c.y-p.y)/kd*160;
   sfx.hit(); burst(c.x,c.y-4,'#f1e2c2',5,40); freeze=.045;
   if(c.hp<=0){
-    c.dead=true; S0.kills++; S0.dead.push(c.i); aoVencerInimigo();
+    c.dead=true; S0.kills++; S0.dead.push(c.i); aoVencerInimigo(); contarCriatura('inimigo',c.tipo);
     burst(c.x,c.y-4,'#3d3532',12,60); burst(c.x,c.y-4,'#c4462c',6,40);
     if(Math.random()<dif().gotas && !c.voa) items.push({type:'rapadura',x:c.x,y:c.y});
   }
@@ -143,7 +143,8 @@ function update(dt){
   if(!running) return;
 
   if(just.has('whip') && p.whipCd<=0){ p.whipT=0.25; p.whipCd=heroi.recarga; p.swing++; sfx.whip(); }
-  if(just.has('talk')){ const n=nearbyNpc(); if(n){ sfx.talk(); fase.falar(n); } }
+  if(just.has('talk')){ const n=nearbyNpc(); if(n){ sfx.talk(); contarCriatura('npc',n.type); fase.falar(n); } }
+  olharCriaturas(dt);
   if(dlg.open) return;
 
   // chicote: a caixa de acerto cresce com o alcance do personagem

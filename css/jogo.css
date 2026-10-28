@@ -303,3 +303,15 @@ body.texto-grande{font-size:18px}
 @media (prefers-reduced-motion:no-preference){ .aviso-servidor{animation:pulsa 1.4s ease-in-out infinite} }
 @keyframes pulsa{50%{opacity:.6}}
 .calmo .aviso-servidor{animation:none}
+
+/* ---------- almanaque ---------- */
+.almanaque{width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:18px}
+.pagina{display:flex;flex-direction:column;background:var(--papel);color:var(--tinta);border:3px solid var(--tinta);box-shadow:5px 5px 0 var(--sol)}
+.pagina canvas{width:100%;height:auto;display:block;border-bottom:3px solid var(--tinta)}
+.pagina-txt{padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px}
+.pagina h3{margin:0;font-family:var(--display);font-weight:400;font-size:24px;color:#7a2a18}
+.pagina p{margin:0;line-height:1.45}
+.pagina .contagem{font-weight:800;font-size:15px;color:#5a3a22}
+.pagina.oculta{box-shadow:5px 5px 0 #5a4636}
+.pagina.oculta canvas{filter:sepia(.4) brightness(.92)}
+.pagina.oculta h3{color:#7a6a58}

@@ -49,6 +49,10 @@ Vencer uma fase libera a seguinte. Entre as fases, uma **cena de cordel** em xil
 
 Doze **folhetos de cordel** estão escondidos, três por fase, cada um com uma sextilha.
 
+## Almanaque do Sertão
+
+No menu do jogador, o **Almanaque** guarda uma página em xilogravura para cada criatura do folclore que aparece no jogo: Caipora, Cabra Cabriola, Caboclo d'água, Mula sem Cabeça, Comadre Fulozinha, Rasga-mortalha, Batatão e Lobisomem. A página se abre quando a criatura cruza o seu caminho e conta a lenda de verdade, nos três idiomas, com quantas vezes você a venceu ou conversou com ela.
+
 ## Dificuldade, conquistas e ranking
 
 - **Dificuldade**: Fácil (mais corações, inimigos mais lentos), Normal e Difícil (menos corações, inimigos mais rápidos e chefes mais fortes). Muda a qualquer hora no menu do jogador; cada dificuldade tem seus próprios recordes.
@@ -165,6 +169,8 @@ js/conquistas.js      conquistas, chapéus e chicotes
 js/ranking.js         ranking do aparelho e mundial
 js/telas.js           HUD, diálogos, controles, menus, jogadores e opções
 js/cenas.js           cenas de cordel entre as fases
+js/almanaque.js       Almanaque do Sertão: gravuras das criaturas e encontros
+js/mesclar.js         junta dois progressos (igual a servidor/mesclar.js)
 js/online.js          contas online, sincronização e ranking mundial
 js/inicio.js          abre a primeira tela
 servidor/             API das contas online (Node.js + PostgreSQL)
