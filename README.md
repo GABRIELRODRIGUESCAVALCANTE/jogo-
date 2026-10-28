@@ -63,7 +63,7 @@ O jogo é um PWA: no celular, use **Adicionar à tela inicial**; no computador, 
 
 As contas ficam num servidor próprio, na pasta [`servidor/`](servidor/), feito em Node.js sobre **PostgreSQL**. O jogo continua funcionando sem ele: enquanto `js/config.js` não aponta para uma API, nada de conta aparece.
 
-O que o servidor guarda: e-mail, nome do jogador, o progresso (em JSON) e o melhor tempo por fase e dificuldade. A senha não é guardada, só uma impressão dela feita com scrypt. O jogador pode apagar a conta e tudo o que está no servidor pela tela **Conta online**.
+O que o servidor guarda: e-mail, nome do jogador, o progresso (em JSON) e o melhor tempo por fase e dificuldade. Quando dois aparelhos jogam offline com a mesma conta, o servidor junta os dois progressos em vez de um apagar o outro. A senha não é guardada, só uma impressão dela feita com scrypt. O jogador pode apagar a conta e tudo o que está no servidor pela tela **Conta online**.
 
 ### Rodar no seu computador
 
@@ -90,7 +90,9 @@ window.ESTRELA_CONFIG = window.ESTRELA_CONFIG || { api:'http://localhost:8787' }
 
 ### Publicar
 
-**No Render**: em render.com, **New → Blueprint** e escolha este repositório. O [`render.yaml`](render.yaml) cria o PostgreSQL e a API, gera o segredo dos tokens e libera o endereço do GitHub Pages. No plano gratuito, a API dorme depois de um tempo parada (a primeira chamada demora alguns segundos) e o banco gratuito expira depois de um período; para uso de verdade, escolha um plano pago.
+**No Render**: em render.com, **New → Blueprint** e escolha este repositório. O [`render.yaml`](render.yaml) cria o PostgreSQL e a API, gera o segredo dos tokens e libera o endereço do GitHub Pages. No plano gratuito, a API dorme depois de um tempo parada: o jogo a acorda assim que abre e, se ela demorar, mostra "Acordando o servidor no sertão…". O banco gratuito do Render expira depois de um período; para não perder as contas, use o Neon (abaixo) ou um plano pago.
+
+**Banco no Neon** (PostgreSQL gratuito que não expira): crie um projeto em neon.tech, copie a *connection string* e use-a como `DATABASE_URL`, com `PGSSL=1`. No Render, apague o bloco `databases` do `render.yaml` e coloque essa `DATABASE_URL` à mão nas variáveis do serviço. Nenhuma linha de código muda.
 
 **Em outro lugar** (Railway, Fly.io, uma VPS...): qualquer serviço que rode Node 20+ e tenha PostgreSQL. Comando de início `npm start` dentro de `servidor/`, com estas variáveis:
 
@@ -111,12 +113,21 @@ Por fim, coloque o endereço público da API em `js/config.js` e publique o jogo
 | `POST /api/contas` | Cria a conta (`email`, `senha`, `nome`) e devolve o token |
 | `POST /api/sessoes` | Entra (`email`, `senha`) e devolve o token |
 | `DELETE /api/contas` | Apaga a conta, o progresso e os recordes |
-| `GET /api/progresso`, `PUT /api/progresso` | Lê e grava o progresso do jogador |
-| `POST /api/recordes` | Envia um tempo; o servidor guarda só o melhor |
+| `GET /api/progresso`, `PUT /api/progresso` | Lê o progresso; grava juntando com o que já estava guardado e devolve o resultado |
+| `POST /api/partidas` | Avisa que uma fase começou (`fase`, `dificuldade`) e devolve o número da partida |
+| `POST /api/recordes` | Envia um tempo com a `partida`; o servidor guarda só o melhor |
 | `GET /api/ranking?fase=1..4\|jornada&dificuldade=...` | Os 10 melhores |
 | `GET /api/saude` | Diz se a API está no ar |
 
 As rotas de conta e progresso usam `Authorization: Bearer <token>`. Criar conta e entrar têm limite de 20 tentativas a cada 10 minutos por endereço.
+
+**Como o ranking evita tempos falsos.** O código do jogo é aberto, então qualquer pessoa pode tentar mandar um tempo inventado. O servidor recusa:
+
+- tempos abaixo do mínimo de cada fase (`servidor/regras.js`), tirado do menor caminho possível pelo mapa na velocidade da personagem mais rápida; um teste recalcula esse caminho a cada mudança nos mapas;
+- recordes sem uma partida aberta pela mesma conta, na mesma fase e dificuldade; cada partida vale uma vez;
+- tempos maiores do que o tempo que passou no relógio do servidor desde o começo da partida.
+
+Não é à prova de tudo (alguém pode esperar o tempo certo e mandar o número), mas acaba com o "terminei em meio segundo". Por isso, só entram no ranking mundial as fases começadas com a conta ligada e com internet; as outras continuam no ranking do aparelho.
 
 ## Tecnologia
 

@@ -12,15 +12,24 @@ const sessaoDe=pf=>(pf && sessoes[pf.id]) || null;
 function salvarSessoes(){ store.set(K_SESSOES,sessoes); }
 
 class ErroOnline extends Error{ constructor(codigo){ super(codigo); this.codigo=codigo; } }
-async function pedirApi(metodo,caminho,corpo,token){
-  const ctl=new AbortController(), relogio=setTimeout(()=>ctl.abort(),12000);
+// pedidos que o jogador está esperando na tela (aviso=true) mostram "Acordando o servidor…" se passarem de 1,5 s:
+// servidores gratuitos dormem quando ficam parados e levam alguns segundos para voltar
+let esperandoApi=0, avisoRelogio=0;
+function avisoServidor(mais){
+  esperandoApi+=mais; clearTimeout(avisoRelogio);
+  if(esperandoApi>0 && mais>0) avisoRelogio=setTimeout(()=>{ $('avisoServidor').hidden=false; },1500);
+  if(esperandoApi<=0){ esperandoApi=0; $('avisoServidor').hidden=true; }
+}
+async function pedirApi(metodo,caminho,corpo,token,{aviso=false}={}){
+  const ctl=new AbortController(), relogio=setTimeout(()=>ctl.abort(),aviso?40000:12000);
   let r;
+  if(aviso) avisoServidor(1);
   try{
     r=await fetch(apiOnline()+caminho,{method:metodo, signal:ctl.signal,
       headers:Object.assign(corpo?{'Content-Type':'application/json'}:{}, token?{Authorization:'Bearer '+token}:{}),
       body:corpo?JSON.stringify(corpo):undefined});
   }catch(e){ throw new ErroOnline('rede'); }
-  finally{ clearTimeout(relogio); }
+  finally{ clearTimeout(relogio); if(aviso) avisoServidor(-1); }
   if(r.status===204) return null;
   const dados=await r.json().catch(()=>({}));
   if(!r.ok) throw new ErroOnline(dados.erro||'geral');
@@ -85,7 +94,7 @@ function enviarRecorde(pf,fid,d,tempo,partida){
 }
 async function rankingMundial(fase,dif){
   const s=sessaoDe(perfil), q=new URLSearchParams({fase:String(fase), dificuldade:dif});
-  const r=await pedirApi('GET','/api/ranking?'+q,null,s&&s.token);
+  const r=await pedirApi('GET','/api/ranking?'+q,null,s&&s.token,{aviso:true});
   return (r.linhas||[]).map(l=>({nome:l.nome, personagem:PERSONAGENS[l.personagem]?l.personagem:'ze', chapeu:l.chapeu, tempo:l.tempo, eu:!!l.eu}));
 }
 
@@ -127,8 +136,8 @@ $('formConta').addEventListener('submit',async e=>{
   botao.disabled=true; $('erroConta').hidden=true;
   try{
     const r=modoConta==='criar'
-      ? await pedirApi('POST','/api/contas',{email, senha, nome:contaPara.nome})
-      : await pedirApi('POST','/api/sessoes',{email, senha});
+      ? await pedirApi('POST','/api/contas',{email, senha, nome:contaPara.nome},null,{aviso:true})
+      : await pedirApi('POST','/api/sessoes',{email, senha},null,{aviso:true});
     const outro=perfis.lista.find(pf=>pf!==contaPara && sessaoDe(pf) && sessaoDe(pf).conta.id===r.conta.id);
     if(outro) return erroConta('jaLigada');
     await ligarConta(r);
@@ -137,7 +146,7 @@ $('formConta').addEventListener('submit',async e=>{
 });
 // liga a conta ao jogador: junta o progresso do servidor com o do aparelho e manda tudo de volta
 async function ligarConta(r){
-  const remoto=(await pedirApi('GET','/api/progresso',null,r.token)).dados;
+  const remoto=(await pedirApi('GET','/api/progresso',null,r.token,{aviso:true})).dados;
   let pf=contaPara;
   if(!pf){
     // aparelho novo: usa o jogador com o mesmo nome, se houver, ou cria um
@@ -169,7 +178,7 @@ $('btnApagarConta').addEventListener('click',()=>{ $('confirmaApagarConta').hidd
 $('btnApagarNao').addEventListener('click',()=>{ $('confirmaApagarConta').hidden=true; $('btnApagarConta').focus(); });
 $('btnApagarSim').addEventListener('click',async()=>{
   const pf=contaPara;
-  try{ await pedirApi('DELETE','/api/contas',null,sessaoDe(pf).token); }
+  try{ await pedirApi('DELETE','/api/contas',null,sessaoDe(pf).token,{aviso:true}); }
   catch(e){ if(e.codigo!=='nao_autorizado'){ $('contaEstado').textContent=t('conta.erro.'+(e.codigo==='rede'?'rede':'geral')); return; } }
   sessaoExpirou(pf); syncPendente.delete(pf.id); $('confirmaApagarConta').hidden=true;
   renderConta(); $('contaEstado').textContent=''; $('subConta').textContent=t('conta.apagada'); $('tConta').focus();
@@ -185,3 +194,6 @@ function atualizarOnline(){
   $('seloOnline').hidden=!(on && s);
   if(on && s) $('seloOnline').textContent=t('conta.selo',{email:s.conta.email});
 }
+
+// acorda o servidor logo que o jogo abre, enquanto o jogador ainda escolhe quem vai jogar
+if(onlineAtivo()) pedirApi('GET','/api/saude').catch(()=>{});

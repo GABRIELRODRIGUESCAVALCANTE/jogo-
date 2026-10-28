@@ -453,6 +453,7 @@ function aplicarOpcoes(){
   const mudouContraste=contraste!==!!prefs.contraste;
   contraste=!!prefs.contraste; mostrarSeta=prefs.seta!==false;
   calm=prefs.calmo!=null ? !!prefs.calmo : matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.body.classList.toggle('calmo',calm);
   volMusica=(prefs.volMusica!=null?prefs.volMusica:100)/100; volEfeitos=(prefs.volEfeitos!=null?prefs.volEfeitos:100)/100; aplicarVolume();
   if(mudouContraste && fase && map.length) drawMap();
   measureHud();

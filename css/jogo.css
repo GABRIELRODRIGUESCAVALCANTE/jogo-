@@ -298,3 +298,8 @@ body.texto-grande{font-size:18px}
 .confirma p{margin:0;flex:1 1 100%;font-weight:700}
 .selo-online{margin:4px 0 0;font-size:14px;font-weight:700;color:var(--mandacaru)}
 .selo-online::before{content:"● "}
+.aviso-servidor{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:20;margin:0;padding:8px 16px;background:var(--tinta);color:var(--sol);border:2px solid var(--sol);font-weight:700;font-size:15px;box-shadow:3px 3px 0 #000;max-width:calc(100% - 32px)}
+.aviso-servidor::before{content:"☾ ";}
+@media (prefers-reduced-motion:no-preference){ .aviso-servidor{animation:pulsa 1.4s ease-in-out infinite} }
+@keyframes pulsa{50%{opacity:.6}}
+.calmo .aviso-servidor{animation:none}

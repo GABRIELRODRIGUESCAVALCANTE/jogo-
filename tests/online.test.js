@@ -18,6 +18,7 @@ function apiFalsa(){
   db.rota = async route=>{
     const req = route.request(), url = new URL(req.url()), h = req.headers(), corpo = req.postData() ? JSON.parse(req.postData()) : null;
     if(db.foraDoAr) return route.abort('internetdisconnected');
+    if(db.demora) await sleep(db.demora);
     const chave = `${req.method()} ${url.pathname}`;
     db.pedidos.push(chave);
     const responder = (status,dados)=>route.fulfill({ status, contentType:'application/json', headers:{ 'Access-Control-Allow-Origin':'*' }, body:dados===undefined?'':JSON.stringify(dados) });
@@ -130,8 +131,13 @@ test('cria a conta, sincroniza o progresso, manda o recorde e mostra o ranking m
   await J.ev(()=>abrirMenu());
   await J.page.click('#btnRanking');
   assert.ok(await J.page.isVisible('#fonteRanking'));
+  db.demora = 2200;                                   // servidor gratuito acordando
   await J.page.click('#fonteRanking .aba >> nth=1');
+  await J.page.waitForSelector('#avisoServidor:not([hidden])');
+  assert.equal(await J.page.textContent('#avisoServidor'), 'Acordando o servidor no sertão…');
   await J.page.waitForSelector('#listaRanking .linha');
+  assert.ok(await J.page.isHidden('#avisoServidor'));
+  db.demora = 0;
   assert.deepEqual(await J.page.locator('#listaRanking .quem b').allTextContents(), ['Zeca','Ana']);
   assert.equal(await J.page.textContent('#listaRanking .eu .quem b'), 'Ana');
   assert.deepEqual(semHttp(J.erros), []);
