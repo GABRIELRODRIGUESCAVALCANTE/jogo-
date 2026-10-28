@@ -12,6 +12,7 @@ const { Pool } = require('pg');
 const { mesclarProgresso } = require('./mesclar');
 
 const TOTAL_FASES = 4;
+const FASE_DESAFIO = 5;          // o Desafio dos Chefes tem recorde e ranking como se fosse a fase 5
 const DIFICULDADES = ['facil','normal','dificil'];
 const PERSONAGENS = ['ze','luzia','tiao','rosa'];
 const DIAS_TOKEN = 30;
@@ -117,7 +118,7 @@ function criarServidor({ pool, segredo, origens=['*'] }){
 
     'POST /api/partidas': async(req)=>{
       const id = exigirConta(req), r = await lerCorpo(req), fase = Number(r.fase);
-      if(!Number.isInteger(fase) || fase<1 || fase>TOTAL_FASES || !DIFICULDADES.includes(r.dificuldade)) throw new ErroApi(400,'dados_invalidos');
+      if(!Number.isInteger(fase) || fase<1 || fase>FASE_DESAFIO || !DIFICULDADES.includes(r.dificuldade)) throw new ErroApi(400,'dados_invalidos');
       await pool.query(`delete from partidas where conta_id=$1 and iniciada_em < now() - interval '${DIAS_PARTIDA} days'`, [id]);
       const { rows } = await pool.query('insert into partidas (conta_id, fase, dificuldade) values ($1,$2,$3) returning id', [id, fase, r.dificuldade]);
       return { partida:String(rows[0].id) };
@@ -126,7 +127,7 @@ function criarServidor({ pool, segredo, origens=['*'] }){
     'POST /api/recordes': async(req)=>{
       const id = exigirConta(req), r = await lerCorpo(req);
       const fase = Number(r.fase), tempo = Number(r.tempo);
-      if(!Number.isInteger(fase) || fase<1 || fase>TOTAL_FASES || !DIFICULDADES.includes(r.dificuldade) || !PERSONAGENS.includes(r.personagem)
+      if(!Number.isInteger(fase) || fase<1 || fase>FASE_DESAFIO || !DIFICULDADES.includes(r.dificuldade) || !PERSONAGENS.includes(r.personagem)
         || !(tempo>=1 && tempo<=36000) || (r.chapeu!=null && (typeof r.chapeu!=='string' || r.chapeu.length>16))) throw new ErroApi(400,'dados_invalidos');
       if(tempo<TEMPO_MINIMO[fase]) throw new ErroApi(400,'tempo_impossivel');
       // a partida precisa ter começado no servidor há pelo menos esse tempo; cada partida vale um recorde só
@@ -149,14 +150,14 @@ function criarServidor({ pool, segredo, origens=['*'] }){
     },
     'GET /api/ranking': async(req)=>{
       const url = new URL(req.url, 'http://x'), fase = url.searchParams.get('fase'), dificuldade = url.searchParams.get('dificuldade');
-      if(!DIFICULDADES.includes(dificuldade) || !(fase==='jornada' || /^[1-4]$/.test(fase||''))) throw new ErroApi(400,'dados_invalidos');
+      if(!DIFICULDADES.includes(dificuldade) || !(fase==='jornada' || /^[1-5]$/.test(fase||''))) throw new ErroApi(400,'dados_invalidos');
       const eu = contaDoPedido(req);
       const { rows } = fase==='jornada'
         ? await pool.query(
             `select c.id, c.nome, sum(r.tempo) as tempo,
                     (array_agg(r.personagem order by r.fase desc))[1] as personagem, (array_agg(r.chapeu order by r.fase desc))[1] as chapeu
                from recordes r join contas c on c.id=r.conta_id
-              where r.dificuldade=$1 group by c.id, c.nome having count(*)=$2 order by tempo asc limit 10`, [dificuldade, TOTAL_FASES])
+              where r.dificuldade=$1 and r.fase<=$2 group by c.id, c.nome having count(*)=$2 order by tempo asc limit 10`, [dificuldade, TOTAL_FASES])
         : await pool.query(
             `select c.id, c.nome, r.tempo, r.personagem, r.chapeu from recordes r join contas c on c.id=r.conta_id
               where r.fase=$1 and r.dificuldade=$2 order by r.tempo asc, r.registrado_em asc limit 10`, [Number(fase), dificuldade]);

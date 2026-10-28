@@ -20,7 +20,7 @@ create table if not exists progresso (
 -- melhor tempo de cada conta por fase e dificuldade
 create table if not exists recordes (
   conta_id       bigint not null references contas(id) on delete cascade,
-  fase           smallint not null check (fase between 1 and 4),
+  fase           smallint not null check (fase between 1 and 5),    -- 5: Desafio dos Chefes
   dificuldade    text not null check (dificuldade in ('facil','normal','dificil')),
   personagem     text not null check (char_length(personagem) <= 16),
   chapeu         text check (char_length(chapeu) <= 16),
@@ -37,8 +37,14 @@ alter table recordes add constraint recordes_tempo_check check (tempo between 1 
 create table if not exists partidas (
   id           bigserial primary key,
   conta_id     bigint not null references contas(id) on delete cascade,
-  fase         smallint not null check (fase between 1 and 4),
+  fase         smallint not null check (fase between 1 and 5),
   dificuldade  text not null check (dificuldade in ('facil','normal','dificil')),
   iniciada_em  timestamptz not null default now()
 );
 create index if not exists partidas_conta on partidas (conta_id, iniciada_em);
+
+-- o Desafio dos Chefes entrou como fase 5
+alter table recordes drop constraint if exists recordes_fase_check;
+alter table recordes add constraint recordes_fase_check check (fase between 1 and 5);
+alter table partidas drop constraint if exists partidas_fase_check;
+alter table partidas add constraint partidas_fase_check check (fase between 1 and 5);

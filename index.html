@@ -79,6 +79,7 @@
       <button class="btn sec" id="btnConquistas" data-t="menu.conquistas">Conquistas</button>
       <button class="btn sec" id="btnAlmanaque" data-t="alm.titulo">Almanaque</button>
       <button class="btn sec" id="btnRanking" data-t="menu.ranking">Ranking</button>
+      <button class="btn sec" id="btnDesafio">Desafio dos Chefes</button>
       <button class="btn sec" id="btnConta" data-t="conta.titulo" hidden>Conta online</button>
       <button class="btn sec" id="btnTrocar" data-t="menu.trocar">Trocar jogador</button>
     </div>
@@ -252,6 +253,17 @@
         <p id="textoDesmaio"></p>
         <button class="btn" id="btnLevantar" data-t="desmaio.levantar">Levantar e seguir</button>
       </div>
+      <div class="overlay" id="ovDesafio" hidden>
+        <p class="eyebrow" data-t="des.titulo">Desafio dos Chefes</p>
+        <h2 id="desafioTitulo"></h2>
+        <p id="desafioTexto"></p>
+        <div class="placar"><div><b id="desafioTempo">0:00</b><span data-t="fim.tempo">Tempo</span></div></div>
+        <p class="miudo" id="desafioRecorde"></p>
+        <div class="ov-botoes">
+          <button class="btn" id="btnDesafioDeNovo" data-t="des.deNovo">Tentar de novo</button>
+          <button class="btn sec" id="btnDesafioMenu" data-t="fim.menu">Voltar ao menu</button>
+        </div>
+      </div>
       <div class="overlay" id="ovFim" hidden>
         <p class="eyebrow" id="fimFase"></p>
         <h2 id="fimTitulo"></h2>
@@ -350,6 +362,7 @@
 <script src="js/telas.js"></script>
 <script src="js/cenas.js"></script>
 <script src="js/almanaque.js"></script>
+<script src="js/desafio.js"></script>
 <script src="js/mesclar.js"></script>
 <script src="js/online.js"></script>
 <script src="js/inicio.js"></script>

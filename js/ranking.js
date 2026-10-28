@@ -5,6 +5,7 @@
 let rankFase=1, rankDif='normal', rankFonte='local';
 
 function tempoRanking(pf,alvo,d){
+  if(alvo==='desafio') return recordeDesafio(pf,d);
   if(alvo!=='jornada') return recorde(pf,alvo,d);
   return FASES.every(f=>recorde(pf,f.id,d)>0) ? FASES.reduce((s,f)=>s+recorde(pf,f.id,d),0) : 0;
 }
@@ -19,8 +20,8 @@ function abrirRanking(){
 }
 async function renderRanking(){
   const abas=$('abasRanking'); abas.textContent='';
-  for(const alvo of [...FASES.map(f=>f.id),'jornada']){
-    const b=el('button','aba',alvo==='jornada'?t('rank.jornada'):t('fases.n',{n:alvo})); b.type='button';
+  for(const alvo of [...FASES.map(f=>f.id),'jornada','desafio']){
+    const b=el('button','aba',alvo==='jornada'?t('rank.jornada'):alvo==='desafio'?t('des.titulo'):t('fases.n',{n:alvo})); b.type='button';
     b.setAttribute('aria-pressed',String(alvo===rankFase));
     b.addEventListener('click',()=>{ sfx.clique(); rankFase=alvo; renderRanking(); abas.querySelector('[aria-pressed="true"]').focus(); });
     abas.append(b);
@@ -32,7 +33,7 @@ async function renderRanking(){
     b.addEventListener('click',()=>{ rankFonte=f; renderRanking(); });
     fonte.append(b);
   }
-  $('tituloRanking').textContent=rankFase==='jornada'?t('rank.jornada'):`${t('fases.n',{n:rankFase})} · ${FASES[rankFase-1].nome}`;
+  $('tituloRanking').textContent=rankFase==='jornada'?t('rank.jornada'):rankFase==='desafio'?t('des.titulo'):`${t('fases.n',{n:rankFase})} · ${FASES[rankFase-1].nome}`;
   const lista=$('listaRanking'), vazio=$('vazioRanking'), pedido=`${rankFonte}${rankFase}${rankDif}`;
   lista.dataset.pedido=pedido; lista.textContent=''; vazio.hidden=true;
   let linhas;

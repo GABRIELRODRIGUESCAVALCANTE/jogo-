@@ -49,6 +49,10 @@ Vencer uma fase libera a seguinte. Entre as fases, uma **cena de cordel** em xil
 
 Doze **folhetos de cordel** estão escondidos, três por fase, cada um com uma sextilha.
 
+## Desafio dos Chefes
+
+Depois de terminar a jornada, o menu libera o **Desafio dos Chefes**: as Cabras Cabriolas, o Caboclo d'água, a Mula sem Cabeça e o Lobisomem, um atrás do outro, nos mapas das próprias fases. Os corações não voltam entre uma luta e outra e não há rapadura no caminho. O tempo das quatro lutas somado tem recorde e aba própria no ranking, no aparelho e no mundial.
+
 ## Almanaque do Sertão
 
 No menu do jogador, o **Almanaque** guarda uma página em xilogravura para cada criatura do folclore que aparece no jogo: Caipora, Cabra Cabriola, Caboclo d'água, Mula sem Cabeça, Comadre Fulozinha, Rasga-mortalha, Batatão e Lobisomem. A página se abre quando a criatura cruza o seu caminho e conta a lenda de verdade, nos três idiomas, com quantas vezes você a venceu ou conversou com ela.
@@ -125,7 +129,7 @@ Por fim, coloque o endereço público da API em `js/config.js` e publique o jogo
 | `GET /api/progresso`, `PUT /api/progresso` | Lê o progresso; grava juntando com o que já estava guardado e devolve o resultado |
 | `POST /api/partidas` | Avisa que uma fase começou (`fase`, `dificuldade`) e devolve o número da partida |
 | `POST /api/recordes` | Envia um tempo com a `partida`; o servidor guarda só o melhor |
-| `GET /api/ranking?fase=1..4\|jornada&dificuldade=...` | Os 10 melhores |
+| `GET /api/ranking?fase=1..5\|jornada&dificuldade=...` | Os 10 melhores (a fase 5 é o Desafio dos Chefes) |
 | `GET /api/saude` | Diz se a API está no ar |
 
 As rotas de conta e progresso usam `Authorization: Bearer <token>`. Criar conta e entrar têm limite de 20 tentativas a cada 10 minutos por endereço.
@@ -172,6 +176,7 @@ js/ranking.js         ranking do aparelho e mundial
 js/telas.js           HUD, diálogos, controles, menus, jogadores e opções
 js/cenas.js           cenas de cordel entre as fases
 js/almanaque.js       Almanaque do Sertão: gravuras das criaturas e encontros
+js/desafio.js         Desafio dos Chefes: as quatro lutas seguidas
 js/mesclar.js         junta dois progressos (igual a servidor/mesclar.js)
 js/online.js          contas online, sincronização e ranking mundial
 js/inicio.js          abre a primeira tela

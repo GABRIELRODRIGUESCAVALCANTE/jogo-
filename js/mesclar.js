@@ -26,6 +26,9 @@ function mesclarProgresso(novo, velho){
   r.estat = maiorDeCada(novo.estat, velho.estat);
   r.bonusVida = Math.max(novo.bonusVida||0, velho.bonusVida||0);
   r.fim = !!(novo.fim || velho.fim);
+  const dn = (novo.desafio||{}).tempos||{}, dv = (velho.desafio||{}).tempos||{}, desafio = {};
+  for(const [d,v] of [...Object.entries(dv), ...Object.entries(dn)]) if(v>0 && !(desafio[d]<=v)) desafio[d] = v;
+  if(Object.keys(desafio).length) r.desafio = { tempos:desafio };
   return r;
 }
 if(typeof module!=='undefined') module.exports = { mesclarProgresso };

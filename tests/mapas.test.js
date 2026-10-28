@@ -65,7 +65,7 @@ test('tempo mínimo do ranking cabe no menor caminho de cada fase', async()=>{
       return { id:f.id, segundos:melhor*T/Math.max(...Object.values(PERSONAGENS).map(c=>c.vel)) };
     });
   });
-  assert.equal(caminhos.length, Object.keys(TEMPO_MINIMO).length);
+  assert.equal(caminhos.length, 4);
   for(const c of caminhos){
     assert.ok(Number.isFinite(c.segundos), `F${c.id}: caminho não encontrado`);
     assert.ok(TEMPO_MINIMO[c.id] <= Math.floor(c.segundos*0.85)+CHEFE_MINIMO[c.id], `F${c.id}: mínimo ${TEMPO_MINIMO[c.id]} s, caminho ${c.segundos.toFixed(1)} s`);

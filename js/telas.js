@@ -10,9 +10,9 @@ function updateHud(){
   if(!S0) return;
   let h=''; for(let i=0;i<S0.maxHp;i++) h+=HEART.replace('__C__', i<S0.hp?'cheio':'vazio');
   elVida.innerHTML=h; elVida.setAttribute('aria-label',t('hud.vida',{n:S0.hp,t:S0.maxHp}));
-  elObj.textContent=fase.objetivo(S0)||'';
-  const n=achados(fase);
-  elBolsa.innerHTML=fase.bolsa(S0).concat(n?[t('hud.cordeis',{n,t:cordeisDaFase(fase).length})]:[]).map(t=>`<span>${t}</span>`).join('');
+  elObj.textContent=desafio ? t('des.obj',{n:desafio.etapa+1, t:ETAPAS_DESAFIO.length, nome:ETAPAS_DESAFIO[desafio.etapa].nome()}) : fase.objetivo(S0)||'';
+  const n=desafio?0:achados(fase);
+  elBolsa.innerHTML=(desafio?[]:fase.bolsa(S0)).concat(n?[t('hud.cordeis',{n,t:cordeisDaFase(fase).length})]:[]).map(t=>`<span>${t}</span>`).join('');
   const on=!!chefe && chefe.active && !chefe.dead; elChefe.hidden=!on;
   if(on){
     elChefeNome.textContent=CHEFES[chefe.tipo].nome;
@@ -271,7 +271,7 @@ function abrirPersonagens(){
 /* ---------- MENU DO JOGADOR ---------- */
 function proximaFase(pf){ const f=FASES.find(f=>!(pf.fases[f.id] && pf.fases[f.id].feita)); return f?f.id:0; }
 function abrirMenu(){
-  paused=false; running=false; fecharOverlays();
+  paused=false; running=false; desafio=null; fecharOverlays();
   $('nomeMenu').textContent=perfil.nome;
   $('persMenu').textContent=`${heroi.nome}, ${heroi.titulo}`;
   const av=$('avatarMenu'); av.dataset.pers=perfil.personagem; av.dataset.anda='1'; av.dataset.chapeu=visualDe(perfil).chapeu;
@@ -285,7 +285,7 @@ function abrirMenu(){
   if(d) linha(t('menu.continuar'),`${t('fases.n',{n:d.fase})} · ${FASES[d.fase-1].nome}`);
   else if(n) linha(t('menu.jogar'),`${t('fases.n',{n})} · ${FASES[n-1].nome}`);
   else linha(t('menu.jogarDeNovo'),t('menu.escolhaFase'));
-  atualizarOnline();
+  atualizarOnline(); atualizarBotaoDesafio();
   mostrar('telaMenu');
 }
 $('btnJogar').addEventListener('click',()=>{ sfx.clique(); const d=partidaSalva(perfil), n=proximaFase(perfil); if(d) continuar(d); else if(n) jogarFase(n); else abrirFases(); });
@@ -324,7 +324,7 @@ function abrirFases(){
 
 /* ---------- PARTIDA ---------- */
 const btnPausa=$('btnPausa');
-function fecharOverlays(){ for(const id of ['ovTitulo','ovPausa','ovDesmaio','ovFim']) $(id).hidden=true; fecharDialogo(); elToast.hidden=true; toastT=0; btnPausa.textContent=t('btn.pausar'); }
+function fecharOverlays(){ for(const id of ['ovTitulo','ovPausa','ovDesmaio','ovFim','ovDesafio']) $(id).hidden=true; fecharDialogo(); elToast.hidden=true; toastT=0; btnPausa.textContent=t('btn.pausar'); }
 // antes de cada fase, a cena de cordel (se estiver ligada nas Opções)
 function jogarFase(id){
   store.del(K_PARTIDA+perfil.id);
@@ -336,7 +336,7 @@ function abrirTitulo(id){
   $('tituloNome').textContent=fase.nome; $('tituloResumo').textContent=fase.resumo;
   mostrar('telaJogo'); $('ovTitulo').hidden=false; $('btnComecarFase').focus();
 }
-$('btnComecarFase').addEventListener('click',()=>{ initAudio(); $('ovTitulo').hidden=true; running=true; held.clear(); registrarPartida(); say(fase.intro()); });
+$('btnComecarFase').addEventListener('click',()=>{ initAudio(); $('ovTitulo').hidden=true; running=true; held.clear(); if(desafio){ comecarDesafio(); return; } registrarPartida(); say(fase.intro()); });
 function continuar(d){
   try{ carregarPartida(d); prepararFantasma(); }catch(e){ jogarFase(d.fase); return; }
   fecharOverlays(); paused=false; mostrar('telaJogo'); running=true;
@@ -352,10 +352,11 @@ function unpause(){ if(!paused) return; paused=false; $('ovPausa').hidden=true; 
 function togglePause(){ paused?unpause():pause(); }
 btnPausa.addEventListener('click',togglePause);
 $('btnVoltar').addEventListener('click',unpause);
-$('btnReiniciar').addEventListener('click',()=>jogarFase(fase.id));
+$('btnReiniciar').addEventListener('click',()=>desafio?iniciarDesafio():jogarFase(fase.id));
 $('btnSairMenu').addEventListener('click',()=>{ salvarPartida(); abrirMenu(); });
 
 function desmaiar(){
+  if(desafio){ fimDesafio(false); return; }
   running=false; held.clear();
   $('textoDesmaio').textContent=t('desmaio.texto');
   $('ovDesmaio').hidden=false; $('btnLevantar').focus();

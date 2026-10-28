@@ -33,7 +33,7 @@ function iniciarFase(id){
 
 /* ---------- PARTIDA SALVA (uma por jogador) ---------- */
 function salvarPartida(){
-  if(!perfil||!fase||!S0||S0.won||S0.saindo) return;
+  if(!perfil||!fase||!S0||S0.won||S0.saindo||desafio) return;
   let x=p.x, y=p.y; const r=fase.retorno;
   if(r && y<r.acima*T && !S0.chefeVencido){ x=r.x*T+8; y=r.y*T+8; }  // nunca reabre o jogo no meio da luta
   store.set(K_PARTIDA+perfil.id,{v:2, fase:fase.id, S:S0, time, x, y});
@@ -60,6 +60,7 @@ function hurt(n,fx,fy){
   if(prefs.vibrar!==false && navigator.vibrate) navigator.vibrate(70);
   if(S0.hp<=0){ S0.hp=0; updateHud(); desmaiar(); }
 }
+function chefeVencido(){ aoVencerChefe(); if(desafio){ chefe.dead=true; etapaVencida(); } else fase.vencerChefe(); }
 function respawn(){
   const sp=fase.retornar ? fase.retornar() : nearestFree(fase.spawn[0],fase.spawn[1]);
   S0.hp=S0.maxHp; p.x=sp.x; p.y=sp.y; p.inv=1; p.kx=p.ky=0; p.whipT=0; p.lama=0;
@@ -152,6 +153,7 @@ function update(dt){
   if(p.whipT>0){ const pr=1-p.whipT/0.25; if(pr>0.2 && pr<0.85){ const d=p.dir, hx=p.x+d.x*4, hy=p.y-3+d.y*2; wb={x:hx+d.x*R/2,y:hy+d.y*R/2,w:d.x?R:10,h:d.x?10:R}; } }
 
   fase.tick(dt);
+  if(desafio) tickDesafio();
   if(!running||dlg.open) return;
 
   const hp=hurtP();

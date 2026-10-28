@@ -80,11 +80,11 @@ function sessaoExpirou(pf){ delete sessoes[pf.id]; salvarSessoes(); }
 /* ---------- RECORDES E RANKING MUNDIAL ---------- */
 // Para valer no ranking mundial, a fase precisa começar avisando o servidor: ele anota a hora e depois só aceita
 // um tempo que caiba no relógio dele. Fases jogadas sem conta ou sem internet ficam só no ranking do aparelho.
-function registrarPartida(){
+function registrarPartida(fid=fase.id, guardar){
   const s=sessaoDe(perfil), estado=S0, d=perfil.dificuldade||'normal';
   if(!s) return;
-  pedirApi('POST','/api/partidas',{fase:fase.id, dificuldade:d},s.token)
-    .then(r=>{ if(S0===estado) S0.partida={id:r.partida, dif:d}; })
+  pedirApi('POST','/api/partidas',{fase:fid, dificuldade:d},s.token)
+    .then(r=>{ const pt={id:r.partida, dif:d}; if(guardar) guardar(pt); else if(S0===estado) S0.partida=pt; })
     .catch(e=>{ if(e.codigo==='nao_autorizado') sessaoExpirou(perfil); });
 }
 function enviarRecorde(pf,fid,d,tempo,partida){
@@ -93,7 +93,7 @@ function enviarRecorde(pf,fid,d,tempo,partida){
     .catch(e=>{ if(e.codigo==='nao_autorizado') sessaoExpirou(pf); });
 }
 async function rankingMundial(fase,dif){
-  const s=sessaoDe(perfil), q=new URLSearchParams({fase:String(fase), dificuldade:dif});
+  const s=sessaoDe(perfil), q=new URLSearchParams({fase:fase==='desafio'?String(FASE_DESAFIO):String(fase), dificuldade:dif});
   const r=await pedirApi('GET','/api/ranking?'+q,null,s&&s.token,{aviso:true});
   return (r.linhas||[]).map(l=>({nome:l.nome, personagem:PERSONAGENS[l.personagem]?l.personagem:'ze', chapeu:l.chapeu, tempo:l.tempo, eu:!!l.eu}));
 }

@@ -94,6 +94,11 @@ test('recordes guardam só o melhor tempo e o ranking ordena', { skip:!temBanco 
   for(const f of [2,3,4]) await rec(ana,f,100);
   r = await api('GET','/api/ranking?fase=jornada&dificuldade=normal');
   assert.deepEqual(r.dados.linhas.map(l=>[l.nome,l.tempo]), [['Ana',400]], 'jornada só conta quem fez as quatro fases');
+  await rec(ana,5,300);                                    // o Desafio dos Chefes não entra na jornada
+  r = await api('GET','/api/ranking?fase=jornada&dificuldade=normal');
+  assert.deepEqual(r.dados.linhas.map(l=>[l.nome,l.tempo]), [['Ana',400]]);
+  r = await api('GET','/api/ranking?fase=5&dificuldade=normal');
+  assert.deepEqual(r.dados.linhas.map(l=>[l.nome,l.tempo]), [['Ana',300]]);
   assert.equal((await api('GET','/api/ranking?fase=1&dificuldade=impossivel')).status, 400);
 });
 
@@ -111,7 +116,7 @@ test('recordes impossíveis são recusados', { skip:!temBanco }, async()=>{
   const certa = await partida(ana,2,'normal',70);
   assert.equal((await enviar({ partida:certa })).status, 200);
   assert.equal((await enviar({ partida:certa })).dados.erro, 'partida_invalida', 'cada partida vale uma vez');
-  assert.equal((await api('POST','/api/partidas',{ fase:5, dificuldade:'normal' },ana)).status, 400);
+  assert.equal((await api('POST','/api/partidas',{ fase:6, dificuldade:'normal' },ana)).status, 400);
   assert.equal((await api('POST','/api/partidas',{ fase:1, dificuldade:'normal' })).status, 401);
 });
 

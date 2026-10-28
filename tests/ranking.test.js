@@ -23,7 +23,7 @@ test('ranking mostra os melhores tempos em ordem e destaca o jogador atual', asy
   await J.page.click('#difRanking [data-dif="facil"]');
   assert.deepEqual(await J.page.locator('#listaRanking .quem b').allTextContents(), ['Bia']);
   await J.page.click('#difRanking [data-dif="normal"]');
-  await J.page.click('#abasRanking .aba >> nth=-1');            // jornada inteira
+  await J.page.click('#abasRanking .aba >> nth=-2');            // jornada inteira (a última aba é o Desafio)
   assert.deepEqual(await J.page.locator('#listaRanking .tempo').allTextContents(), ['15:00']);
   await J.page.click('#abasRanking .aba >> nth=1');
   assert.deepEqual(await J.page.locator('#listaRanking .quem b').allTextContents(), ['Ana']);
