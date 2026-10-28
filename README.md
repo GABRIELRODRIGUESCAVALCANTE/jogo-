@@ -158,6 +158,7 @@ HTML, CSS e JavaScript puros, com Canvas 2D. Os sprites são desenhados em pixel
 
 ```
 index.html            marcação das telas
+editor.html           editor de mapas (usa js/editor.js e o desenho de terreno do jogo)
 manifest.webmanifest  dados do aplicativo instalável
 sw.js                 service worker (jogo offline)
 css/jogo.css          estilos
@@ -187,6 +188,8 @@ docs/                 GIF e imagens do README
 ```
 
 Os scripts são carregados em ordem pelo `index.html` e compartilham o escopo global da página. Todo texto visível passa por `t('chave')`, com as traduções em `js/idiomas.js`.
+
+**Editor de mapas.** Abra o [`editor.html`](https://gabrielrodriguescavalcante.github.io/jogo-/editor.html) (ou o arquivo direto no navegador): ele carrega qualquer fase ou um mapa em branco, tem pincel, balde, marcadores de início, personagens, itens e inimigos, desfazer (Ctrl+Z) e confere se tudo tem caminho a pé desde o início. O código sai pronto para colar dentro de uma fase em `js/fases.js`, e o rascunho fica salvo no navegador.
 
 **Para criar uma fase**, desenhe o mapa em `js/fases.js` com os caracteres da legenda que está no topo de `js/terreno.js` e adicione um objeto em `FASES` com NPCs, inimigos, itens e os ganchos (`objetivo`, `intro`, `falar`, `pegar`, `tick`, `alvo`...). **Para criar um personagem**, adicione uma entrada em `PERSONAGENS` (em `js/personagens.js`) e inclua o id em `PERS_ORDEM`. Em ambos os casos, inclua os textos nos três idiomas.
 

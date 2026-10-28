@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor de Mapas</title>
+<meta name="description" content="Editor de mapas do Estrela do Sertão: pinte terrenos, posicione personagens, itens e inimigos e exporte o texto pronto para js/fases.js.">
+<meta name="theme-color" content="#22150e">
+<link rel="icon" href="icones/favicon-32.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Alegreya+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/jogo.css">
+<style>
+  .ed{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:260px 1fr;gap:18px;align-items:start}
+  @media (max-width:860px){ .ed{grid-template-columns:1fr} }
+  .painel{display:flex;flex-direction:column;gap:14px;background:var(--couro-2);border:3px solid #5a4636;padding:14px}
+  .painel h2{margin:0;font-family:var(--display);font-weight:400;font-size:20px;color:var(--sol)}
+  .linha{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .painel label{font-weight:700;font-size:15px}
+  .painel select,.painel input[type=number]{font:inherit;font-size:15px;background:var(--papel);color:var(--tinta);border:2px solid var(--tinta);padding:4px 6px}
+  .painel input[type=number]{width:64px}
+  .paleta{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px}
+  .paleta button{all:unset;box-sizing:border-box;cursor:pointer;border:2px solid #5a4636;padding:2px;display:flex;justify-content:center;background:var(--tinta)}
+  .paleta button[aria-pressed="true"]{border-color:var(--sol);box-shadow:0 0 0 2px var(--sol)}
+  .paleta button:focus-visible{outline:3px solid var(--papel);outline-offset:2px}
+  .paleta canvas{width:32px;height:32px;image-rendering:pixelated}
+  .ferramentas .aba{font-size:15px}
+  .area{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .mapa-moldura{overflow:auto;border:3px solid var(--papel);background:#000;max-height:78vh}
+  #mapaEd{display:block;image-rendering:pixelated;cursor:crosshair;touch-action:none}
+  .info{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px;color:var(--poeira);min-height:22px}
+  .info b{color:var(--papel)}
+  .problemas{margin:0;padding-left:20px;color:#ff9a7a;font-weight:700;font-size:15px}
+  .ok{color:var(--mandacaru);font-weight:700}
+  textarea{width:100%;min-height:220px;font:13px/1.35 ui-monospace,Menlo,Consolas,monospace;background:var(--tinta);color:var(--papel);border:2px solid #5a4636;padding:10px;resize:vertical}
+  .legenda-ed{font-size:14px;color:var(--poeira);margin:0}
+  .btn.peq{font-size:15px;padding:5px 12px}
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width:1280px">
+  <header class="cab">
+    <p class="eyebrow">Estrela do Sertão · ferramenta de criação</p>
+    <h1>Editor de Mapas</h1>
+    <p class="sub">Pinte os terrenos, posicione quem vive no mapa e copie o texto pronto para <code>js/fases.js</code>. O rascunho fica salvo neste navegador.</p>
+  </header>
+
+  <main class="ed">
+    <aside class="painel" aria-label="Ferramentas">
+      <div class="linha">
+        <label for="selFase">Começar de</label>
+        <select id="selFase"></select>
+        <button class="btn sec peq" id="btnCarregar" type="button">Carregar</button>
+      </div>
+      <div class="linha">
+        <label for="largura">Tamanho</label>
+        <input type="number" id="largura" min="20" max="64" aria-label="Largura em tiles"> ×
+        <input type="number" id="altura" min="14" max="64" aria-label="Altura em tiles">
+        <button class="btn sec peq" id="btnTamanho" type="button">Aplicar</button>
+      </div>
+
+      <h2 id="tFerramenta">Ferramenta</h2>
+      <div class="abas ferramentas" id="ferramentas" role="group" aria-labelledby="tFerramenta"></div>
+
+      <h2 id="tTerreno">Terreno</h2>
+      <div class="paleta" id="paleta" role="group" aria-labelledby="tTerreno"></div>
+      <p class="legenda-ed" id="nomeTile"></p>
+
+      <h2>Marcadores</h2>
+      <div class="linha">
+        <label for="selMarcador">Tipo</label>
+        <select id="selMarcador"></select>
+      </div>
+      <p class="legenda-ed">Com a ferramenta Marcador, clique para pôr. Clique com o botão direito (ou use Apagar) para tirar.</p>
+
+      <div class="linha">
+        <button class="btn sec peq" id="btnDesfazer" type="button">Desfazer (Ctrl+Z)</button>
+        <label><input type="checkbox" id="chkGrade" checked> Grade</label>
+      </div>
+    </aside>
+
+    <section class="area" aria-label="Mapa">
+      <div class="mapa-moldura"><canvas id="mapaEd" width="768" height="576" aria-label="Mapa em edição"></canvas></div>
+      <canvas id="tela" width="16" height="16" hidden></canvas>
+      <div class="info" id="info" aria-live="polite"></div>
+      <div id="verificacao"></div>
+      <div class="linha">
+        <button class="btn peq" id="btnCopiar" type="button">Copiar o código</button>
+        <span class="sub" id="copiado" role="status"></span>
+      </div>
+      <textarea id="saida" readonly aria-label="Código para colar em js/fases.js" spellcheck="false"></textarea>
+    </section>
+  </main>
+</div>
+<script src="js/base.js"></script>
+<script src="js/idiomas.js"></script>
+<script src="js/terreno.js"></script>
+<script src="js/fases.js"></script>
+<script src="js/editor.js"></script>
+</body>
+</html>
