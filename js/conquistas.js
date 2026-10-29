@@ -61,7 +61,7 @@ function aoConcluirFase(ultima){
   if(!S0.danos) conquistar('firme');
   if(fase.id===3 && perfil.dificuldade==='dificil') conquistar('coragem');
   perfil.fezCom=[...new Set([...(perfil.fezCom||[]), heroi.id])];
-  if(PERS_ORDEM.every(id=>perfil.fezCom.includes(id))) conquistar('familia');
+  if(FAMILIA.every(id=>perfil.fezCom.includes(id))) conquistar('familia');
   salvarPerfis();
 }
 

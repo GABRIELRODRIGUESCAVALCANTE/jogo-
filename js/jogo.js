@@ -27,7 +27,7 @@ function iniciarFase(id){
     .filter(it=>!(it.type==='cordel' && perfil.cordeis.includes(it.id)));
   chefe=fase.chefe?criarChefe(fase.chefe):null;
   if(fase.inicio) fase.inicio();
-  fires=[]; balls=[]; parts=[]; pedras=[]; recargaTiro=0; time=0; shake=0; freeze=0; autoT=3; avisoT=0;
+  fires=[]; balls=[]; parts=[]; pedras=[]; recargaTiro=0; poderT=0; fioVisto=null; time=0; shake=0; freeze=0; autoT=3; avisoT=0;
   updateHud();
 }
 
@@ -43,7 +43,7 @@ function carregarPartida(d){
   iniciarFase(d.fase);
   Object.assign(S0,d.S); S0.saindo=false; time=+d.time||0;
   S0.maxHp=vidaMaxima(); S0.hp=clamp(Math.round(S0.hp)||1,1,S0.maxHp);
-  if(Number.isFinite(d.x) && Number.isFinite(d.y) && !boxHits(d.x,d.y,p.w,p.h)){ p.x=d.x; p.y=d.y; }
+  if(Number.isFinite(d.x) && Number.isFinite(d.y) && !boxHits(d.x,d.y,p.w,p.h,heroi.atravessa)){ p.x=d.x; p.y=d.y; }
   for(const i of S0.dead) if(inimigos[i]) inimigos[i].dead=true;
   items=items.filter(it=>!S0.got.includes(it.id));
   fase.restaurar();
@@ -53,8 +53,10 @@ function carregarPartida(d){
 /* ---------- AÇÕES ---------- */
 const hurtP=()=>({x:p.x,y:p.y-5,w:9,h:13});
 function burst(x,y,col,n=8,sp=50){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=sp*(0.4+Math.random()); parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-10,t:0.4+Math.random()*0.3,col}); } }
-function hurt(n,fx,fy){
-  if(p.inv>0||S0.won) return;
+// tiro=true: bola de lama ou de fogo no ar, que acerta até quem está voando
+function hurt(n,fx,fy,tiro){
+  if(p.inv>0||S0.won||p.dash>0) return;
+  if(p.voo>0 && !tiro) return;                              // voando baixo, o que está no chão não alcança
   if(gibaoSegura(fx,fy)) return;
   S0.hp-=n; p.inv=dif().invul; const dx=p.x-fx, dy=p.y-fy, d=Math.hypot(dx,dy)||1;
   p.kx=dx/d*170; p.ky=dy/d*170; shake=Math.max(shake,.15); freeze=Math.max(freeze,.05); sfx.hurt(); aoLevarDano(); updateHud();
@@ -64,7 +66,7 @@ function hurt(n,fx,fy){
 function chefeVencido(){ aoVencerChefe(); if(desafio){ chefe.dead=true; etapaVencida(); } else fase.vencerChefe(); }
 function respawn(){
   const sp=fase.retornar ? fase.retornar() : nearestFree(fase.spawn[0],fase.spawn[1]);
-  S0.hp=S0.maxHp; p.x=sp.x; p.y=sp.y; p.inv=1; p.kx=p.ky=0; p.whipT=0; p.lama=0;
+  S0.hp=S0.maxHp; p.x=sp.x; p.y=sp.y; p.inv=1; p.kx=p.ky=0; p.whipT=0; p.lama=0; p.voo=0; p.dash=0;
   fires=[]; balls=[]; pedras=[]; S0.danoChefe=0; S0.gibaoUsado=false;
   if(chefe && !chefe.dead){ const keep=chefe.lastSwing; chefe=criarChefe(fase.chefe); chefe.lastSwing=keep; }
   updateHud(); salvarPartida();
@@ -123,25 +125,26 @@ function update(dt){
     if(just.has('whip')||just.has('talk')) advance();
     return;
   }
-  if(freeze>0){ freeze-=dt; return; }
+  if(freeze>0){ freeze-=dt; guardarTeclas=true; return; }   // congelado no golpe: o que foi apertado espera
   time+=dt; shake=Math.max(0,shake-dt); avisoT=Math.max(0,avisoT-dt); anotarRastro();
   autoT-=dt; if(autoT<=0){ autoT=3; salvarPartida(); }
 
   // jogador
   let dx=(segura('right')?1:0)-(segura('left')?1:0), dy=(segura('down')?1:0)-(segura('up')?1:0);
+  if(p.dash>0){ dx=p.dashDir.x; dy=p.dashDir.y; }        // na arrancada, segue reto
   p.moving = !!(dx||dy);
   if(p.moving){ const l=Math.hypot(dx,dy); dx/=l; dy/=l;
     if(p.whipT<=0){ if(Math.abs(dx)>=Math.abs(dy)) p.dir={x:Math.sign(dx),y:0}; else p.dir={x:0,y:Math.sign(dy)}; }
     p.anim+=dt;
   }
-  const piso=chao(p), spd=(p.whipT>0?30:heroi.vel)*(VEL_TERRENO[piso]||1)*(p.lama>0?.6:1);
-  moveEnt(p, dx*spd*dt + p.kx*dt, dy*spd*dt + p.ky*dt);
+  const piso=chao(p), voa=p.voo>0, spd=(p.whipT>0&&!p.dash?30:heroi.vel)*(voa?1:(VEL_TERRENO[piso]||1)*(p.lama>0?.6:1))*velPoder();
+  moveEnt(p, dx*spd*dt + p.kx*dt, dy*spd*dt + p.ky*dt, heroi.atravessa);
   const damp=Math.min(1,dt*9); p.kx-=p.kx*damp; p.ky-=p.ky*damp;
   p.inv=Math.max(0,p.inv-dt); p.whipCd-=dt; p.lama=Math.max(0,p.lama-dt);
   if(p.whipT>0) p.whipT-=dt;
-  if(p.moving){ passoT-=dt; if(passoT<=0){ passoT=.2; pegadas(piso); } }
+  if(p.moving && !voa){ passoT-=dt; if(passoT<=0){ passoT=.2; pegadas(piso); } }
   if(p.lama>0 && Math.random()<dt*12) parts.push({x:p.x+(Math.random()-.5)*8,y:p.y-6,vx:0,vy:20,t:.3,col:'#5a4228'});
-  if(piso==='b' && !heroi.imuneFogo) hurt(1,p.x-p.dir.x*8,p.y-p.dir.y*8);
+  if(piso==='b' && !heroi.imuneFogo && !voa) hurt(1,p.x-p.dir.x*8,p.y-p.dir.y*8);
   if(!running) return;
 
   if(just.has('whip') && p.whipCd<=0){ p.whipT=0.25; p.whipCd=heroi.recarga; p.swing++; sfx.whip(); }
@@ -160,9 +163,9 @@ function update(dt){
   const hp=hurtP();
   for(const c of inimigos){
     if(c.dead) continue;
-    atualizarInimigo(c,dt);
+    if(c.preso>0) c.preso-=dt; else atualizarInimigo(c,dt);   // preso no fio de caroá, não se mexe
     const cx=INIM[c.tipo].caixa(c);
-    if(overlap(hp,cx)) hurt(1,c.x,c.y);
+    if(overlap(hp,cx)) contatoComInimigo(c,dt);
     if(wb && c.lastSwing!==p.swing && overlap(wb,cx)) golpearInimigo(c);
   }
   for(const n of npcs){
@@ -176,6 +179,7 @@ function update(dt){
   }
   if(chefe) CHEFES[chefe.tipo].update(chefe,dt,hp,wb);
   atualizarArmas(dt,hp);
+  atualizarPoder(dt);
 
   for(const f of fires){ f.t-=dt; if(f.t>0.3 && !heroi.imuneFogo && overlap(hp,{x:f.x,y:f.y,w:8,h:6})) hurt(1,f.x,f.y); }
   fires=fires.filter(f=>f.t>0);
@@ -183,7 +187,7 @@ function update(dt){
     b.t-=dt; b.x+=b.vx*dt; b.y+=b.vy*dt;
     if(Math.random()<dt*25) parts.push({x:b.x,y:b.y,vx:-b.vx*.2,vy:-12,t:.25,col:b.tipo==='lama'?'#5a4228':'#ff8a1e'});
     if(b.t<=0 || tiroBate(b.x,b.y+6)){ b.t=0; burst(b.x,b.y,b.tipo==='lama'?'#5a4228':'#ff8a1e',4,30); }
-    else if(overlap(hp,{x:b.x,y:b.y,w:6,h:6})){ b.t=0; if(b.tipo==='lama'){ p.lama=1.4; burst(p.x,p.y-6,'#5a4228',8,40); } hurt(1,b.x,b.y); }
+    else if(overlap(hp,{x:b.x,y:b.y,w:6,h:6})){ b.t=0; if(b.tipo==='lama'){ p.lama=1.4; burst(p.x,p.y-6,'#5a4228',8,40); } hurt(1,b.x,b.y,true); }
   }
   balls=balls.filter(b=>b.t>0);
 
@@ -215,7 +219,13 @@ function drawWhip(hx,hy){
 function drawJogador(){
   const x=Math.round(p.x), y=Math.round(p.y+p.h/2);
   if(p.inv>0 && Math.floor(p.inv*18)%2){ shadow(x,y,10); return; }
-  drawHeroi(heroi,x,y,p.dir,p.moving?Math.floor(p.anim*9)%2:0,drawWhip,visualComChapeu(heroi,visualDe(perfil).chapeu));
+  const v=visualComChapeu(heroi,visualDe(perfil).chapeu), quadro=p.moving?Math.floor(p.anim*9)%2:0;
+  if(p.voo>0){                                              // voando baixo: sombra no chão, asas abertas
+    shadow(x,y,8); drawHeroi(heroi,x,y-9+Math.round(Math.sin(time*14)),p.dir,0,drawWhip,Object.assign({},v,{asasAbertas:true, semSombra:true}));
+    return;
+  }
+  if(p.dash>0){ dc.save(); dc.globalAlpha=.3; for(const k of [2,1]) drawHeroi(heroi,x-p.dashDir.x*7*k,y-p.dashDir.y*7*k,p.dir,quadro,null,Object.assign({},v,{semSombra:true})); dc.restore(); }
+  drawHeroi(heroi,x,y,p.dir,quadro,drawWhip,v);
   if(p.lama>0) S('#5a4228',x-3,y-15,6,2);
 }
 function drawBubble(n){
@@ -299,7 +309,7 @@ function render(){
   list.push([p.y,drawJogador]);
   list.sort((a,b)=>a[0]-b[0]); for(const [,fn] of list) fn();
   for(const b of balls) drawBall(b);
-  drawArmas();
+  drawArmas(); drawPoderes();
   for(const q of parts){ S(q.col,q.x,q.y,q.t>0.25?2:1,q.t>0.25?2:1); }
   if(fase.decorarAlto) fase.decorarAlto();
   ctx.restore();

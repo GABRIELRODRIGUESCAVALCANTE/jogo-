@@ -50,7 +50,7 @@ function atualizarArmas(dt,hp){
   }
   for(const q of pedras){
     q.t-=dt;
-    if(q.tipo==='pedra' && q.t<=0){ burst(q.x,q.y,'#9a8c80',3,20); continue; }   // perdeu a força e caiu
+    if(q.tipo!=='ticao' && q.t<=0){ if(q.tipo==='pedra') burst(q.x,q.y,'#9a8c80',3,20); continue; }   // perdeu a força e caiu
     if(q.tipo==='ticao' && q.chao){ if(Math.random()<dt*14) parts.push({x:q.x+(Math.random()-.5)*6,y:q.y-6,vx:(Math.random()-.5)*8,vy:-18,t:.45,col:Math.random()<.5?'#ffd23a':'#ff8a1e',g:-8}); continue; }
     const nx=q.x+q.vx*dt, ny=q.y+q.vy*dt;
     if(tiroBate(nx,ny+6)){ if(q.tipo==='ticao') pousar(q); else { q.t=0; burst(q.x,q.y,'#9a8c80',4,30); } continue; }
@@ -59,14 +59,16 @@ function atualizarArmas(dt,hp){
     // pedra: acerta o primeiro inimigo ou chefe no caminho
     const caixa={x:q.x,y:q.y,w:5,h:5};
     const alvo=inimigos.find(c=>!c.dead && overlap(caixa,INIM[c.tipo].caixa(c)));
-    if(alvo){ q.t=0; acertarComPedra(alvo); continue; }
+    if(alvo){ q.t=0; ferirInimigo(alvo,1); continue; }
     if(chefe && chefe.active && !chefe.dead && overlap(caixa,CHEFES[chefe.tipo].caixa(chefe))){ q.t=0; acertarChefe(chefe,1); }
   }
   pedras=pedras.filter(q=>q.t>0);
 }
 function pousar(q){ q.chao=true; q.t=5; q.vx=q.vy=0; q.y+=4; burst(q.x,q.y-4,'#ffd23a',8,40); sfx.acender(); }
-function acertarComPedra(c){
-  c.hp-=1; c.flash=.15; sfx.hit(); burst(c.x,c.y-4,'#9a8c80',5,40);
+// dano que não é de chicote: pedra, espinho, arrancada, mergulho
+function ferirInimigo(c,dano){
+  if(c.dead) return;
+  c.hp-=dano; c.flash=.15; sfx.hit(); burst(c.x,c.y-4,'#9a8c80',5,40);
   if(c.hp<=0){
     c.dead=true; S0.kills++; S0.dead.push(c.i); aoVencerInimigo(); contarCriatura('inimigo',c.tipo);
     burst(c.x,c.y-4,'#3d3532',12,60);
@@ -76,6 +78,7 @@ function drawArmas(){
   for(const q of pedras){
     const x=Math.round(q.x), y=Math.round(q.y);
     if(q.tipo==='pedra'){ S('#5b4f45',x-1,y-1,3,3); S('#9d8e7c',x-1,y-1,1,1); continue; }
+    if(q.tipo==='espinho'){ const a=Math.sign(q.vx), b=Math.sign(q.vy); S('#e8d9b8',x,y,1,1); S('#5f8f3f',x-a,y-b,1,1); continue; }
     const alto=q.chao?0:Math.round(Math.sin(Math.max(0,q.voo)/.5*Math.PI)*8);   // arco do arremesso
     if(q.chao){ shadow(x,y+3,8); S('#4a2d18',x-4,y,8,2); }
     S('#6b4423',x-1,y-4-alto,2,5); const f=Math.floor(time*12)%2;

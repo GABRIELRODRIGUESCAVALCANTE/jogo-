@@ -14,21 +14,22 @@ const AGUA=new Set(['W','w','Q','=']);
 const VEL_TERRENO={w:.55,l:.6,j:.85,d:.85};
 
 function tileAt(tx,ty){ return (tx<0||ty<0||tx>=MW||ty>=MH) ? '#' : map[ty][tx]; }
-function solidAt(px,py){ return SOLID.has(tileAt(Math.floor(px/T), Math.floor(py/T))); }
+// passa: tiles que esta entidade atravessa (o Homem-Calango anda por cima das pedras)
+function solidAt(px,py,passa){ const c=tileAt(Math.floor(px/T), Math.floor(py/T)); return SOLID.has(c) && !(passa && passa.has(c)); }
 // tiros voam por cima da água
 function tiroBate(px,py){ const c=tileAt(Math.floor(px/T), Math.floor(py/T)); return SOLID.has(c) && c!=='W' && c!=='Q'; }
-function boxHits(x,y,w,h){
+function boxHits(x,y,w,h,passa){
   const x0=x-w/2, y0=y-h/2, x1=x+w/2-0.01, y1=y+h/2-0.01;
   const sx=Math.max(1,Math.ceil(w/14)), sy=Math.max(1,Math.ceil(h/14));
   for(let i=0;i<=sx;i++) for(let j=0;j<=sy;j++){
-    if (solidAt(x0+(x1-x0)*i/sx, y0+(y1-y0)*j/sy)) return true;
+    if (solidAt(x0+(x1-x0)*i/sx, y0+(y1-y0)*j/sy, passa)) return true;
   }
   return false;
 }
-function moveEnt(e,dx,dy){
+function moveEnt(e,dx,dy,passa){
   let hit=false;
-  if(dx){ if(!boxHits(e.x+dx,e.y,e.w,e.h)) e.x+=dx; else hit=true; }
-  if(dy){ if(!boxHits(e.x,e.y+dy,e.w,e.h)) e.y+=dy; else hit=true; }
+  if(dx){ if(!boxHits(e.x+dx,e.y,e.w,e.h,passa)) e.x+=dx; else hit=true; }
+  if(dy){ if(!boxHits(e.x,e.y+dy,e.w,e.h,passa)) e.y+=dy; else hit=true; }
   return hit;
 }
 function nearestFree(tx,ty){

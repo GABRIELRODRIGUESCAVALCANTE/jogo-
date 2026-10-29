@@ -10,10 +10,12 @@ after(async()=>{ await A.fim(); });
 test('mapas das fases são consistentes e alcançáveis', async()=>{
   const problemas = await J.ev(()=>{
     const out=[];
-    const alcance=(rows,sx,sy)=>{ const H=rows.length,W=rows[0].length, seen=new Set([sx+','+sy]), q=[[sx,sy]];
+    // passa: tiles que algum herói atravessa (o Homem-Calango anda por cima das pedras)
+    const alcance=(rows,sx,sy,passa)=>{ const H=rows.length,W=rows[0].length, seen=new Set([sx+','+sy]), q=[[sx,sy]];
       while(q.length){ const [x,y]=q.shift(); for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){ const nx=x+dx,ny=y+dy,k=nx+','+ny;
-        if(nx<0||ny<0||nx>=W||ny>=H||seen.has(k)||SOLID.has(rows[ny][nx])) continue; seen.add(k); q.push([nx,ny]); } }
+        if(nx<0||ny<0||nx>=W||ny>=H||seen.has(k)||(SOLID.has(rows[ny][nx]) && !(passa&&passa.has(rows[ny][nx])))) continue; seen.add(k); q.push([nx,ny]); } }
       return seen; };
+    const passaTodos=new Set(Object.values(PERSONAGENS).flatMap(c=>c.atravessa?[...c.atravessa]:[]));
     for(const f of FASES){
       const rows=f.mapa, W=rows[0].length, livre=(x,y)=>!SOLID.has(rows[y][x]);
       if(!rows.every(r=>r.length===W)) out.push(`F${f.id}: linhas de larguras diferentes`);
@@ -34,7 +36,8 @@ test('mapas das fases são consistentes e alcançáveis', async()=>{
         if(!livre(x,y)) out.push(`F${f.id}: ${t} em sólido`);
         if(x<zz[0]||x>zz[2]||y<zz[1]||y>zz[3]) out.push(`F${f.id}: ${t} fora da zona ${z}`); }
       for(const [x,y] of f.pontosChave||[]) if(!depois.has(x+','+y)) out.push(`F${f.id}: ponto-chave (${x},${y}) inalcançável`);
-      for(const [x,y] of f.fechadoAntes||[]) if(antes.has(x+','+y)) out.push(`F${f.id}: (${x},${y}) alcançável antes de abrir a passagem`);
+      const antesHerois=alcance(rows,...f.spawn,passaTodos);
+      for(const [x,y] of f.fechadoAntes||[]) if(antes.has(x+','+y) || antesHerois.has(x+','+y)) out.push(`F${f.id}: (${x},${y}) alcançável antes de abrir a passagem`);
     }
     return out;
   });
@@ -48,8 +51,10 @@ test('tempo mínimo do ranking cabe no menor caminho de cada fase', async()=>{
   const caminhos = await J.ev(()=>{
     // pontos por onde toda partida passa (itens de missão, quem precisa ouvir, chefes) e a saída
     const OBRIG={1:{pts:[[43,6],[6,9]],fim:[23,0]}, 2:{pts:[[7,13],[3,22],[34,23],[21,19]],fim:[23,0],ultimo:4}, 3:{pts:[],fim:[24,2]}, 4:{pts:[[8,5],[12,7],[36,13],[24,23],[30,25]],fim:[24,30]}};
-    return FASES.map(f=>{
-      const rows=f.aberto?f.aberto(f.mapa):f.mapa, H=rows.length, W=rows[0].length, livre=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&!SOLID.has(rows[y][x]);
+    // cada herói: a velocidade dele (a arrancada do Raio rende uns 41% a mais em média) e o que ele atravessa
+    const herois=Object.values(PERSONAGENS).map(c=>({vel:c.vel*(c.poder==='arrancada'?1.41:1), passa:c.atravessa||new Set()}));
+    const caminho=(f,passa)=>{
+      const rows=f.aberto?f.aberto(f.mapa):f.mapa, H=rows.length, W=rows[0].length, livre=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&(!SOLID.has(rows[y][x])||passa.has(rows[y][x]));
       const dij=(sx,sy)=>{ const dist=new Map([[sx+','+sy,0]]), fila=[[0,sx,sy]];
         while(fila.length){ fila.sort((a,b)=>a[0]-b[0]); const [d,x,y]=fila.shift(); if(d>dist.get(x+','+y)) continue;
           for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){ const nx=x+dx, ny=y+dy;
@@ -62,8 +67,9 @@ test('tempo mínimo do ranking cabe no menor caminho de cada fase', async()=>{
       let melhor=Infinity;
       for(const pm of perms(o.pts.map((_,i)=>i+1))){ if(o.ultimo && pm.at(-1)!==o.ultimo) continue;
         let tot=0, at=0; for(const j of pm){ tot+=ate(D[at],todos[j]); at=j; } melhor=Math.min(melhor, tot+ate(D[at],o.fim)); }
-      return { id:f.id, segundos:melhor*T/Math.max(...Object.values(PERSONAGENS).map(c=>c.vel)) };
-    });
+      return melhor*T;
+    };
+    return FASES.map(f=>({ id:f.id, segundos:Math.min(...herois.map(h=>caminho(f,h.passa)/h.vel)) }));
   });
   assert.equal(caminhos.length, 4);
   for(const c of caminhos){

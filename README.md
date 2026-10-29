@@ -29,7 +29,8 @@ O jogo abre em http://localhost:5173 e a página recarrega sozinha a cada arquiv
 | Andar | Setas ou WASD | Direcional na tela (deslize o dedo; aceita diagonais) | Analógico ou direcional |
 | Chicote | Espaço (ou J/Z) | Botão "Chicote" | A ou X |
 | Arremessar (baladeira ou tição) | Q (ou L/C) | Botão "Baladeira" / "Tição" | LB, RB ou gatilhos |
-| Falar / avançar diálogo | E (ou Enter) | Botão "Falar" | B ou Y |
+| Poder do herói | R (ou V/Shift) | Botão com o nome do poder | Y |
+| Falar / avançar diálogo | E (ou Enter) | Botão "Falar" | B |
 | Pausar | Esc ou P | Botão "Pausar" | Start |
 
 As teclas podem ser trocadas em **Opções**. Nos menus, o controle também funciona: o direcional anda entre os botões, A confirma e B volta. No teclado, Esc volta para a tela anterior.
@@ -48,6 +49,10 @@ Quando o jogo está ligado a um servidor (veja [Contas online](#contas-online)),
 | **Luzia**, a aboiadora | 3 | A mais rápida; chicote curto que estala sem parar |
 | **Tião**, o ferreiro | 4 | Lento, mas cada lambada tira o dobro |
 | **Rosa**, a rezadeira | 3 | Corpo fechado: brasa e rastro de fogo não a queimam. Liberada ao vencer a Serra do Fogo |
+| **Homem-Calango**, o herói das pedras | 3 | Anda por cima das pedras. **Poder:** fio de caroá, que prende um inimigo por uns segundos ou puxa um item de longe. Liberado ao terminar a jornada |
+| **Mulher-Mandacaru**, a guardiã de espinhos | 4 | Quem encosta nela se fere. **Poder:** rajada de espinhos em volta. Liberada ao vencer 50 inimigos |
+| **Capitão Carcará**, o herói dos céus | 3 | **Poder:** voo baixo por cima de água rasa, lama e brasa, sem atrasar nem queimar; no fim, mergulha em quem estiver embaixo. Liberado ao atravessar o Velho Chico |
+| **Raio do Sertão**, o mais rápido | 2 | O mais veloz de todos. **Poder:** arrancada que atravessa os inimigos ferindo todos, sem levar dano. Liberado ao terminar a Caatinga em menos de 2 minutos |
 
 Troque de personagem a qualquer momento em **Personagem**, no menu do jogador. Ali também ficam os **chapéus** (palha, vermelho, estrelado, de festa) e **chicotes** (trançado, prata, dourado, de fogo) liberados pelas conquistas.
 
@@ -195,6 +200,7 @@ js/fases.js           cordéis, mapas e a lógica de cada fase
 js/jogo.js            estado da partida, dificuldade, atualização e desenho do jogo
 js/fantasma.js        grava o caminho do recorde e desenha o fantasma
 js/armas.js           baladeira, tição para arremessar e gibão de couro
+js/poderes.js         poderes dos heróis do sertão (fio, espinhos, voo e arrancada)
 js/conquistas.js      conquistas, chapéus e chicotes
 js/ranking.js         ranking do aparelho e mundial
 js/telas.js           HUD, diálogos, controles, menus, jogadores e opções
